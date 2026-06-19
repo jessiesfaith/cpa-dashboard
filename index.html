@@ -1,0 +1,3129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corporate Tax Study &amp; Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0a; --panel:#141414; --panel2:#1c1c1c; --line:rgba(255,255,255,.12);
+    --ink:#fafaf7; --muted:#a8a59e; --accent:#00c805; --good:#00c805;
+    --warn:#d2a23a; --bad:#ef5d5d; --info:#5db0ef;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:17px/1.55 'Outfit',-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 28px 80px}
+  h1{font-size:36px;margin:0 0 4px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;letter-spacing:0}
+  h2,h3{font-family:'Outfit',sans-serif}
+  .sub{color:var(--muted);margin:0 0 18px;font-size:15px;line-height:1.5}
+
+  /* ---- frozen header ---- */
+  .apphead{position:sticky;top:0;z-index:50;background:var(--bg);
+    margin:0 -28px 0;padding:26px 28px 0;border-bottom:1px solid var(--line);
+    box-shadow:0 8px 18px rgba(0,0,0,.5)}
+  /* top-level tabs */
+  .toptabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .toptab{appearance:none;background:transparent;border:none;border-bottom:2px solid transparent;
+    color:var(--muted);font:inherit;font-size:15px;font-weight:600;padding:10px 14px;cursor:pointer;
+    border-radius:8px 8px 0 0}
+  .toptab:hover{color:var(--ink);background:var(--panel)}
+  .toptab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  /* sub tabs */
+  .subtabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 22px}
+  .subtab{appearance:none;background:var(--panel);border:1px solid var(--line);color:var(--ink);
+    font:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:999px;cursor:pointer}
+  .subtab:hover{border-color:var(--accent)}
+  .subtab.active{border-color:var(--accent);background:var(--panel2);box-shadow:0 0 0 1px var(--accent);color:var(--accent)}
+  .subtabs:empty{display:none}
+
+  /* ---- page header row ---- */
+  .pagehdr{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:4px 0 16px}
+  .pagehdr h1{font-size:32px}
+  .pagehdr .ph-eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:700;margin:0 0 2px}
+
+  /* ---- disclaimer ---- */
+  .disclaimer{display:flex;gap:11px;align-items:flex-start;border:1px solid var(--warn);
+    background:rgba(210,162,58,.08);border-radius:10px;padding:12px 15px;margin:0 0 22px;font-size:13.5px;line-height:1.5;color:var(--ink)}
+  .disclaimer .dx{flex:none;font-size:16px;line-height:1.3}
+  .disclaimer b{color:var(--warn)}
+
+  /* ---- cards / grid ---- */
+  .grid{display:grid;gap:20px}
+  @media(min-width:880px){.cols-2{grid-template-columns:1fr 1fr}.cols-3{grid-template-columns:1fr 1fr 1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:20px}
+  .card>h2{font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin:0 0 14px}
+  .card>h2 .sub2{display:block;text-transform:none;letter-spacing:0;color:var(--muted);font-size:13px;font-weight:400;margin-top:3px}
+  .card p{margin:0 0 10px}
+  .lead{font-size:15px;color:var(--muted);line-height:1.6}
+  ul.bullets{margin:6px 0 0;padding-left:20px;color:var(--muted);font-size:14px}
+  ul.bullets li{margin-bottom:6px}
+  ul.bullets b{color:var(--ink)}
+
+  /* ---- inputs ---- */
+  label{display:block;font-size:13px;color:var(--muted);margin:0 0 4px}
+  .field{margin-bottom:14px}
+  .ipt,select.ipt{width:100%;background:var(--panel2);border:1px solid var(--line);
+    color:var(--ink);border-radius:8px;padding:10px 12px;font-size:16px;font-family:inherit}
+  .ipt:focus{outline:none;border-color:var(--accent)}
+  .ipt.bad{border-color:var(--bad)}
+  .hint{font-size:11px;color:var(--muted);margin-top:3px}
+  .grp-h{font-size:13px;font-weight:700;color:var(--ink);margin:22px 0 10px;padding-top:16px;
+    border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .grp-h.first{margin-top:0;padding-top:0;border-top:none}
+  .grp-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    background:var(--panel2);border:1px solid var(--line);color:var(--muted);padding:2px 8px;border-radius:999px}
+
+  /* ---- glossary terms ---- */
+  .term{border-bottom:1px dotted var(--muted);cursor:help;position:relative;outline:none}
+  .term:hover::after,.term:focus::after{content:attr(data-tip);position:absolute;left:0;
+    bottom:calc(100% + 8px);width:min(280px,72vw);background:#000;border:1px solid var(--accent);
+    color:var(--ink);font-size:12px;font-weight:400;line-height:1.45;padding:9px 11px;border-radius:8px;
+    white-space:normal;text-transform:none;letter-spacing:normal;z-index:30;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+
+  /* ---- rows / numbers ---- */
+  .row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line)}
+  .row:last-child{border-bottom:none}
+  .row .k{color:var(--muted)}
+  .row .v{font-variant-numeric:tabular-nums;font-weight:600;text-align:right;white-space:nowrap}
+  .big{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+  .bignum-wrap{display:flex;flex-wrap:wrap;gap:16px;margin:4px 0 4px}
+  .bignum{flex:1;min-width:150px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .bignum .bn-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+  .bignum .bn-val{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+  .bignum.accent{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+  .bignum.accent .bn-val{color:var(--accent)}
+  .pos{color:var(--bad)} .zero{color:var(--good)} .muted{color:var(--muted)}
+
+  /* ---- formula box ---- */
+  .formula{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:8px;padding:13px 16px;margin:0 0 14px;font-size:15px;line-height:1.7;
+    font-variant-numeric:tabular-nums}
+  .formula .ftitle{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700;margin-bottom:6px}
+  .formula code,code{background:var(--panel);padding:1px 6px;border-radius:4px;font-size:.92em;
+    font-family:ui-monospace,Menlo,Consolas,monospace}
+  .formula .eq{display:block;margin:3px 0}
+
+  /* ---- step-by-step math blocks ---- */
+  .step{border:1px solid var(--line);border-radius:10px;padding:15px 17px;margin-bottom:13px;background:var(--panel2)}
+  .step-h{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .step-n{flex:none;width:28px;height:28px;border-radius:999px;background:var(--accent);
+    color:#001a00;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .step-h h3,.step-h h4{margin:0;font-size:15px;flex:1;font-weight:600}
+  .step-tag{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .step-tag.g{background:rgba(239,93,93,.15);color:var(--bad)}
+  .step-tag.z{background:rgba(0,200,5,.15);color:var(--good)}
+  .step-tag.n{background:var(--panel);color:var(--muted);border:1px solid var(--line)}
+  .step-rule{font-size:13px;color:var(--muted);margin:0 0 11px;line-height:1.6}
+  .calc{font-variant-numeric:tabular-nums;font-size:14px;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:0 0 6px}
+  .calc .cr{display:flex;justify-content:space-between;gap:14px;padding:7px 12px;border-bottom:1px dashed var(--line)}
+  .calc .cr:last-child{border-bottom:none}
+  .calc .cr.tot{font-weight:700;border-top:2px solid var(--line);background:var(--panel)}
+  .calc .cr .cl{color:var(--muted)}
+  .calc .cr.tot .cl{color:var(--ink)}
+  .calc .cr span:last-child{text-align:right;white-space:nowrap}
+  .calc .cr.sub .cl{padding-left:14px;font-size:12.5px}
+  .step-mean{font-size:13px;line-height:1.6;border-left:3px solid var(--accent);padding:2px 0 2px 12px;margin-top:8px}
+  .step-mean b{color:var(--accent)}
+
+  /* ---- answer-choice cards ---- */
+  .qstem{font-size:15px;font-weight:600;margin:0 0 4px}
+  .choices{display:grid;gap:9px;margin:10px 0 4px}
+  .choice{display:flex;align-items:flex-start;gap:11px;text-align:left;width:100%;
+    background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;
+    color:var(--ink);font:inherit;font-size:14.5px}
+  .choice:hover{border-color:var(--muted)}
+  .choice .ch-key{flex:none;width:26px;height:26px;border-radius:7px;background:var(--panel);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .choice .ch-text{flex:1;align-self:center}
+  .choice .ch-why{flex-basis:100%;font-size:12.5px;color:var(--muted);margin-top:6px;display:none;line-height:1.55}
+  .choices.revealed .choice .ch-why{display:block}
+  .choices.revealed .choice.correct{border-color:var(--good);background:rgba(0,200,5,.08)}
+  .choices.revealed .choice.correct .ch-key{background:var(--good);color:#001a00;border-color:var(--good)}
+  .choices.revealed .choice.wrong.picked{border-color:var(--bad);background:rgba(239,93,93,.07)}
+  .choices.revealed .choice.wrong.picked .ch-key{background:var(--bad);color:#1a0000;border-color:var(--bad)}
+  .ch-hint{font-size:12px;color:var(--muted);margin:8px 0 0}
+  .choices.revealed ~ .ch-hint{display:none}
+
+  /* ---- badges / pills ---- */
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 11px;border-radius:999px;white-space:nowrap}
+  .badge.good{background:rgba(0,200,5,.16);color:var(--good)}
+  .badge.warn{background:rgba(210,162,58,.18);color:var(--warn)}
+  .badge.bad{background:rgba(239,93,93,.16);color:var(--bad)}
+  .badge.info{background:rgba(93,176,239,.16);color:var(--info)}
+  .badge.neutral{background:var(--panel2);color:var(--muted);border:1px solid var(--line)}
+  .pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+
+  /* ---- result headline / summary panel ---- */
+  .headline{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-radius:12px;
+    border:1px solid var(--line);background:var(--panel);margin-bottom:18px;font-size:15px;line-height:1.5}
+  .headline.good{border-color:var(--good);background:rgba(0,200,5,.07)}
+  .headline.warn{border-color:var(--warn);background:rgba(210,162,58,.07)}
+  .headline.bad{border-color:var(--bad);background:rgba(239,93,93,.07)}
+  .headline.info{border-color:var(--info);background:rgba(93,176,239,.07)}
+  .headline .hl-ico{flex:none;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700}
+  .headline.good .hl-ico{background:rgba(0,200,5,.18);color:var(--good)}
+  .headline.warn .hl-ico{background:rgba(210,162,58,.18);color:var(--warn)}
+  .headline.bad .hl-ico{background:rgba(239,93,93,.18);color:var(--bad)}
+  .headline.info .hl-ico{background:rgba(93,176,239,.18);color:var(--info)}
+  .headline b{color:var(--ink)}
+  .headline .hl-sub{color:var(--muted);font-size:13px;display:block;margin-top:3px}
+
+  /* ---- insight / note blocks ---- */
+  .insight{font-size:13.5px;line-height:1.6;background:rgba(0,200,5,.06);border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin:0 0 14px}
+  .insight b{color:var(--accent)}
+  .note{font-size:13px;color:var(--muted);line-height:1.6}
+
+  /* ---- tables (member / tracker rows) ---- */
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.02em}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .totrow td{font-weight:700;border-top:2px solid var(--line);border-bottom:none}
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:10px}
+  .tbl-scroll table{min-width:640px}
+  .tbl-scroll th,.tbl-scroll td{padding:8px 11px}
+  table .ipt{padding:7px 8px;font-size:14px;min-width:90px}
+  table .ipt.txt{min-width:120px}
+  .rowbtn{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:7px;
+    width:30px;height:30px;cursor:pointer;font-size:16px;line-height:1}
+  .rowbtn:hover{border-color:var(--bad);color:var(--bad)}
+
+  /* ---- FAQ (collapsible) ---- */
+  .faq{display:grid;gap:8px}
+  details.xnote{border:1px solid var(--line);border-radius:8px;background:var(--panel2)}
+  details.xnote>summary{cursor:pointer;list-style:none;padding:11px 14px;font-size:14px;font-weight:600;
+    color:var(--ink);display:flex;align-items:center;gap:9px}
+  details.xnote>summary::-webkit-details-marker{display:none}
+  details.xnote>summary::before{content:"▸";font-size:11px;color:var(--accent);transition:transform .15s}
+  details.xnote[open]>summary::before{transform:rotate(90deg)}
+  details.xnote .xbody{padding:0 14px 13px;font-size:13.5px;color:var(--muted);line-height:1.65}
+  details.xnote .xbody b{color:var(--ink)}
+
+  /* ---- advisor checklist ---- */
+  .checklist{display:grid;gap:2px}
+  .checklist label{display:flex;align-items:flex-start;gap:10px;color:var(--ink);font-size:14px;
+    padding:8px 4px;border-bottom:1px dashed var(--line);cursor:pointer;margin:0}
+  .checklist label:last-child{border-bottom:none}
+  .checklist input{margin-top:3px;width:16px;height:16px;accent-color:var(--accent);flex:none}
+  .checklist input:checked+span{color:var(--muted);text-decoration:line-through}
+
+  /* ---- buttons / toolbar ---- */
+  .btn{background:var(--accent);color:#001a00;border:none;border-radius:8px;padding:9px 16px;font-weight:600;cursor:pointer;font-size:14px;font-family:inherit}
+  .btn:hover{filter:brightness(1.08)}
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+  .btn.ghost:hover{border-color:var(--accent);color:var(--ink)}
+  .btn.sm{padding:7px 12px;font-size:13px}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+  /* ---- validation warnings ---- */
+  .warnings{margin:0 0 16px;display:grid;gap:7px}
+  .warnings:empty{display:none}
+  .warnmsg{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.5;
+    border:1px solid var(--warn);background:rgba(210,162,58,.08);border-radius:8px;padding:9px 12px;color:var(--ink)}
+  .warnmsg.err{border-color:var(--bad);background:rgba(239,93,93,.08)}
+  .warnmsg .wi{flex:none}
+
+  /* ---- toast ---- */
+  #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+    background:var(--panel2);border:1px solid var(--accent);color:var(--ink);padding:11px 18px;border-radius:10px;
+    font-size:14px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.5);opacity:0;pointer-events:none;
+    transition:opacity .2s,transform .2s;z-index:200}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .foot{font-size:12px;color:var(--muted);border-top:1px solid var(--line);margin-top:36px;padding-top:16px;line-height:1.6}
+
+  @media(max-width:620px){
+    .wrap{padding:0 16px 70px}
+    .apphead{margin:0 -16px 0;padding:18px 16px 0}
+    h1,.pagehdr h1{font-size:26px}
+    .big{font-size:28px}
+  }
+  @media print{
+    body{background:#fff;color:#000}
+    .apphead,.subtabs,.toolbar,.ch-hint{display:none!important}
+    .card{border-color:#ccc;break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="apphead">
+    <h1>Corporate Tax Study &amp; Calculator</h1>
+    <p class="sub">CPA-style study guides + planning calculators &middot; Corporation &middot; Property &middot; Dividend &middot; Liquidation</p>
+    <nav class="toptabs" id="toptabs" role="tablist"></nav>
+  </header>
+  <nav class="subtabs" id="subtabs" role="tablist"></nav>
+  <main id="page"></main>
+  <p class="foot">Simplified CPA study mode &mdash; illustrative calculations only, not a tax return, tax advice, or a substitute for professional review. State rules and special elections are not modeled. &copy; Fast Insights.</p>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   SHARED FRAMEWORK  (scaffold contract for all page modules)
+   ============================================================ */
+(function(){
+  "use strict";
+
+  /* ---------- page registry ---------- */
+  var PAGES = [];
+  window.registerPage = function(def){ PAGES.push(def); };
+
+  /* ---------- shared helpers (window.U) ---------- */
+  var U = {
+    /* currency, whole dollars: 1234.5 -> "$1,235", -1234 -> "-$1,234" */
+    fmtUSD: function(n){
+      if(n===""||n===null||n===undefined||isNaN(n)) return "$0";
+      n = Math.round(Number(n));
+      return (n<0?"-":"")+"$"+Math.abs(n).toLocaleString("en-US");
+    },
+    /* currency with cents */
+    fmtUSDc: function(n){
+      if(n===""||n===null||n===undefined||isNaN(n)) return "$0.00";
+      n = Number(n);
+      return (n<0?"-":"")+"$"+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+    },
+    /* plain grouped number */
+    fmtNum: function(n){ if(isNaN(n)) return "0"; return Number(n).toLocaleString("en-US",{maximumFractionDigits:2}); },
+    /* parse a numeric input; "" / junk -> NaN. strips $ , % spaces */
+    num: function(v){
+      if(typeof v==="number") return v;
+      if(v===null||v===undefined) return NaN;
+      var s = String(v).replace(/[$,%\s]/g,"");
+      if(s==="") return NaN;
+      var n = Number(s);
+      return isNaN(n)?NaN:n;
+    },
+    /* parse, defaulting blank/invalid to 0 */
+    num0: function(v){ var n = U.num(v); return isNaN(n)?0:n; },
+    /* normalize a rate entered as 3.65 OR 0.0365 -> 0.0365 (decimal fraction) */
+    normRate: function(v){
+      var n = U.num(v);
+      if(isNaN(n)) return NaN;
+      if(n>1) n = n/100;   /* anything >1 is treated as a percent */
+      return n;
+    },
+    /* format a decimal fraction as a percent string: 0.0365 -> "3.65%" */
+    fmtPct: function(frac, dp){ if(isNaN(frac)) return "0%"; return (frac*100).toLocaleString("en-US",{maximumFractionDigits:(dp==null?2:dp)})+"%"; },
+    esc: function(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); },
+
+    /* build an answer-choice block (self-wiring via delegated click).
+       def = { stem, options:[{key,text,why}], correct:'A' } */
+    choices: function(def){
+      var opts = def.options.map(function(o){
+        var isC = o.key===def.correct;
+        return '<button type="button" class="choice '+(isC?"correct":"wrong")+'" data-k="'+U.esc(o.key)+'">'+
+                 '<span class="ch-key">'+U.esc(o.key)+'</span>'+
+                 '<span class="ch-text">'+o.text+'</span>'+
+                 (o.why?'<span class="ch-why">'+o.why+'</span>':"")+
+               '</button>';
+      }).join("");
+      return (def.stem?'<p class="qstem">'+def.stem+'</p>':"")+
+             '<div class="choices">'+opts+'</div>'+
+             '<p class="ch-hint">Tap an answer to check it.</p>';
+    },
+    /* FAQ list. items = [{q,a}, ...] */
+    faq: function(items){
+      return '<div class="faq">'+items.map(function(i){
+        return '<details class="xnote"><summary>'+i.q+'</summary><div class="xbody">'+i.a+'</div></details>';
+      }).join("")+'</div>';
+    },
+    /* advisor checklist. items = ["text", ...] */
+    checklist: function(items){
+      return '<div class="checklist">'+items.map(function(t){
+        return '<label><input type="checkbox"><span>'+t+'</span></label>';
+      }).join("")+'</div>';
+    },
+    /* clipboard copy with toast */
+    copy: function(text){
+      var done = function(){ U.toast("Summary copied to clipboard"); };
+      var fail = function(){ U.fallbackCopy(text); };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done, fail);
+      } else { fail(); }
+    },
+    fallbackCopy: function(text){
+      try{
+        var ta = document.createElement("textarea");
+        ta.value = text; ta.style.position="fixed"; ta.style.opacity="0";
+        document.body.appendChild(ta); ta.select(); document.execCommand("copy");
+        document.body.removeChild(ta); U.toast("Summary copied to clipboard");
+      }catch(e){ U.toast("Copy failed — select & copy manually"); }
+    },
+    toast: function(msg){
+      var t = document.getElementById("toast");
+      t.textContent = msg; t.classList.add("show");
+      clearTimeout(U._tt); U._tt = setTimeout(function(){ t.classList.remove("show"); }, 2200);
+    }
+  };
+  window.U = U;
+
+  /* ---------- delegated answer-choice reveal ---------- */
+  document.addEventListener("click", function(e){
+    var ch = e.target.closest ? e.target.closest(".choice") : null;
+    if(!ch) return;
+    var box = ch.closest(".choices");
+    if(!box) return;
+    box.querySelectorAll(".choice").forEach(function(c){ c.classList.remove("picked"); });
+    ch.classList.add("picked");
+    box.classList.add("revealed");
+  });
+
+  /* ---------- disclaimer (auto-rendered atop every page) ---------- */
+  var DISCLAIMER = "This tool is for education and planning support only. Tax rules are technical and should be reviewed by a qualified tax advisor before relying on the result.";
+  function disclaimerHTML(){
+    return '<div class="disclaimer"><span class="dx">⚠️</span><span><b>Disclaimer.</b> '+DISCLAIMER+'</span></div>';
+  }
+
+  /* ---------- routing ---------- */
+  function topsInOrder(){
+    var seen = {}, out = [];
+    PAGES.forEach(function(p){ if(!seen[p.top]){ seen[p.top]=1; out.push({id:p.top,label:p.topLabel}); } });
+    return out;
+  }
+  function subsOf(top){ return PAGES.filter(function(p){ return p.top===top; }); }
+  function findPage(top,sub){ return PAGES.filter(function(p){ return p.top===top && p.sub===sub; })[0]; }
+
+  function parseHash(){
+    var h = (location.hash||"").replace(/^#\/?/,"");
+    var parts = h.split("/").filter(Boolean);
+    return { top: parts[0]||"", sub: parts[1]||"" };
+  }
+
+  function resolve(){
+    var r = parseHash();
+    var def = findPage(r.top, r.sub);
+    if(!def){
+      var subs = subsOf(r.top);
+      def = subs[0] || PAGES[0];
+    }
+    return def;
+  }
+
+  function renderTopTabs(activeTop){
+    var nav = document.getElementById("toptabs");
+    nav.innerHTML = topsInOrder().map(function(t){
+      var first = subsOf(t.id)[0];
+      var href = "#/"+t.id+"/"+(first?first.sub:"");
+      return '<button type="button" class="toptab'+(t.id===activeTop?" active":"")+'" data-href="'+href+'">'+U.esc(t.label)+'</button>';
+    }).join("");
+  }
+  function renderSubTabs(activeTop, activeSub){
+    var nav = document.getElementById("subtabs");
+    var subs = subsOf(activeTop);
+    if(subs.length<=1){ nav.innerHTML=""; return; }
+    nav.innerHTML = subs.map(function(p){
+      var href = "#/"+p.top+"/"+p.sub;
+      return '<button type="button" class="subtab'+(p.sub===activeSub?" active":"")+'" data-href="'+href+'">'+U.esc(p.subLabel)+'</button>';
+    }).join("");
+  }
+
+  function render(){
+    var def = resolve();
+    renderTopTabs(def.top);
+    renderSubTabs(def.top, def.sub);
+    var main = document.getElementById("page");
+    main.innerHTML =
+      disclaimerHTML() +
+      '<div class="pagehdr"><div><div class="ph-eyebrow">'+U.esc(def.topLabel)+'</div><h1>'+U.esc(def.title)+'</h1></div>'+
+        '<div class="toolbar"><button type="button" class="btn ghost sm" id="copySummaryBtn">📋 Copy summary</button>'+
+        '<button type="button" class="btn ghost sm" onclick="window.print()">🖨️ Print / PDF</button></div></div>'+
+      '<div id="pagebody"></div>';
+    var body = document.getElementById("pagebody");
+    body.innerHTML = def.html;
+    try{ if(def.init) def.init(body); }catch(err){ console.error("page init error:", def.top, def.sub, err); }
+    var cbtn = document.getElementById("copySummaryBtn");
+    cbtn.onclick = function(){
+      var txt;
+      try{ txt = def.summary ? def.summary(body) : def.title; }
+      catch(err){ console.error(err); txt = def.title; }
+      U.copy(txt);
+    };
+    /* keep the active top-tab in sync if we fell back */
+    document.querySelectorAll(".toptab").forEach(function(b){ b.classList.toggle("active", b.dataset.href.indexOf("#/"+def.top+"/")===0); });
+    window.scrollTo(0,0);
+  }
+
+  document.addEventListener("click", function(e){
+    var b = e.target.closest ? e.target.closest("[data-href]") : null;
+    if(!b) return;
+    e.preventDefault();
+    location.hash = b.dataset.href;
+  });
+  window.addEventListener("hashchange", render);
+  window.addEventListener("DOMContentLoaded", function(){
+    if(!location.hash){ var f = PAGES[0]; if(f) location.hash = "#/"+f.top+"/"+f.sub; }
+    render();
+  });
+
+  /* expose a tiny boot in case DOMContentLoaded already fired */
+  if(document.readyState!=="loading"){
+    if(!location.hash){ var f=PAGES[0]; if(f) location.hash="#/"+f.top+"/"+f.sub; }
+    render();
+  }
+})();
+</script>
+
+<!-- ==== PAGE MODULES INSERTED BELOW (one registerPage() per sub-tab) ==== -->
+<!-- ===== PAGE: n382 ===== -->
+<script>
+registerPage({
+  top:'corporation', topLabel:'Corporation',
+  sub:'nol-section-382', subLabel:'NOL Section 382',
+  title:'NOL Section 382',
+  html: `
+    <div class="wrap">
+
+      <div class="card">
+        <p class="lead">When a loss corporation goes through an <b>ownership change</b>, IRC Section 382 can cap how much of its pre-change net operating loss (NOL) it may use each year. This tool gives a simplified study estimate of that annual limitation and flags when advisor review is likely needed.</p>
+        <ul class="bullets">
+          <li>Section 382 <b>generally applies</b> when a <b>loss corporation</b> has an <b>ownership change</b>.</li>
+          <li>It <b>may limit</b> how much <b>pre-change NOL</b> can be used each year after the change.</li>
+          <li>The ownership-change test <b>generally</b> looks at increases by <b>5% shareholders</b> over a testing period (<b>generally about 3 years</b>).</li>
+          <li>Outputs here are <b>simplified estimates</b> for CPA study; <b>advisor review is needed</b> before relying on any result.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="formula">
+          <div class="ftitle">Core formula</div>
+          <div class="eq">Annual Section 382 limitation = Company value immediately before the ownership change &times; Section 382 long-term tax-exempt rate</div>
+        </div>
+        <p class="note">The long-term tax-exempt rate is published monthly by the IRS. Special rules (built-in gains/losses, bankruptcy, consolidated/SRLY, Section 383 credits) can adjust the result and are not modeled here.</p>
+      </div>
+
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Corporation</span></div>
+        <div class="grid cols-3">
+          <div class="field">
+            <label for="n382_name">Corporation name</label>
+            <input class="ipt txt" id="n382_name" type="text" value="Example Loss Co.">
+          </div>
+          <div class="field">
+            <label for="n382_entity">Entity type</label>
+            <select class="ipt" id="n382_entity">
+              <option value="C-Corp" selected>C-Corp</option>
+              <option value="S-Corp">S-Corp</option>
+              <option value="LLC taxed as corporation">LLC taxed as corporation</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="n382_year">Tax year</label>
+            <input class="ipt txt" id="n382_year" type="text" value="2026">
+          </div>
+        </div>
+
+        <div class="grp-h"><span class="grp-tag">NOL &amp; value</span></div>
+        <div class="grid cols-3">
+          <div class="field">
+            <label for="n382_totalNOL">Total federal NOL carryforward ($)</label>
+            <input class="ipt" id="n382_totalNOL" type="text" value="5,000,000">
+          </div>
+          <div class="field">
+            <label for="n382_preNOL">Pre-change NOL amount ($)</label>
+            <input class="ipt" id="n382_preNOL" type="text" value="5,000,000">
+          </div>
+          <div class="field">
+            <label for="n382_fmv">Estimated FMV before ownership change ($)</label>
+            <input class="ipt" id="n382_fmv" type="text" value="10,000,000">
+          </div>
+          <div class="field">
+            <label for="n382_rate">Long-term tax-exempt rate (3.65 or 0.0365)</label>
+            <input class="ipt" id="n382_rate" type="text" value="3.65">
+            <div class="hint">Accepts a percent like 3.65 or a decimal like 0.0365.</div>
+          </div>
+        </div>
+
+        <div class="grp-h"><span class="grp-tag">Dates</span></div>
+        <div class="grid cols-3">
+          <div class="field">
+            <label for="n382_changeDate">Ownership change date</label>
+            <input class="ipt txt" id="n382_changeDate" type="text" value="2026-03-01">
+          </div>
+          <div class="field">
+            <label for="n382_testStart">Testing period start date</label>
+            <input class="ipt txt" id="n382_testStart" type="text" value="2023-03-01">
+          </div>
+          <div class="field">
+            <label for="n382_testEnd">Testing period end date</label>
+            <input class="ipt txt" id="n382_testEnd" type="text" value="2026-03-01">
+          </div>
+        </div>
+
+        <div class="grp-h"><span class="grp-tag">Special situations</span></div>
+        <div class="grid cols-2">
+          <div class="field">
+            <label for="n382_prior">Prior ownership change?</label>
+            <select class="ipt" id="n382_prior">
+              <option value="No" selected>No</option>
+              <option value="Yes">Yes</option>
+              <option value="Unknown">Unknown</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="n382_big">Built-in gain or loss issue?</label>
+            <select class="ipt" id="n382_big">
+              <option value="Unknown" selected>Unknown</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="n382_bankruptcy">Bankruptcy or restructuring involved?</label>
+            <select class="ipt" id="n382_bankruptcy">
+              <option value="No" selected>No</option>
+              <option value="Yes">Yes</option>
+              <option value="Unknown">Unknown</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="n382_consol">Consolidated group?</label>
+            <select class="ipt" id="n382_consol">
+              <option value="No" selected>No</option>
+              <option value="Yes">Yes</option>
+              <option value="Unknown">Unknown</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn ghost sm" id="n382_reset" type="button">Reset to example</button>
+        </div>
+      </div>
+
+      <div class="warnings" id="n382_warn"></div>
+
+      <div class="card">
+        <div id="n382_headline"></div>
+
+        <div class="bignum-wrap">
+          <div class="bignum accent">
+            <div class="bn-label">Annual Section 382 limitation</div>
+            <div class="bn-val" id="n382_annual">$0</div>
+          </div>
+          <div class="bignum">
+            <div class="bn-label">Total pre-change NOL</div>
+            <div class="bn-val" id="n382_pre">$0</div>
+          </div>
+          <div class="bignum">
+            <div class="bn-label">Estimated years to use NOL</div>
+            <div class="bn-val" id="n382_years">0</div>
+          </div>
+        </div>
+
+        <div class="formula" style="margin-top:14px">
+          <div class="ftitle">Worked solution</div>
+          <div class="step">
+            <div class="step-h"><span class="step-n">1</span> Annual limitation = FMV &times; long-term tax-exempt rate</div>
+            <div class="calc" id="n382_calc1"></div>
+          </div>
+          <div class="step">
+            <div class="step-h"><span class="step-n">2</span> Years to fully use pre-change NOL</div>
+            <div class="calc" id="n382_calc2"></div>
+          </div>
+        </div>
+
+        <div class="grp-h"><span class="grp-tag">Unused pre-change NOL remaining</span></div>
+        <div class="tbl-scroll">
+          <table>
+            <thead>
+              <tr><th>After</th><th class="num">Limitation used</th><th class="num">Unused NOL remaining</th></tr>
+            </thead>
+            <tbody id="n382_remBody"></tbody>
+          </table>
+        </div>
+        <p class="note">Assumes the full annual limitation is absorbed each year (no carryforward of unused limitation, no income shortfall). Real results depend on taxable income and many adjustments.</p>
+      </div>
+
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Ownership change tracker</span></div>
+        <p class="lead">Estimate the total point increase by <b>5% shareholders</b> over the testing period. A cumulative increase of more than <b>50 percentage points</b> generally signals a possible ownership change.</p>
+
+        <div class="toolbar">
+          <button class="btn sm" id="n382_addRow" type="button">+ Add row</button>
+          <button class="btn ghost sm" id="n382_clear" type="button">Clear table</button>
+        </div>
+
+        <div class="tbl-scroll">
+          <table id="n382_ownTbl">
+            <thead>
+              <tr>
+                <th>Shareholder</th>
+                <th>5% shareholder?</th>
+                <th class="num">Beginning %</th>
+                <th class="num">Ending %</th>
+                <th class="num">Point increase</th>
+                <th>Notes</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="n382_ownBody"></tbody>
+            <tfoot>
+              <tr class="totrow">
+                <td colspan="4">Total positive point increase (5% shareholders)</td>
+                <td class="num" id="n382_ownTotal">0.0</td>
+                <td colspan="2"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <div id="n382_ownFlag" style="margin-top:12px"></div>
+      </div>
+
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Check your understanding</span></div>
+        <div class="qstem">A loss corporation worth $10,000,000 right before an ownership change has $5,000,000 of pre-change NOLs. The Section 382 long-term tax-exempt rate is 3.65%. What is the annual Section 382 limitation?</div>
+        ${U.choices({
+          stem:'Pick the annual Section 382 limitation.',
+          options:[
+            {key:'A', text:'$365,000', why:'Correct. Annual limitation = value before the change x long-term tax-exempt rate = $10,000,000 x 3.65% = $365,000.'},
+            {key:'B', text:'$5,000,000', why:'That is the full pre-change NOL, not the annual limit. Section 382 limits how much is usable each year, not the total NOL.'},
+            {key:'C', text:'$182,500', why:'This applies the rate to half the value (or the rate halved). Use the full FMV times the full rate: $10,000,000 x 3.65%.'},
+            {key:'D', text:'$3,650,000', why:'This multiplies the rate by 10x (treats 3.65% as 36.5%). 3.65% of $10,000,000 is $365,000, not $3,650,000.'}
+          ],
+          correct:'A'
+        })}
+      </div>
+
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">FAQ</span></div>
+        ${U.faq([
+          {q:'What is a net operating loss (NOL)?', a:'An NOL arises when a corporation’s deductible expenses exceed its taxable income for the year. The loss can generally be carried forward to offset taxable income in future years, subject to limits.'},
+          {q:'What is Section 382?', a:'IRC Section 382 is a rule that limits how much of a loss corporation’s pre-change NOLs (and certain other tax attributes) can be used each year after an ownership change. It exists to discourage buying a company mainly to use its losses.'},
+          {q:'What is an ownership change?', a:'Broadly, an ownership change occurs when the percentage of stock owned by one or more 5% shareholders increases by more than 50 percentage points over the testing period (generally about three years) compared with their lowest ownership during that period.'},
+          {q:'What is a 5% shareholder?', a:'Generally a person or group that owns 5% or more of the loss corporation’s stock. Less-than-5% holders are usually grouped together and treated as one or more public groups under detailed rules.'},
+          {q:'Why does company value matter?', a:'The annual limitation equals the value of the loss corporation immediately before the ownership change times the long-term tax-exempt rate. A lower value means a smaller annual limitation, so more NOL gets stranded each year.'},
+          {q:'What is the long-term tax-exempt rate?', a:'It is a rate the IRS publishes monthly, based on long-term tax-exempt bond yields. The rate in effect around the ownership-change date is used to compute the annual Section 382 limitation.'},
+          {q:'Does Section 382 erase the NOL?', a:'Generally no. It usually limits how much can be used per year rather than eliminating the NOL outright, so the loss is used more slowly and some may expire unused. Other rules can reduce or disallow losses in specific cases.'},
+          {q:'What are built-in gains and built-in losses?', a:'These are unrealized gains or losses in the company’s assets at the change date. Net unrealized built-in gains can increase the usable limitation when recognized; net unrealized built-in losses can be subject to the same limit as pre-change NOLs.'},
+          {q:'Why does M&A trigger this issue?', a:'Mergers, acquisitions, large stock sales, and significant new equity rounds shift ownership among 5% shareholders. Those shifts are exactly what the testing-period math measures, so deals are a common trigger.'},
+          {q:'Why do startups need to care?', a:'Loss-making startups often raise multiple equity rounds, each shifting ownership. Cumulative shifts can cross the 50-point threshold and limit valuable NOLs, so founders should track ownership changes early.'}
+        ])}
+      </div>
+
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Advisor review checklist</span></div>
+        ${U.checklist([
+          'Confirm entity tax status',
+          'Confirm federal and state NOL balances',
+          'Confirm pre-change and post-change losses',
+          'Review shareholder ownership changes',
+          'Confirm 5% shareholder groups',
+          'Confirm company value before ownership change',
+          'Confirm correct long-term tax-exempt rate',
+          'Review built-in gains/losses',
+          'Review Section 383 credit limits if applicable',
+          'Review state conformity',
+          'Review prior ownership changes',
+          'Review consolidated return or SRLY limits',
+          'Document assumptions'
+        ])}
+      </div>
+
+    </div>
+  `,
+
+  init: function(root){
+
+    var n382_ownDefaults = [
+      {name:'5% Investor Group', five:'Yes', beg:'10', end:'70', notes:'New financing round'},
+      {name:'Founders', five:'No', beg:'90', end:'30', notes:'Diluted'}
+    ];
+
+    function n382_rowHtml(d){
+      d = d || {name:'', five:'Unknown', beg:'', end:'', notes:''};
+      function sel(v,opt){ return v===opt ? ' selected' : ''; }
+      return '<tr>' +
+        '<td><input class="ipt txt n382_oName" type="text" value="'+U.esc(d.name)+'" placeholder="Shareholder"></td>' +
+        '<td><select class="ipt n382_oFive">' +
+          '<option value="Yes"'+sel(d.five,'Yes')+'>Yes</option>' +
+          '<option value="No"'+sel(d.five,'No')+'>No</option>' +
+          '<option value="Unknown"'+sel(d.five,'Unknown')+'>Unknown</option>' +
+        '</select></td>' +
+        '<td class="num"><input class="ipt n382_oBeg" type="text" value="'+U.esc(d.beg)+'" style="text-align:right"></td>' +
+        '<td class="num"><input class="ipt n382_oEnd" type="text" value="'+U.esc(d.end)+'" style="text-align:right"></td>' +
+        '<td class="num n382_oInc">0.0</td>' +
+        '<td><input class="ipt txt n382_oNotes" type="text" value="'+U.esc(d.notes)+'" placeholder="Notes"></td>' +
+        '<td><button class="rowbtn n382_oDel" type="button" title="Remove row">&times;</button></td>' +
+      '</tr>';
+    }
+
+    function n382_renderRows(rows){
+      var body = root.querySelector('#n382_ownBody');
+      body.innerHTML = rows.map(n382_rowHtml).join('');
+    }
+
+    // Compute the 5%-shareholder total point increase and update the tracker UI.
+    function n382_computeOwn(){
+      var body = root.querySelector('#n382_ownBody');
+      var trs = body.querySelectorAll('tr');
+      var total = 0;
+      trs.forEach(function(tr){
+        var five = tr.querySelector('.n382_oFive').value;
+        var beg = U.num0(tr.querySelector('.n382_oBeg').value);
+        var end = U.num0(tr.querySelector('.n382_oEnd').value);
+        var inc = Math.max(0, end - beg);
+        tr.querySelector('.n382_oInc').textContent = inc.toFixed(1);
+        if(five === 'Yes'){ total += inc; }
+      });
+      root.querySelector('#n382_ownTotal').textContent = total.toFixed(1);
+
+      var flag = root.querySelector('#n382_ownFlag');
+      if(total > 50){
+        flag.innerHTML = '<div class="headline bad"><span class="hl-ico">!</span><div><div>Possible ownership change</div>' +
+          '<div class="hl-sub">5% shareholders increased ownership by '+total.toFixed(1)+' points (more than 50). An ownership change under Section 382 may have occurred.</div></div></div>' +
+          '<div class="badge bad" style="margin-top:8px">Increase '+total.toFixed(1)+' pts &gt; 50</div>';
+      } else {
+        flag.innerHTML = '<div class="headline good"><span class="hl-ico">&#10003;</span><div><div>No ownership change flagged from these rows</div>' +
+          '<div class="hl-sub">5% shareholder increase is '+total.toFixed(1)+' points (50 or less). Continue tracking as ownership shifts.</div></div></div>' +
+          '<div class="badge good" style="margin-top:8px">Increase '+total.toFixed(1)+' pts &le; 50</div>';
+      }
+      return total;
+    }
+
+    // Build the risk-summary + limitation-warning headline block.
+    function n382_headlineHtml(o){
+      var html = '';
+
+      if(o.missingCore){
+        html += '<div class="headline info"><span class="hl-ico">i</span><div><div>Insufficient information</div>' +
+          '<div class="hl-sub">Enter FMV, the long-term tax-exempt rate, and the pre-change NOL to estimate the Section 382 limitation and risk.</div></div></div>';
+      } else if(o.total > 50 && o.special){
+        html += '<div class="headline warn"><span class="hl-ico">!</span><div><div>Likely advisor review needed</div>' +
+          '<div class="hl-sub">Ownership shifted more than 50 points and a special situation is present (built-in gain/loss, bankruptcy, consolidated group, prior change, or missing value/rate). A formal Section 382 study is likely warranted.</div></div></div>';
+      } else if(o.total > 50 && o.havePreNOL){
+        html += '<div class="headline warn"><span class="hl-ico">!</span><div><div>Potential Section 382 issue</div>' +
+          '<div class="hl-sub">5% shareholders increased ownership by more than 50 points and there is pre-change NOL. The annual limitation above may apply — confirm with an advisor.</div></div></div>';
+      } else {
+        html += '<div class="headline good"><span class="hl-ico">&#10003;</span><div><div>Low risk based on entered data</div>' +
+          '<div class="hl-sub">5% shareholder increase is 50 points or less and the key inputs are present. Keep tracking ownership as the company evolves.</div></div></div>';
+      }
+
+      if(o.smallLimit || o.slowUse){
+        html += '<div class="headline warn" style="margin-top:10px"><span class="hl-ico">!</span><div><div>Annual limitation is small relative to the NOL</div>' +
+          '<div class="hl-sub">A large share of the pre-change NOL may expire before it can be used. Confirm the value, rate, and NOL split with an advisor.</div></div></div>';
+      }
+
+      return html;
+    }
+
+    // Single compute pass: validation, core calc, projection table, headline.
+    function n382_compute(){
+      var warn = root.querySelector('#n382_warn');
+      var msgs = [];
+
+      var totalNOLraw = root.querySelector('#n382_totalNOL').value;
+      var preNOLraw = root.querySelector('#n382_preNOL').value;
+      var fmvRaw = root.querySelector('#n382_fmv').value;
+      var rateRaw = root.querySelector('#n382_rate').value;
+
+      var totalNOL = U.num(totalNOLraw);
+      var preNOL = U.num(preNOLraw);
+      var fmv = U.num(fmvRaw);
+      var rate = U.normRate(rateRaw);
+
+      var prior = root.querySelector('#n382_prior').value;
+      var big = root.querySelector('#n382_big').value;
+      var bank = root.querySelector('#n382_bankruptcy').value;
+      var consol = root.querySelector('#n382_consol').value;
+
+      // Validation: negative dollar inputs.
+      [['Total federal NOL carryforward', totalNOL, totalNOLraw],
+       ['Pre-change NOL amount', preNOL, preNOLraw],
+       ['Estimated FMV before ownership change', fmv, fmvRaw]
+      ].forEach(function(f){
+        if(f[2].trim() !== '' && !isNaN(f[1]) && f[1] < 0){
+          msgs.push({err:true, t:f[0]+' cannot be negative.'});
+        }
+      });
+
+      if(isNaN(fmv) || fmvRaw.trim()===''){
+        msgs.push({err:true, t:'Estimated FMV before the ownership change is required to compute the limitation.'});
+      }
+      if(isNaN(rate) || rateRaw.trim()===''){
+        msgs.push({err:true, t:'Long-term tax-exempt rate is required (enter 3.65 or 0.0365).'});
+      } else if(rate < 0){
+        msgs.push({err:true, t:'Long-term tax-exempt rate cannot be negative.'});
+      }
+      if(isNaN(preNOL) || preNOLraw.trim()===''){
+        msgs.push({err:true, t:'Pre-change NOL amount is required.'});
+      }
+      if(!isNaN(preNOL) && !isNaN(totalNOL) && preNOL > totalNOL){
+        msgs.push({err:false, t:'Pre-change NOL exceeds total federal NOL carryforward — re-check the split.'});
+      }
+
+      msgs.push({err:false, t:'Simplified CPA study mode — this is not a full tax return or a Section 382 study. Many adjustments are omitted.'});
+
+      warn.innerHTML = msgs.map(function(m){
+        return '<div class="warnmsg'+(m.err?' err':'')+'"><span class="wi"></span>'+U.esc(m.t)+'</div>';
+      }).join('');
+
+      // Core calc: annual = FMV x normalized rate.
+      var annual = (!isNaN(fmv) && !isNaN(rate)) ? fmv * rate : NaN;
+
+      root.querySelector('#n382_annual').textContent = isNaN(annual) ? '—' : U.fmtUSD(annual);
+      root.querySelector('#n382_pre').textContent = isNaN(preNOL) ? '—' : U.fmtUSD(preNOL);
+
+      var years = NaN;
+      if(!isNaN(annual) && annual > 0 && !isNaN(preNOL) && preNOL > 0){
+        years = Math.ceil(preNOL / annual);
+      } else if(!isNaN(preNOL) && preNOL === 0){
+        years = 0;
+      }
+      root.querySelector('#n382_years').textContent = isNaN(years) ? '—' : U.fmtNum(years);
+
+      // Worked solution — step 1.
+      if(!isNaN(annual)){
+        root.querySelector('#n382_calc1').innerHTML =
+          '<div class="cr"><span class="cl">FMV before change</span><span>'+U.fmtUSD(fmv)+'</span></div>' +
+          '<div class="cr"><span class="cl">&times; Long-term tax-exempt rate</span><span>'+U.fmtPct(rate,2)+'</span></div>' +
+          '<div class="cr tot"><span class="cl">Annual Section 382 limitation</span><span>'+U.fmtUSD(annual)+'</span></div>';
+      } else {
+        root.querySelector('#n382_calc1').innerHTML = '<div class="cr"><span class="cl muted">Enter FMV and rate to compute.</span><span></span></div>';
+      }
+
+      // Worked solution — step 2.
+      if(!isNaN(years) && !isNaN(annual) && annual>0 && !isNaN(preNOL)){
+        root.querySelector('#n382_calc2').innerHTML =
+          '<div class="cr"><span class="cl">Pre-change NOL</span><span>'+U.fmtUSD(preNOL)+'</span></div>' +
+          '<div class="cr"><span class="cl">&divide; Annual limitation</span><span>'+U.fmtUSD(annual)+'</span></div>' +
+          '<div class="cr tot"><span class="cl">Years to fully use (round up)</span><span>'+U.fmtNum(years)+'</span></div>';
+      } else {
+        root.querySelector('#n382_calc2').innerHTML = '<div class="cr"><span class="cl muted">Needs a positive annual limitation and pre-change NOL.</span><span></span></div>';
+      }
+
+      // Remaining NOL projection after 1/5/10/20 years.
+      var rem = root.querySelector('#n382_remBody');
+      if(!isNaN(annual) && !isNaN(preNOL)){
+        var pts = [1,5,10,20];
+        rem.innerHTML = pts.map(function(y){
+          var used = Math.min(preNOL, annual * y);
+          var left = Math.max(0, preNOL - annual * y);
+          return '<tr><td>'+y+' year'+(y>1?'s':'')+'</td>' +
+                 '<td class="num">'+U.fmtUSD(used)+'</td>' +
+                 '<td class="num'+(left===0?' zero':'')+'">'+U.fmtUSD(left)+'</td></tr>';
+        }).join('');
+      } else {
+        rem.innerHTML = '<tr><td colspan="3" class="muted">Enter FMV, rate, and pre-change NOL to project remaining NOL.</td></tr>';
+      }
+
+      // Ownership tracker total feeds the risk summary.
+      var total = n382_computeOwn();
+
+      // Headline: risk summary + small-limitation warning, rendered once.
+      var smallLimit = (!isNaN(annual) && !isNaN(preNOL) && preNOL>0 && annual < 0.05*preNOL);
+      var slowUse = (!isNaN(years) && years > 20);
+      root.querySelector('#n382_headline').innerHTML = n382_headlineHtml({
+        missingCore: (isNaN(fmv) || isNaN(rate) || isNaN(preNOL)),
+        total: total,
+        special: (big==='Yes' || bank==='Yes' || consol==='Yes' || prior==='Yes' || isNaN(rate) || isNaN(fmv)),
+        havePreNOL: (!isNaN(preNOL) && preNOL > 0),
+        smallLimit: smallLimit,
+        slowUse: slowUse
+      });
+    }
+
+    // Listeners: any input/change recomputes the whole page.
+    root.addEventListener('input', function(){ n382_compute(); });
+    root.addEventListener('change', function(){ n382_compute(); });
+
+    root.querySelector('#n382_addRow').addEventListener('click', function(){
+      var body = root.querySelector('#n382_ownBody');
+      body.insertAdjacentHTML('beforeend', n382_rowHtml());
+      n382_compute();
+    });
+
+    root.querySelector('#n382_clear').addEventListener('click', function(){
+      root.querySelector('#n382_ownBody').innerHTML = '';
+      n382_compute();
+    });
+
+    root.addEventListener('click', function(e){
+      if(e.target.classList && e.target.classList.contains('n382_oDel')){
+        var tr = e.target.closest('tr');
+        if(tr){ tr.parentNode.removeChild(tr); n382_compute(); }
+      }
+    });
+
+    root.querySelector('#n382_reset').addEventListener('click', function(){
+      root.querySelector('#n382_name').value = 'Example Loss Co.';
+      root.querySelector('#n382_entity').value = 'C-Corp';
+      root.querySelector('#n382_year').value = '2026';
+      root.querySelector('#n382_totalNOL').value = '5,000,000';
+      root.querySelector('#n382_preNOL').value = '5,000,000';
+      root.querySelector('#n382_fmv').value = '10,000,000';
+      root.querySelector('#n382_rate').value = '3.65';
+      root.querySelector('#n382_changeDate').value = '2026-03-01';
+      root.querySelector('#n382_testStart').value = '2023-03-01';
+      root.querySelector('#n382_testEnd').value = '2026-03-01';
+      root.querySelector('#n382_prior').value = 'No';
+      root.querySelector('#n382_big').value = 'Unknown';
+      root.querySelector('#n382_bankruptcy').value = 'No';
+      root.querySelector('#n382_consol').value = 'No';
+      n382_renderRows(n382_ownDefaults);
+      n382_compute();
+    });
+
+    // Initial render: prefilled example shows its answer immediately.
+    n382_renderRows(n382_ownDefaults);
+    n382_compute();
+  },
+
+  summary: function(root){
+    var g = function(id){ var el = root.querySelector('#'+id); return el ? el.value : ''; };
+    var name = g('n382_name');
+    var entity = g('n382_entity');
+    var year = g('n382_year');
+    var totalNOL = U.num(g('n382_totalNOL'));
+    var preNOL = U.num(g('n382_preNOL'));
+    var fmv = U.num(g('n382_fmv'));
+    var rate = U.normRate(g('n382_rate'));
+    var annual = (!isNaN(fmv) && !isNaN(rate)) ? fmv*rate : NaN;
+    var years = (!isNaN(annual) && annual>0 && !isNaN(preNOL) && preNOL>0) ? Math.ceil(preNOL/annual) : NaN;
+
+    var ownTotalEl = root.querySelector('#n382_ownTotal');
+    var ownTotal = ownTotalEl ? ownTotalEl.textContent : '0.0';
+
+    function rem(y){ return (!isNaN(annual)&&!isNaN(preNOL)) ? U.fmtUSD(Math.max(0, preNOL - annual*y)) : 'n/a'; }
+
+    var headEl = root.querySelector('#n382_headline');
+    var headTxt = headEl ? (headEl.textContent || '').replace(/\s+/g,' ').trim() : '';
+
+    var lines = [];
+    lines.push('NOL Section 382 — simplified study estimate');
+    lines.push('');
+    lines.push('Corporation: ' + (name||'(unnamed)') + '  |  Entity: ' + entity + '  |  Tax year: ' + year);
+    lines.push('Total federal NOL carryforward: ' + (isNaN(totalNOL)?'(blank)':U.fmtUSD(totalNOL)));
+    lines.push('Pre-change NOL: ' + (isNaN(preNOL)?'(blank)':U.fmtUSD(preNOL)));
+    lines.push('FMV before ownership change: ' + (isNaN(fmv)?'(blank)':U.fmtUSD(fmv)));
+    lines.push('Long-term tax-exempt rate: ' + (isNaN(rate)?'(blank)':U.fmtPct(rate,2)));
+    lines.push('');
+    lines.push('Formula: Annual Section 382 limitation = FMV before change x long-term tax-exempt rate');
+    lines.push('Annual Section 382 limitation: ' + (isNaN(annual)?'n/a':U.fmtUSD(annual)));
+    lines.push('Estimated years to use pre-change NOL: ' + (isNaN(years)?'n/a':years));
+    lines.push('Unused pre-change NOL — 1yr: ' + rem(1) + ' | 5yr: ' + rem(5) + ' | 10yr: ' + rem(10) + ' | 20yr: ' + rem(20));
+    lines.push('');
+    lines.push('Ownership tracker — total 5% shareholder point increase: ' + ownTotal + ' (threshold > 50)');
+    if(headTxt){ lines.push('Risk assessment: ' + headTxt); }
+    lines.push('');
+    lines.push('Warnings: Simplified CPA study mode — not a full tax return or formal Section 382 study. Built-in gains/losses, bankruptcy, consolidated/SRLY rules, Section 383 credits, and state conformity are not modeled.');
+    lines.push('');
+    lines.push('Education/planning only — review with a qualified tax advisor before relying on this.');
+    return lines.join('\n');
+  }
+});
+</script>
+
+<!-- ===== PAGE: cons ===== -->
+<script>
+registerPage({
+  top:'corporation', topLabel:'Corporation',
+  sub:'consolidations', subLabel:'Consolidations',
+  title:'Consolidated Tax Returns',
+  html: `
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">Core concepts</span></div>
+      <p class="lead">Eligible affiliated corporations may elect to file <b>one consolidated federal income tax return</b>, treating the group as a single combined tax-reporting unit. The big payoff: income, losses, gains, and certain dividends are <b>combined and offset across members</b>.</p>
+      <ul class="bullets">
+        <li>Eligible affiliated corporations may file <b>one consolidated federal return</b>.</li>
+        <li>The group is generally treated as <b>one combined tax-reporting group</b>.</li>
+        <li>A member's <b>capital losses can offset another member's capital gains</b>.</li>
+        <li><b>Operating income and losses combine</b> across members.</li>
+        <li><b>Intercompany dividends are eliminated</b> (no double counting).</li>
+        <li><b>Intercompany sales, profits, gains, and losses</b> are generally <b>eliminated or deferred</b>.</li>
+        <li><b>State rules may differ</b> from the federal consolidated rules.</li>
+      </ul>
+      <div class="note"><b>Affiliated group test:</b> generally an <b>80%</b> vote-and-value chain of ownership, linked through a common parent. Hit 80% and the members may file consolidated; miss it and they file separately.</div>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">Example 1</span> Capital losses offset capital gains</div>
+      <div class="qstem">Which is an advantage of filing a consolidated federal income tax return?</div>
+      ${U.choices({
+        stem:'',
+        options:[
+          {key:'A', text:'Capital losses of one corporation can offset capital gains of another corporation.', why:'Correct. Inside a consolidated group, one member’s capital losses net against another member’s capital gains — something separate-company filers cannot do.'},
+          {key:'B', text:'The group receives a special consolidated return deduction.', why:'There is no general "consolidated return deduction." The benefit comes from combining/offsetting items, not a bonus deduction.'},
+          {key:'C', text:'Tax credits are increased when one member has operating losses.', why:'Credits are not increased simply because a member has operating losses. Losses offset income; they do not manufacture extra credits.'},
+          {key:'D', text:'The group may choose to file in the state with the lowest tax rate.', why:'State filing rules are separate and vary by state; a federal consolidated election does not let the group pick a low-tax state.'}
+        ],
+        correct:'A'
+      })}
+      <div class="step">
+        <div class="step-h"><span class="step-n">Worked</span> Netting capital items across members <span class="step-tag g">advantage</span></div>
+        <div class="calc">
+          <div class="cr"><span class="cl">Corp A capital loss</span><span>(${U.fmtUSD(30000)})</span></div>
+          <div class="cr"><span class="cl">Corp B capital gain</span><span>${U.fmtUSD(50000)}</span></div>
+          <div class="cr tot"><span class="cl">Consolidated net capital gain</span><span>${U.fmtUSD(20000)}</span></div>
+        </div>
+        <div class="step-rule">50,000 &minus; 30,000 = <b>${U.fmtUSD(20000)}</b></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">Example 2</span> Press &amp; Swank — consolidated taxable income</div>
+      <p class="lead">Press: operations $80,000, Section 1231 loss $12,000, capital gain $4,000. Swank: operations $40,000, capital loss $3,000.</p>
+      <div class="step">
+        <div class="step-h"><span class="step-n">1</span> Combine income from operations</div>
+        <div class="calc"><div class="cr"><span class="cl">80,000 + 40,000</span><span>${U.fmtUSD(120000)}</span></div></div>
+      </div>
+      <div class="step">
+        <div class="step-h"><span class="step-n">2</span> Subtract net Section 1231 loss (ordinary)</div>
+        <div class="calc"><div class="cr"><span class="cl">120,000 &minus; 12,000</span><span>${U.fmtUSD(108000)}</span></div></div>
+      </div>
+      <div class="step">
+        <div class="step-h"><span class="step-n">3</span> Net the capital items</div>
+        <div class="calc"><div class="cr"><span class="cl">4,000 &minus; 3,000 (net capital gain)</span><span>${U.fmtUSD(1000)}</span></div></div>
+      </div>
+      <div class="step">
+        <div class="step-h"><span class="step-n">4</span> Consolidated taxable income</div>
+        <div class="calc"><div class="cr tot"><span class="cl">108,000 + 1,000</span><span>${U.fmtUSD(109000)}</span></div></div>
+      </div>
+      <div class="formula">
+        <div class="ftitle">Full line</div>
+        <div class="eq">80,000 + 40,000 &minus; 12,000 + 4,000 &minus; 3,000 = <b>${U.fmtUSD(109000)}</b></div>
+      </div>
+      <div class="insight"><b>Section 1231 loss vs capital loss.</b> A net Section 1231 <i>loss</i> is treated as an <b>ordinary loss</b> — it reduces ordinary income (the $12,000 drops 120,000 to 108,000). A <b>capital loss</b> only offsets capital gains (Swank’s $3,000 offsets Press’s $4,000, leaving a $1,000 net capital gain). Capital losses do <b>not</b> offset ordinary income in this simplified example.</div>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">Example 3</span> AB Group — A owns 100% of B</div>
+      <p class="lead">A: operating loss $4,000, capital gain $500, dividend income from B $1,000. B: operating income $10,000, capital loss $2,000, dividend paid to A $1,000.</p>
+      <div class="step">
+        <div class="step-h"><span class="step-n">1</span> Consolidated operating income</div>
+        <div class="calc"><div class="cr"><span class="cl">10,000 &minus; 4,000</span><span>${U.fmtUSD(6000)}</span></div></div>
+      </div>
+      <div class="step">
+        <div class="step-h"><span class="step-n">2</span> Net capital result</div>
+        <div class="calc"><div class="cr"><span class="cl">500 &minus; 2,000</span><span>(${U.fmtUSD(1500)})</span></div></div>
+      </div>
+      <div class="step">
+        <div class="step-h"><span class="step-n">3</span> Current deductible net capital loss</div>
+        <div class="calc"><div class="cr"><span class="cl">Net capital loss does not offset ordinary income (simplified)</span><span>${U.fmtUSD(0)}</span></div></div>
+      </div>
+      <div class="step">
+        <div class="step-h"><span class="step-n">4</span> Intercompany dividend net effect</div>
+        <div class="calc"><div class="cr"><span class="cl">1,000 received &minus; 1,000 eliminated</span><span>${U.fmtUSD(0)}</span></div></div>
+      </div>
+      <div class="step">
+        <div class="step-h"><span class="step-n">5</span> Consolidated taxable income</div>
+        <div class="calc"><div class="cr tot"><span class="cl">6,000 + 0 + 0</span><span>${U.fmtUSD(6000)}</span></div></div>
+      </div>
+      <div class="grid cols-2">
+        <div class="note"><b>Wrong: ${U.fmtUSD(4500)}</b> — wrongly subtracts the $1,500 net capital loss from ordinary income. Net capital losses do not offset ordinary income.</div>
+        <div class="note"><b>Wrong: ${U.fmtUSD(7000)}</b> — includes the $1,000 dividend without eliminating it. Intercompany dividends are eliminated.</div>
+        <div class="note"><b>Wrong: deducting the dividend twice</b> — you neither add the intercompany dividend to income nor take a separate deduction; the net effect is simply zero.</div>
+        <div class="note"><b>Wrong: ignoring the operating-loss offset</b> — A’s $4,000 operating loss must reduce B’s $10,000, giving $6,000, not $10,000.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">Example 4</span> Intercompany sale of land — deferral</div>
+      <p class="lead">Parent owns 100% of the sub and files consolidated. In Year 5 the parent sells land to the sub. Adjusted basis $50,000, sale price $90,000.</p>
+      <div class="step">
+        <div class="step-h"><span class="step-n">1</span> Identify the transaction</div>
+        <div class="calc"><div class="cr"><span class="cl">Sale between members of the same group</span><span><span class="badge info">intercompany</span></span></div></div>
+      </div>
+      <div class="step">
+        <div class="step-h"><span class="step-n">2</span> Realized gain</div>
+        <div class="calc"><div class="cr"><span class="cl">90,000 &minus; 50,000</span><span>${U.fmtUSD(40000)}</span></div></div>
+      </div>
+      <div class="step">
+        <div class="step-h"><span class="step-n">3</span> Recognized gain in Year 5</div>
+        <div class="calc"><div class="cr tot"><span class="cl">Intercompany gain deferred</span><span>${U.fmtUSD(0)}</span></div></div>
+      </div>
+      <div class="step">
+        <div class="step-h"><span class="step-n">4</span> Deferred gain</div>
+        <div class="calc"><div class="cr"><span class="cl">40,000 &minus; 0</span><span>${U.fmtUSD(40000)}</span></div></div>
+      </div>
+      <div class="note">Recognition generally occurs when the property <b>leaves the group</b> (e.g., the sub sells the land to an outsider) or another triggering event happens — then the deferred gain is restored.</div>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">Example 5</span> Inventory profit + land gain eliminations</div>
+      <p class="lead">A operating income $300,000, B operating income $200,000. B sold inventory to A with $60,000 intercompany profit (none resold to outsiders by year-end). A sold land to B with a $20,000 Section 1231 gain (land still in the group).</p>
+      <div class="step">
+        <div class="step-h"><span class="step-n">1</span> Combine operating income</div>
+        <div class="calc"><div class="cr"><span class="cl">300,000 + 200,000</span><span>${U.fmtUSD(500000)}</span></div></div>
+      </div>
+      <div class="step">
+        <div class="step-h"><span class="step-n">2</span> Eliminate unrealized inventory profit</div>
+        <div class="calc"><div class="cr"><span class="cl">Not yet resold outside the group</span><span>(${U.fmtUSD(60000)})</span></div></div>
+      </div>
+      <div class="step">
+        <div class="step-h"><span class="step-n">3</span> Eliminate intercompany land gain</div>
+        <div class="calc"><div class="cr"><span class="cl">Land still inside the group</span><span>(${U.fmtUSD(20000)})</span></div></div>
+      </div>
+      <div class="step">
+        <div class="step-h"><span class="step-n">4</span> Consolidated taxable income</div>
+        <div class="calc"><div class="cr tot"><span class="cl">500,000 &minus; 60,000 &minus; 20,000</span><span>${U.fmtUSD(420000)}</span></div></div>
+      </div>
+      <div class="formula">
+        <div class="ftitle">Full line</div>
+        <div class="eq">300,000 + 200,000 &minus; 60,000 &minus; 20,000 = <b>${U.fmtUSD(420000)}</b></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">Calculator</span> Consolidated taxable income by member</div>
+      <p class="lead">Enter each member. Operating items combine; Section 1231 nets (a net loss is ordinary, a net gain joins capital netting); capital losses offset capital gains; intercompany dividends net to zero. Prefilled with <b>Press &amp; Swank → ${U.fmtUSD(109000)}</b>.</p>
+      <div class="toolbar">
+        <button class="btn sm" id="cons_addRow" type="button">+ Add member</button>
+        <button class="btn sm ghost" id="cons_loadPS" type="button">Load Press &amp; Swank</button>
+        <button class="btn sm ghost" id="cons_loadAB" type="button">Load AB Group</button>
+        <button class="btn sm ghost" id="cons_clear" type="button">Clear rows</button>
+      </div>
+      <div class="tbl-scroll">
+        <table id="cons_tbl">
+          <thead>
+            <tr>
+              <th>Corporation</th>
+              <th>In group?</th>
+              <th class="num">Own %</th>
+              <th class="num">Op income</th>
+              <th class="num">Op loss</th>
+              <th class="num">1231 gain</th>
+              <th class="num">1231 loss</th>
+              <th class="num">Cap gain</th>
+              <th class="num">Cap loss</th>
+              <th class="num">Div from member</th>
+              <th class="num">Div paid to member</th>
+              <th>Div intercompany?</th>
+              <th>Notes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="cons_tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="warnings" id="cons_warn"></div>
+
+      <div class="grid cols-2" style="margin-top:14px">
+        <div class="calc">
+          <div class="cr"><span class="cl">Net operating income</span><span id="cons_oOp">—</span></div>
+          <div class="cr sub"><span class="cl">Net Section 1231 result</span><span id="cons_o1231">—</span></div>
+          <div class="cr sub"><span class="cl">&nbsp;&nbsp;→ ordinary 1231 loss applied</span><span id="cons_o1231ord">—</span></div>
+          <div class="cr"><span class="cl">Ordinary income (after 1231 loss)</span><span id="cons_oOrd">—</span></div>
+          <div class="cr sub"><span class="cl">Total capital gains (incl. +1231)</span><span id="cons_oCapG">—</span></div>
+          <div class="cr sub"><span class="cl">Total capital losses</span><span id="cons_oCapL">—</span></div>
+          <div class="cr"><span class="cl">Net capital gain included</span><span id="cons_oNetCap">—</span></div>
+          <div class="cr"><span class="cl">Net intercompany dividend effect</span><span id="cons_oDiv">—</span></div>
+        </div>
+        <div>
+          <div class="bignum-wrap">
+            <div class="bignum accent">
+              <span class="bn-label">Estimated consolidated taxable income</span>
+              <span class="bn-val" id="cons_oCTI">—</span>
+            </div>
+          </div>
+          <div class="note" id="cons_capNote" style="margin-top:10px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">Module</span> Intercompany property sale (deferral)</div>
+      <p class="lead">Gain on a sale between group members is generally <b>deferred</b> until the property leaves the group. Prefilled with the land example → recognized <b>${U.fmtUSD(0)}</b>, deferred <b>${U.fmtUSD(40000)}</b>.</p>
+      <div class="grid cols-3">
+        <div class="field"><label class="hint">Selling corp</label><input class="ipt txt" id="cons_psSeller" value="Parent"></div>
+        <div class="field"><label class="hint">Buying corp</label><input class="ipt txt" id="cons_psBuyer" value="Sub"></div>
+        <div class="field"><label class="hint">Buyer in group?</label><select class="ipt" id="cons_psBuyerIn"><option>Yes</option><option>No</option><option>Unknown</option></select></div>
+        <div class="field"><label class="hint">Ownership %</label><input class="ipt" id="cons_psOwn" value="100"></div>
+        <div class="field"><label class="hint">Property sold</label><input class="ipt txt" id="cons_psName" value="Land"></div>
+        <div class="field"><label class="hint">Property type</label><select class="ipt" id="cons_psType"><option>Land</option><option>Building</option><option>Marketable securities</option><option>Inventory</option><option>Equipment</option><option>Intangible</option><option>Other</option></select></div>
+        <div class="field"><label class="hint">Adjusted basis</label><input class="ipt" id="cons_psBasis" value="50,000"></div>
+        <div class="field"><label class="hint">Sale price</label><input class="ipt" id="cons_psPrice" value="90,000"></div>
+        <div class="field"><label class="hint">FMV</label><input class="ipt" id="cons_psFMV" value="90,000"></div>
+        <div class="field"><label class="hint">Intercompany sale?</label><select class="ipt" id="cons_psInter"><option>Yes</option><option>No</option><option>Unknown</option></select></div>
+        <div class="field"><label class="hint">Property sold outside group?</label><select class="ipt" id="cons_psOutside"><option>No</option><option>Yes</option><option>Unknown</option></select></div>
+        <div class="field"><label class="hint">Year of sale</label><input class="ipt" id="cons_psYear" value="5"></div>
+      </div>
+      <div class="warnings" id="cons_psWarn"></div>
+      <div class="grid cols-2" style="margin-top:12px">
+        <div class="calc">
+          <div class="cr"><span class="cl">Realized gain (price &minus; basis)</span><span id="cons_psRealized">—</span></div>
+          <div class="cr"><span class="cl">Recognized currently</span><span id="cons_psRecog">—</span></div>
+          <div class="cr tot"><span class="cl">Deferred gain</span><span id="cons_psDefer">—</span></div>
+        </div>
+        <div class="bignum-wrap">
+          <div class="bignum accent">
+            <span class="bn-label">Deferred intercompany gain</span>
+            <span class="bn-val" id="cons_psBig">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">Module</span> Intercompany eliminations</div>
+      <p class="lead">Unrealized intercompany profit/gain is eliminated until the item is sold outside the group. Prefilled with Example 5 → <b>${U.fmtUSD(420000)}</b>.</p>
+      <div class="grid cols-3">
+        <div class="field"><label class="hint">Member A operating income</label><input class="ipt" id="cons_elA" value="300,000"></div>
+        <div class="field"><label class="hint">Member B operating income</label><input class="ipt" id="cons_elB" value="200,000"></div>
+        <div class="field"><label class="hint">Intercompany inventory profit</label><input class="ipt" id="cons_elInvProfit" value="60,000"></div>
+        <div class="field"><label class="hint">Inventory sold outside by year-end?</label><select class="ipt" id="cons_elInvOut"><option>No</option><option>Yes</option><option>Partial</option><option>Unknown</option></select></div>
+        <div class="field"><label class="hint">Amount realized outside (if partial)</label><input class="ipt" id="cons_elInvPartial" value="0"></div>
+        <div class="field"><label class="hint">Intercompany property gain</label><input class="ipt" id="cons_elPropGain" value="20,000"></div>
+        <div class="field"><label class="hint">Property sold outside group?</label><select class="ipt" id="cons_elPropOut"><option>No</option><option>Yes</option><option>Unknown</option></select></div>
+        <div class="field"><label class="hint">Property type</label><select class="ipt" id="cons_elPropType"><option>Land</option><option>Building</option><option>Equipment</option><option>Intangible</option><option>Other</option></select></div>
+        <div class="field"><label class="hint">Gain character</label><select class="ipt" id="cons_elPropChar"><option>Section 1231</option><option>Capital</option><option>Ordinary</option></select></div>
+        <div class="field" style="grid-column:1/-1"><label class="hint">Notes</label><input class="ipt txt" id="cons_elNotes" value="Inventory & land both still inside the group at year-end"></div>
+      </div>
+      <div class="warnings" id="cons_elWarn"></div>
+      <div class="grid cols-2" style="margin-top:12px">
+        <div class="calc">
+          <div class="cr"><span class="cl">Combined operating income</span><span id="cons_elComb">—</span></div>
+          <div class="cr"><span class="cl">Eliminate unrealized inventory profit</span><span id="cons_elInvElim">—</span></div>
+          <div class="cr"><span class="cl">Eliminate intercompany property gain</span><span id="cons_elPropElim">—</span></div>
+          <div class="cr tot"><span class="cl">Consolidated taxable income</span><span id="cons_elCTI">—</span></div>
+        </div>
+        <div class="bignum-wrap">
+          <div class="bignum accent">
+            <span class="bn-label">Consolidated taxable income</span>
+            <span class="bn-val" id="cons_elBig">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">FAQ</span></div>
+      ${U.faq([
+        {q:'What is a consolidated tax return?', a:'A single federal income tax return filed by an affiliated group of corporations, in which the members’ income, losses, gains, and certain dividends are combined and netted as if the group were one taxpayer.'},
+        {q:'What is an affiliated group?', a:'A chain of corporations connected through a common parent where the parent (and the chain) owns enough stock of each member — generally at least 80% of vote and value — to permit consolidated filing.'},
+        {q:'Why does 80% ownership matter?', a:'The 80% vote-and-value threshold is the gate for affiliated-group status. Hit it and members may file consolidated; fall below and they must file separate returns and lose the cross-member offsets.'},
+        {q:'Why can one corporation’s capital loss offset another’s capital gain?', a:'Because consolidated filing treats the group as one reporting unit, capital items are netted across members — a benefit unavailable to separately filing corporations.'},
+        {q:'Why can operating losses offset operating income?', a:'Ordinary operating results combine across the group, so a member’s operating loss reduces another member’s operating income in computing consolidated taxable income.'},
+        {q:'Why can’t net capital losses offset ordinary income?', a:'Corporate capital losses are deductible only against capital gains. A net capital loss does not reduce ordinary income; it is carried back/forward to years with capital gains (shown as $0 current deduction in this simplified tool).'},
+        {q:'What is an intercompany dividend?', a:'A dividend paid by one group member to another member of the same consolidated group.'},
+        {q:'Why are intercompany dividends eliminated?', a:'The cash simply moves within the group, so taxing it would double-count income already reflected in the payer’s results. The receipt and elimination net to zero.'},
+        {q:'What is an intercompany transaction?', a:'A sale or transfer of property, inventory, or services between members of the same consolidated group.'},
+        {q:'Why are intercompany gains deferred?', a:'No economic gain has been realized outside the group yet — the asset is still owned by the group — so the gain is deferred until a transaction with an outsider occurs.'},
+        {q:'What happens when property leaves the group?', a:'When the asset is sold to a non-member (or another triggering event occurs), the previously deferred intercompany gain is restored and recognized.'},
+        {q:'Why is consolidated income not just the sum of each company’s income?', a:'Because intercompany dividends are eliminated and intercompany profits/gains are deferred or eliminated, and items like Section 1231 and capital results are re-netted at the group level.'},
+        {q:'Why can state rules differ from federal rules?', a:'States set their own combined/consolidated/unitary filing rules and conformity choices, so a federal consolidated election does not automatically control state treatment.'}
+      ])}
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">Advisor review</span></div>
+      ${U.checklist([
+        'Confirm 80% affiliation (vote and value) through the common parent',
+        'Confirm each member’s inclusion in the consolidated group',
+        'Confirm operating income and loss by member',
+        'Confirm Section 1231 vs capital character of each item',
+        'Track net capital loss carryovers / carrybacks',
+        'Identify all intercompany dividends',
+        'Identify all intercompany sales (inventory, property)',
+        'Confirm deferral vs recognition triggers',
+        'Document elimination entries',
+        'Review state conformity (combined / unitary / separate)',
+        'Document all assumptions'
+      ])}
+    </div>
+  `,
+  init: function(root){
+
+    /* ---------- Calculator ---------- */
+    var cons_PRESS_SWANK = [
+      {name:'Press', inGroup:'Yes', own:'100', opInc:'80,000', opLoss:'0', g1231:'0', l1231:'12,000', capG:'4,000', capL:'0', divFrom:'0', divPaid:'0', divInter:'Unknown', notes:''},
+      {name:'Swank', inGroup:'Yes', own:'100', opInc:'40,000', opLoss:'0', g1231:'0', l1231:'0', capG:'0', capL:'3,000', divFrom:'0', divPaid:'0', divInter:'Unknown', notes:''}
+    ];
+    var cons_AB_GROUP = [
+      {name:'A (parent)', inGroup:'Yes', own:'100', opInc:'0', opLoss:'4,000', g1231:'0', l1231:'0', capG:'500', capL:'0', divFrom:'1,000', divPaid:'0', divInter:'Yes', notes:'owns 100% of B'},
+      {name:'B (sub)', inGroup:'Yes', own:'100', opInc:'10,000', opLoss:'0', g1231:'0', l1231:'0', capG:'0', capL:'2,000', divFrom:'0', divPaid:'1,000', divInter:'Yes', notes:''}
+    ];
+
+    var cons_tbody = root.querySelector('#cons_tbody');
+
+    function cons_yesNoUnk(sel){
+      return ['Yes','No','Unknown'].map(function(o){
+        return '<option'+(o===sel?' selected':'')+'>'+o+'</option>';
+      }).join('');
+    }
+
+    function cons_rowHTML(m){
+      m = m || {name:'',inGroup:'Yes',own:'100',opInc:'0',opLoss:'0',g1231:'0',l1231:'0',capG:'0',capL:'0',divFrom:'0',divPaid:'0',divInter:'Unknown',notes:''};
+      return '<tr>' +
+        '<td><input class="ipt txt cons_f" data-k="name" value="'+U.esc(m.name)+'" style="min-width:110px"></td>' +
+        '<td><select class="ipt cons_f" data-k="inGroup">'+cons_yesNoUnk(m.inGroup)+'</select></td>' +
+        '<td class="num"><input class="ipt cons_f" data-k="own" value="'+U.esc(m.own)+'" style="width:64px"></td>' +
+        '<td class="num"><input class="ipt cons_f" data-k="opInc" value="'+U.esc(m.opInc)+'" style="width:90px"></td>' +
+        '<td class="num"><input class="ipt cons_f" data-k="opLoss" value="'+U.esc(m.opLoss)+'" style="width:90px"></td>' +
+        '<td class="num"><input class="ipt cons_f" data-k="g1231" value="'+U.esc(m.g1231)+'" style="width:80px"></td>' +
+        '<td class="num"><input class="ipt cons_f" data-k="l1231" value="'+U.esc(m.l1231)+'" style="width:80px"></td>' +
+        '<td class="num"><input class="ipt cons_f" data-k="capG" value="'+U.esc(m.capG)+'" style="width:80px"></td>' +
+        '<td class="num"><input class="ipt cons_f" data-k="capL" value="'+U.esc(m.capL)+'" style="width:80px"></td>' +
+        '<td class="num"><input class="ipt cons_f" data-k="divFrom" value="'+U.esc(m.divFrom)+'" style="width:90px"></td>' +
+        '<td class="num"><input class="ipt cons_f" data-k="divPaid" value="'+U.esc(m.divPaid)+'" style="width:90px"></td>' +
+        '<td><select class="ipt cons_f" data-k="divInter">'+cons_yesNoUnk(m.divInter)+'</select></td>' +
+        '<td><input class="ipt txt cons_f" data-k="notes" value="'+U.esc(m.notes)+'" style="min-width:90px"></td>' +
+        '<td><button class="rowbtn cons_del" type="button" title="Remove">✕</button></td>' +
+      '</tr>';
+    }
+
+    function cons_loadRows(list){
+      cons_tbody.innerHTML = list.map(cons_rowHTML).join('');
+    }
+
+    function cons_readRows(){
+      var rows = [];
+      cons_tbody.querySelectorAll('tr').forEach(function(tr){
+        var m = {};
+        tr.querySelectorAll('.cons_f').forEach(function(el){ m[el.getAttribute('data-k')] = el.value; });
+        rows.push(m);
+      });
+      return rows;
+    }
+
+    function cons_compute(){
+      var rows = cons_readRows();
+      var warn = root.querySelector('#cons_warn');
+      var msgs = [];
+      msgs.push('<div class="warnmsg"><span class="wi">i</span>Simplified CPA study mode — not a full tax return. Federal consolidated rules are modeled in broad strokes; verify with a tax advisor.</div>');
+
+      if(rows.length === 0){
+        msgs.push('<div class="warnmsg err"><span class="wi">!</span>No members entered. Add at least one corporation.</div>');
+      }
+
+      var sumOpInc=0, sumOpLoss=0, sum1231g=0, sum1231l=0, sumCapG=0, sumCapL=0, sumDivFrom=0;
+      var negFields = [];
+
+      rows.forEach(function(m, i){
+        var label = (m.name && m.name.trim()) ? m.name.trim() : ('Member '+(i+1));
+        var own = U.num(m.own);
+        if(m.name && m.name.trim()==='' ){ /* skip */ }
+        if(!isNaN(own) && (own < 0 || own > 100)){
+          msgs.push('<div class="warnmsg err"><span class="wi">!</span>'+U.esc(label)+': ownership % must be between 0 and 100.</div>');
+        }
+        ['opInc','opLoss','g1231','l1231','capG','capL','divFrom','divPaid'].forEach(function(k){
+          var v = U.num(m[k]);
+          if(!isNaN(v) && v < 0) negFields.push(label);
+        });
+
+        sumOpInc  += U.num0(m.opInc);
+        sumOpLoss += U.num0(m.opLoss);
+        sum1231g  += U.num0(m.g1231);
+        sum1231l  += U.num0(m.l1231);
+        sumCapG   += U.num0(m.capG);
+        sumCapL   += U.num0(m.capL);
+        if(m.divInter === 'Yes') sumDivFrom += U.num0(m.divFrom);
+
+        if(m.inGroup === 'No'){
+          msgs.push('<div class="warnmsg err"><span class="wi">!</span>'+U.esc(label)+' is marked "In group? = No" — a non-member should not be in the consolidated computation.</div>');
+        } else if(m.inGroup === 'Unknown'){
+          msgs.push('<div class="warnmsg"><span class="wi">i</span>'+U.esc(label)+': group membership is Unknown — confirm 80% affiliation before relying on this.</div>');
+        }
+      });
+
+      if(negFields.length){
+        var uniq = negFields.filter(function(v,i,a){return a.indexOf(v)===i;});
+        msgs.push('<div class="warnmsg err"><span class="wi">!</span>Negative dollar amounts entered ('+U.esc(uniq.join(', '))+'). Enter losses in the dedicated loss columns as positive numbers.</div>');
+      }
+
+      var net1231 = sum1231g - sum1231l;
+      var net1231ordLoss = (net1231 < 0) ? Math.abs(net1231) : 0;
+      var net1231capGain = (net1231 > 0) ? net1231 : 0;
+
+      var netOpInc = sumOpInc - sumOpLoss;
+      var ordinaryIncome = netOpInc - net1231ordLoss;
+
+      var totalCapGains = sumCapG + net1231capGain;
+      var totalCapLosses = sumCapL;
+      var netCapResult = totalCapGains - totalCapLosses;
+      var netCapGainIncluded = (netCapResult > 0) ? netCapResult : 0;
+      var netCapLossCarry = (netCapResult < 0) ? Math.abs(netCapResult) : 0;
+
+      var netDivEffect = 0; /* received minus eliminated = 0 */
+
+      var cti = ordinaryIncome + netCapGainIncluded + netDivEffect;
+
+      root.querySelector('#cons_oOp').textContent      = U.fmtUSD(netOpInc);
+      root.querySelector('#cons_o1231').textContent    = (net1231 < 0 ? '('+U.fmtUSD(Math.abs(net1231))+')' : U.fmtUSD(net1231)) + (net1231<0?' loss → ordinary':(net1231>0?' gain → capital':''));
+      root.querySelector('#cons_o1231ord').textContent = net1231ordLoss ? '('+U.fmtUSD(net1231ordLoss)+')' : U.fmtUSD(0);
+      root.querySelector('#cons_oOrd').textContent     = U.fmtUSD(ordinaryIncome);
+      root.querySelector('#cons_oCapG').textContent    = U.fmtUSD(totalCapGains);
+      root.querySelector('#cons_oCapL').textContent    = U.fmtUSD(totalCapLosses);
+      root.querySelector('#cons_oNetCap').textContent  = U.fmtUSD(netCapGainIncluded);
+      root.querySelector('#cons_oDiv').textContent     = U.fmtUSD(netDivEffect) + (sumDivFrom>0 ? ' ('+U.fmtUSD(sumDivFrom)+' received, eliminated)' : '');
+      root.querySelector('#cons_oCTI').textContent     = U.fmtUSD(cti);
+
+      var capNote = root.querySelector('#cons_capNote');
+      if(netCapLossCarry > 0){
+        capNote.innerHTML = '<b>Net capital loss of '+U.fmtUSD(netCapLossCarry)+'</b> is <b>not</b> deductible against ordinary income this year. Corporate capital losses carry back 3 years / forward 5 to offset capital gains.';
+      } else {
+        capNote.innerHTML = 'Net capital result is a gain (or zero); it is included above. Corporate net capital losses, if any, would carry back/forward to capital-gain years.';
+      }
+
+      warn.innerHTML = msgs.join('');
+    }
+
+    /* row buttons */
+    root.querySelector('#cons_addRow').addEventListener('click', function(){
+      cons_tbody.insertAdjacentHTML('beforeend', cons_rowHTML());
+      cons_compute();
+    });
+    root.querySelector('#cons_loadPS').addEventListener('click', function(){ cons_loadRows(cons_PRESS_SWANK); cons_compute(); });
+    root.querySelector('#cons_loadAB').addEventListener('click', function(){ cons_loadRows(cons_AB_GROUP); cons_compute(); });
+    root.querySelector('#cons_clear').addEventListener('click', function(){ cons_tbody.innerHTML=''; cons_compute(); });
+    cons_tbody.addEventListener('click', function(e){
+      var b = e.target.closest('.cons_del');
+      if(b){ b.closest('tr').remove(); cons_compute(); }
+    });
+
+    /* ---------- Property sale module ---------- */
+    function cons_computePS(){
+      var basis = U.num0(root.querySelector('#cons_psBasis').value);
+      var price = U.num0(root.querySelector('#cons_psPrice').value);
+      var fmv   = U.num(root.querySelector('#cons_psFMV').value);
+      var own   = U.num(root.querySelector('#cons_psOwn').value);
+      var inter = root.querySelector('#cons_psInter').value;
+      var outside = root.querySelector('#cons_psOutside').value;
+      var buyerIn = root.querySelector('#cons_psBuyerIn').value;
+      var w = root.querySelector('#cons_psWarn');
+      var msgs = ['<div class="warnmsg"><span class="wi">i</span>Simplified CPA study mode — not a full tax return.</div>'];
+
+      if(basis < 0) msgs.push('<div class="warnmsg err"><span class="wi">!</span>Adjusted basis cannot be negative.</div>');
+      if(price < 0) msgs.push('<div class="warnmsg err"><span class="wi">!</span>Sale price cannot be negative.</div>');
+      if(root.querySelector('#cons_psBasis').value.trim()==='' ) msgs.push('<div class="warnmsg err"><span class="wi">!</span>Enter the adjusted basis.</div>');
+      if(root.querySelector('#cons_psPrice').value.trim()==='' ) msgs.push('<div class="warnmsg err"><span class="wi">!</span>Enter the sale price.</div>');
+      if(!isNaN(own) && (own<0 || own>100)) msgs.push('<div class="warnmsg err"><span class="wi">!</span>Ownership % must be between 0 and 100.</div>');
+      if(inter==='Unknown') msgs.push('<div class="warnmsg"><span class="wi">i</span>Intercompany status Unknown — confirm whether buyer is a group member.</div>');
+
+      var realized = price - basis;
+      var deferred = (inter==='Yes' && outside==='No') ? realized : 0;
+      var recognized = realized - deferred;
+
+      root.querySelector('#cons_psRealized').textContent = U.fmtUSD(realized);
+      root.querySelector('#cons_psRecog').textContent    = U.fmtUSD(recognized);
+      root.querySelector('#cons_psDefer').textContent    = U.fmtUSD(deferred);
+      root.querySelector('#cons_psBig').textContent      = U.fmtUSD(deferred);
+
+      w.innerHTML = msgs.join('');
+    }
+
+    /* ---------- Eliminations module ---------- */
+    function cons_computeEl(){
+      var a = U.num0(root.querySelector('#cons_elA').value);
+      var b = U.num0(root.querySelector('#cons_elB').value);
+      var invProfit = U.num0(root.querySelector('#cons_elInvProfit').value);
+      var invOut = root.querySelector('#cons_elInvOut').value;
+      var invPartial = U.num0(root.querySelector('#cons_elInvPartial').value);
+      var propGain = U.num0(root.querySelector('#cons_elPropGain').value);
+      var propOut = root.querySelector('#cons_elPropOut').value;
+      var w = root.querySelector('#cons_elWarn');
+      var msgs = ['<div class="warnmsg"><span class="wi">i</span>Simplified CPA study mode — not a full tax return.</div>'];
+
+      [['#cons_elA','Member A operating income'],['#cons_elB','Member B operating income'],['#cons_elInvProfit','inventory profit'],['#cons_elPropGain','property gain']].forEach(function(p){
+        var v = U.num(root.querySelector(p[0]).value);
+        if(!isNaN(v) && v < 0) msgs.push('<div class="warnmsg err"><span class="wi">!</span>'+p[1]+' cannot be negative.</div>');
+      });
+
+      var realizedOutside = (invOut==='Partial') ? invPartial : (invOut==='Yes' ? invProfit : 0);
+      if(invOut==='Partial' && invPartial > invProfit){
+        msgs.push('<div class="warnmsg err"><span class="wi">!</span>Amount realized outside cannot exceed the total intercompany inventory profit.</div>');
+        realizedOutside = invProfit;
+      }
+      var invElim = invProfit - realizedOutside;
+      var propElim = (propOut==='No') ? propGain : 0;
+      if(propOut==='Unknown') msgs.push('<div class="warnmsg"><span class="wi">i</span>Property "sold outside" is Unknown — confirm before relying on the elimination.</div>');
+
+      var combined = a + b;
+      var cti = combined - invElim - propElim;
+
+      root.querySelector('#cons_elComb').textContent     = U.fmtUSD(combined);
+      root.querySelector('#cons_elInvElim').textContent  = '('+U.fmtUSD(invElim)+')';
+      root.querySelector('#cons_elPropElim').textContent = '('+U.fmtUSD(propElim)+')';
+      root.querySelector('#cons_elCTI').textContent      = U.fmtUSD(cti);
+      root.querySelector('#cons_elBig').textContent      = U.fmtUSD(cti);
+
+      w.innerHTML = msgs.join('');
+    }
+
+    /* ---------- live wiring ---------- */
+    function cons_all(){ cons_compute(); cons_computePS(); cons_computeEl(); }
+    root.addEventListener('input', cons_all);
+    root.addEventListener('change', cons_all);
+
+    /* prefill + first compute */
+    cons_loadRows(cons_PRESS_SWANK);
+    cons_all();
+  },
+  summary: function(root){
+    var q = function(id){ var el = root.querySelector('#'+id); return el ? el.textContent.trim() : ''; };
+    var lines = [];
+    lines.push('CONSOLIDATED TAX RETURNS — CPA study summary');
+    lines.push('');
+    lines.push('Core: an affiliated group (generally 80% vote & value) may file ONE consolidated federal return; operating items combine, capital items net across members, intercompany dividends are eliminated, intercompany profits/gains are deferred or eliminated.');
+    lines.push('');
+    lines.push('Worked examples:');
+    lines.push('  Ex1 — Capital loss offsets capital gain: 50,000 gain − 30,000 loss = $20,000 net capital gain. Advantage = answer A.');
+    lines.push('  Ex2 — Press & Swank: 80,000 + 40,000 − 12,000 (net 1231 ordinary loss) + 4,000 − 3,000 (capital netting) = $109,000.');
+    lines.push('  Ex3 — AB Group: op (10,000 − 4,000)=6,000; net capital (500 − 2,000)=(1,500) → $0 current deduction; intercompany dividend 1,000 − 1,000 = $0; CTI = $6,000.');
+    lines.push('  Ex4 — Intercompany land sale: realized 90,000 − 50,000 = 40,000; recognized Year 5 = $0; deferred = $40,000.');
+    lines.push('  Ex5 — Eliminations: 300,000 + 200,000 − 60,000 inventory − 20,000 land = $420,000.');
+    lines.push('');
+    lines.push('CALCULATOR (current inputs):');
+    lines.push('  Net operating income: '+q('cons_oOp'));
+    lines.push('  Net Section 1231 result: '+q('cons_o1231'));
+    lines.push('  Ordinary income (after 1231 loss): '+q('cons_oOrd'));
+    lines.push('  Total capital gains: '+q('cons_oCapG')+'; total capital losses: '+q('cons_oCapL'));
+    lines.push('  Net capital gain included: '+q('cons_oNetCap'));
+    lines.push('  Net intercompany dividend effect: '+q('cons_oDiv'));
+    lines.push('  Formula: ordinary income (after net 1231 ordinary loss) + net capital gain (if any) + net intercompany dividend effect');
+    lines.push('  => Estimated consolidated taxable income: '+q('cons_oCTI'));
+    lines.push('');
+    lines.push('PROPERTY-SALE MODULE: realized '+q('cons_psRealized')+'; recognized currently '+q('cons_psRecog')+'; deferred '+q('cons_psDefer')+'.');
+    lines.push('  Rule: recognized = 0 if intercompany = Yes AND not yet sold outside the group; otherwise = realized gain.');
+    lines.push('');
+    lines.push('ELIMINATIONS MODULE: combined '+q('cons_elComb')+'; inventory elim '+q('cons_elInvElim')+'; property gain elim '+q('cons_elPropElim')+'; => consolidated taxable income '+q('cons_elCTI')+'.');
+    lines.push('');
+    lines.push('Key warnings: capital losses do NOT offset ordinary income (net capital losses carry back 3 / forward 5); confirm 80% affiliation; intercompany dividends eliminated; intercompany gains deferred until property leaves the group; STATE rules may differ.');
+    lines.push('');
+    lines.push('Education/planning only — review with a qualified tax advisor before relying on this.');
+    return lines.join('\n');
+  }
+});
+</script>
+
+<!-- ===== PAGE: pfs ===== -->
+<script>
+registerPage({
+  top:'property', topLabel:'Property',
+  sub:'property-for-stock-sh', subLabel:'Property for Stock - SH',
+  title:'Property for Stock - Shareholder Gain',
+  html: `
+    <div class="wrap">
+
+      <div class="warnings" id="pfs_warn"></div>
+
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Core</span> Core concepts</div>
+        <ul class="bullets">
+          <li>A transferor of property to a corporation for stock may get <b>nonrecognition under Section 351</b> if the property transferors <b>control &ge; 80%</b> of the corporation immediately after the exchange.</li>
+          <li>If <b>boot</b> is received, <b>recognized gain = lesser of realized gain or boot</b>.</li>
+          <li><b>Services are not property.</b> A service provider's stock does not count toward the 80% control test.</li>
+          <li><b>Stock received for services</b> is generally <b>taxable compensation</b> (FMV of the stock received).</li>
+          <li>The corporation's basis in contributed property is generally <b>carryover basis + gain recognized</b> by the transferor.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Formulas</span> Core formulas</div>
+
+        <div class="formula">
+          <div class="ftitle">Amount realized</div>
+          <div class="eq">Amount realized = FMV of stock received + cash + FMV of other boot + liabilities treated as boot</div>
+        </div>
+
+        <div class="formula">
+          <div class="ftitle">Realized gain</div>
+          <div class="eq">Realized gain = Amount realized &minus; adjusted tax basis of property transferred</div>
+        </div>
+
+        <div class="formula">
+          <div class="ftitle">Boot</div>
+          <div class="eq">Boot = cash + other non-stock property + liabilities treated as boot</div>
+        </div>
+
+        <div class="formula">
+          <div class="ftitle">Recognized gain</div>
+          <div class="eq">Recognized gain = lesser of (realized gain, boot received), not below 0</div>
+        </div>
+
+        <div class="formula">
+          <div class="ftitle">Corporation basis in property</div>
+          <div class="eq">Corp basis = transferor's adjusted basis + gain recognized by transferor</div>
+        </div>
+
+        <div class="formula">
+          <div class="ftitle">Shareholder stock basis</div>
+          <div class="eq">Stock basis = basis of property transferred &minus; boot received &minus; liabilities assumed by corp + gain recognized</div>
+        </div>
+      </div>
+
+      <!-- ===================== EXAMPLE 1 ===================== -->
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Example 1</span> Dole &rarr; Enson: boot triggers gain</div>
+        <p class="lead">Dole transfers a building (adjusted basis <b>$35,000</b>, FMV <b>$100,000</b>) to wholly-owned Enson and receives <b>cash $40,000</b> plus Enson stock (FMV <b>$60,000</b>). How much gain does Dole recognize?</p>
+
+        <div class="step">
+          <div class="step-h"><span class="step-n">1</span> Amount realized <span class="step-tag g">add it up</span></div>
+          <div class="calc">
+            <div class="cr"><span class="cl">FMV stock received</span><span>$60,000</span></div>
+            <div class="cr"><span class="cl">+ Cash received</span><span>$40,000</span></div>
+            <div class="cr tot"><span class="cl">Amount realized</span><span>$100,000</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-h"><span class="step-n">2</span> Realized gain</div>
+          <div class="calc">
+            <div class="cr"><span class="cl">Amount realized</span><span>$100,000</span></div>
+            <div class="cr"><span class="cl">&minus; Adjusted basis</span><span>$35,000</span></div>
+            <div class="cr tot"><span class="cl">Realized gain</span><span>$65,000</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-h"><span class="step-n">3</span> Boot received</div>
+          <div class="calc">
+            <div class="cr"><span class="cl">Cash</span><span>$40,000</span></div>
+            <div class="cr tot"><span class="cl">Boot</span><span>$40,000</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-h"><span class="step-n">4</span> Recognized gain <span class="step-tag n">lesser of</span></div>
+          <div class="step-rule">Recognized = lesser(realized gain $65,000, boot $40,000) = <b>$40,000</b></div>
+        </div>
+
+        <div class="note">Dole owns &ge; 80% after the exchange, so Section 351 applies, but boot triggers gain <b>up to the lesser of realized gain or boot</b>.</div>
+
+        ${U.choices({
+          stem:'How much gain does Dole recognize?',
+          options:[
+            {key:'A', text:'$65,000', why:'That is the realized gain, not the recognized gain. Under Section 351, gain is recognized only up to the boot received.'},
+            {key:'B', text:'$40,000', why:'Correct. Recognized gain = lesser of realized gain ($65,000) and boot ($40,000 cash) = $40,000.'},
+            {key:'C', text:'$5,000', why:'Arbitrary figure; it does not come from realized gain minus boot or any Section 351 rule.'},
+            {key:'D', text:'$0', why:'Would be correct only if no boot were received. Here $40,000 cash boot forces recognition.'}
+          ],
+          correct:'B'
+        })}
+      </div>
+
+      <!-- ===================== EXAMPLE 2 ===================== -->
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Example 2</span> Adams / Beck / Carr: control test &amp; services</div>
+        <p class="lead">Adams receives 10% of the stock for <b>services</b>. Beck transfers property for 20% stock. Carr transfers property (adjusted basis <b>$60,000</b>, FMV <b>$70,000</b>) for 70% stock. Does the group meet the control test, and how much gain does Carr recognize?</p>
+
+        <div class="step">
+          <div class="step-h"><span class="step-n">1</span> Who counts toward control? <span class="step-tag g">property only</span></div>
+          <div class="calc">
+            <div class="cr"><span class="cl">Adams &mdash; services (does NOT count)</span><span>&mdash;</span></div>
+            <div class="cr"><span class="cl">Beck &mdash; property</span><span>20%</span></div>
+            <div class="cr"><span class="cl">Carr &mdash; property</span><span>70%</span></div>
+            <div class="cr tot"><span class="cl">Qualifying control %</span><span>90%</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-h"><span class="step-n">2</span> Control test</div>
+          <div class="step-rule">90% &ge; 80% &rarr; <b>control test met</b>, Section 351 applies to the property transferors.</div>
+        </div>
+
+        <div class="step">
+          <div class="step-h"><span class="step-n">3</span> Carr's realized gain</div>
+          <div class="calc">
+            <div class="cr"><span class="cl">FMV of property</span><span>$70,000</span></div>
+            <div class="cr"><span class="cl">&minus; Adjusted basis</span><span>$60,000</span></div>
+            <div class="cr tot"><span class="cl">Realized gain</span><span>$10,000</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-h"><span class="step-n">4</span> Carr's recognized gain <span class="step-tag z">no boot</span></div>
+          <div class="step-rule">Carr received only stock (no boot) in a qualifying Section 351 exchange &rarr; recognized gain = <b>$0</b>.</div>
+        </div>
+
+        <div class="note">Adams received stock for <b>services</b> = generally <b>taxable compensation</b> equal to the FMV of the stock received. Adams' shares do not count toward the 80% control test.</div>
+
+        ${U.choices({
+          stem:'How much gain does Carr recognize?',
+          options:[
+            {key:'A', text:'$0', why:'Correct. Control is met (90% &ge; 80%) and Carr received only stock with no boot, so no gain is recognized.'},
+            {key:'B', text:'$10,000', why:'That is Carr\'s realized gain. With no boot in a qualifying Section 351 exchange, none of it is recognized.'},
+            {key:'C', text:'$15,000', why:'Does not match any computed figure for Carr.'},
+            {key:'D', text:'$40,000', why:'Does not match any computed figure for Carr.'}
+          ],
+          correct:'A'
+        })}
+      </div>
+
+      <!-- ===================== EXAMPLE 3 ===================== -->
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Example 3</span> Lind &rarr; Ace: corporation's basis</div>
+        <p class="lead">Lind transfers a building (adjusted basis <b>$40,000</b>, FMV <b>$82,000</b>, mortgage <b>$10,000</b> assumed by Ace) for Ace stock in a qualifying Section 351 exchange. What is Ace's basis in the building?</p>
+
+        <div class="step">
+          <div class="step-h"><span class="step-n">1</span> Lind's recognized gain</div>
+          <div class="step-rule">Qualifying Section 351 exchange, stock only &rarr; Lind's recognized gain = <b>$0</b>.</div>
+        </div>
+
+        <div class="step">
+          <div class="step-h"><span class="step-n">2</span> Corporation's carryover basis <span class="step-tag g">carryover + gain</span></div>
+          <div class="calc">
+            <div class="cr"><span class="cl">Transferor's adjusted basis</span><span>$40,000</span></div>
+            <div class="cr"><span class="cl">+ Gain recognized by transferor</span><span>$0</span></div>
+            <div class="cr tot"><span class="cl">Ace's basis in building</span><span>$40,000</span></div>
+          </div>
+        </div>
+
+        <div class="note">Ace takes a <b>carryover basis</b>. The mortgage assumed may affect Lind's shareholder-side basis analysis, but it does not change Ace's basis here.</div>
+
+        ${U.choices({
+          stem:'What is Ace\'s basis in the building?',
+          options:[
+            {key:'A', text:'$40,000', why:'Correct. Corp basis = transferor adjusted basis ($40,000) + gain recognized ($0) = $40,000.'},
+            {key:'B', text:'$72,000', why:'FMV minus the mortgage. That is not the basis rule for a Section 351 transfer.'},
+            {key:'C', text:'$30,000', why:'Adjusted basis minus the mortgage. The mortgage does not reduce the corporation\'s carryover basis.'},
+            {key:'D', text:'$82,000', why:'FMV. There is no step-up to FMV in a qualifying Section 351 exchange.'}
+          ],
+          correct:'A'
+        })}
+      </div>
+
+      <!-- ===================== MODULE 1 ===================== -->
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Calculator 1</span> Shareholder gain calculator</div>
+        <p class="lead">Enter the transfer facts. Defaults show the Dole &rarr; Enson example.</p>
+
+        <div class="grid cols-2">
+          <div class="field"><label>Shareholder name</label><input class="ipt txt" id="pfs_m1_sh" value="Dole"></div>
+          <div class="field"><label>Corporation name</label><input class="ipt txt" id="pfs_m1_corp" value="Enson Corp."></div>
+          <div class="field"><label>Property transferred</label><input class="ipt txt" id="pfs_m1_prop" value="Building"></div>
+          <div class="field"><label>Adjusted tax basis ($)</label><input class="ipt" id="pfs_m1_basis" value="35,000"></div>
+          <div class="field"><label>FMV of property ($)</label><input class="ipt" id="pfs_m1_fmvprop" value="100,000"></div>
+          <div class="field"><label>FMV of stock received ($)</label><input class="ipt" id="pfs_m1_stock" value="60,000"></div>
+          <div class="field"><label>Cash received ($)</label><input class="ipt" id="pfs_m1_cash" value="40,000"></div>
+          <div class="field"><label>Other boot received ($)</label><input class="ipt" id="pfs_m1_otherboot" value="0"></div>
+          <div class="field"><label>Liabilities assumed by corp ($)</label><input class="ipt" id="pfs_m1_liab" value="0"></div>
+          <div class="field"><label>Liabilities treated as boot ($)</label><input class="ipt" id="pfs_m1_liabboot" value="0"></div>
+          <div class="field"><label>Shareholder ownership % after</label><input class="ipt" id="pfs_m1_shpct" value="100"></div>
+          <div class="field"><label>Transferor group ownership % after</label><input class="ipt" id="pfs_m1_grppct" value="100"></div>
+          <div class="field"><label>Part of transferor control group?</label>
+            <select class="ipt" id="pfs_m1_ctrl"><option>Yes</option><option>No</option><option>Unknown</option></select>
+          </div>
+          <div class="field"><label>Is transfer for corporation stock?</label>
+            <select class="ipt" id="pfs_m1_forstock"><option>Yes</option><option>No</option><option>Unknown</option></select>
+          </div>
+        </div>
+        <div class="field"><label>Notes</label><input class="ipt txt" id="pfs_m1_notes" value=""></div>
+
+        <div class="toolbar"><button class="btn ghost sm" id="pfs_m1_reset" type="button">Reset to Dole example</button></div>
+
+        <div class="bignum-wrap">
+          <div class="bignum"><span class="bn-label">Amount realized</span><span class="bn-val" id="pfs_m1_o_ar">$0</span></div>
+          <div class="bignum"><span class="bn-label">Realized gain</span><span class="bn-val" id="pfs_m1_o_rg">$0</span></div>
+          <div class="bignum"><span class="bn-label">Boot received</span><span class="bn-val" id="pfs_m1_o_boot">$0</span></div>
+          <div class="bignum accent"><span class="bn-label">Recognized gain</span><span class="bn-val" id="pfs_m1_o_recog">$0</span></div>
+          <div class="bignum"><span class="bn-label">Deferred gain</span><span class="bn-val" id="pfs_m1_o_def">$0</span></div>
+        </div>
+
+        <div class="row"><span class="k">80% control status</span><span class="v" id="pfs_m1_o_ctrl"></span></div>
+        <div id="pfs_m1_o_msg"></div>
+      </div>
+
+      <!-- ===================== MODULE 2 ===================== -->
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Calculator 2</span> Transferor group table</div>
+        <p class="lead">Add each person in the exchange. Only <b>property</b> contributions count toward the 80% control test. Defaults show Adams / Beck / Carr.</p>
+
+        <div class="toolbar">
+          <button class="btn sm" id="pfs_m2_add" type="button">+ Add transferor</button>
+          <button class="btn ghost sm" id="pfs_m2_clear" type="button">Clear all</button>
+          <button class="btn ghost sm" id="pfs_m2_reset" type="button">Reset to example</button>
+        </div>
+
+        <div class="tbl-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Contribution type</th>
+                <th class="num">Stock % recd</th>
+                <th class="num">Adj. basis</th>
+                <th class="num">FMV property</th>
+                <th class="num">Boot recd</th>
+                <th>Counts?</th>
+                <th class="num">Realized</th>
+                <th class="num">Recognized</th>
+                <th>Notes</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="pfs_m2_body"></tbody>
+            <tfoot>
+              <tr class="totrow">
+                <td colspan="2"><b>Qualifying control %</b></td>
+                <td class="num" id="pfs_m2_o_ctrlpct">0%</td>
+                <td colspan="8" id="pfs_m2_o_ctrlcell"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div id="pfs_m2_o_svc"></div>
+        <div id="pfs_m2_o_msg"></div>
+      </div>
+
+      <!-- ===================== MODULE 3 ===================== -->
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Calculator 3</span> Corporation's basis in property received</div>
+        <p class="lead">Enter the corporation-side facts. Defaults show Lind &rarr; Ace.</p>
+
+        <div class="grid cols-2">
+          <div class="field"><label>Transferor</label><input class="ipt txt" id="pfs_m3_tr" value="Lind"></div>
+          <div class="field"><label>Corporation</label><input class="ipt txt" id="pfs_m3_corp" value="Ace Corp."></div>
+          <div class="field"><label>Property</label><input class="ipt txt" id="pfs_m3_prop" value="Building"></div>
+          <div class="field"><label>Transferor adjusted basis ($)</label><input class="ipt" id="pfs_m3_basis" value="40,000"></div>
+          <div class="field"><label>Property FMV ($)</label><input class="ipt" id="pfs_m3_fmv" value="82,000"></div>
+          <div class="field"><label>Stock issued</label><input class="ipt txt" id="pfs_m3_stock" value=""></div>
+          <div class="field"><label>Cash or boot paid by corp ($)</label><input class="ipt" id="pfs_m3_boot" value="0"></div>
+          <div class="field"><label>Liability assumed ($)</label><input class="ipt" id="pfs_m3_liab" value="10,000"></div>
+          <div class="field"><label>Gain recognized by transferor ($)</label><input class="ipt" id="pfs_m3_gain" value="0"></div>
+          <div class="field"><label>Qualifying Section 351 exchange?</label>
+            <select class="ipt" id="pfs_m3_qual"><option>Yes</option><option>No</option><option>Unknown</option></select>
+          </div>
+        </div>
+        <div class="field"><label>Notes</label><input class="ipt txt" id="pfs_m3_notes" value=""></div>
+
+        <div class="toolbar"><button class="btn ghost sm" id="pfs_m3_reset" type="button">Reset to Lind example</button></div>
+
+        <div class="bignum-wrap">
+          <div class="bignum accent"><span class="bn-label">Corporation basis in property</span><span class="bn-val" id="pfs_m3_o_basis">$0</span></div>
+        </div>
+        <div id="pfs_m3_o_msg"></div>
+      </div>
+
+      <!-- ===================== FAQ ===================== -->
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">FAQ</span> Common questions</div>
+        ${U.faq([
+          {q:'What is a property-for-stock exchange?', a:'It is a transaction where one or more people transfer property (cash, equipment, real estate, intangibles, etc.) to a corporation in exchange for the corporation\'s stock. Section 351 can let the transferors defer the gain that would otherwise be taxed on the appreciation in the property.'},
+          {q:'What is Section 351?', a:'Section 351 is the Internal Revenue Code rule that generally allows no gain or loss to be recognized when property is transferred to a corporation solely in exchange for its stock, provided the transferors are in control of the corporation immediately after the exchange. It is the corporate-formation parallel to a tax-deferred contribution.'},
+          {q:'What does "control" mean?', a:'Control for Section 351 means the transferor group owns at least 80% of the total combined voting power of all voting stock and at least 80% of the total number of shares of all other classes of stock, immediately after the exchange.'},
+          {q:'What is the 80% control test?', a:'The people who transferred property must together own 80% or more of the corporation right after the exchange. Only people who contributed property are counted in the group; a person who received stock solely for services is excluded.'},
+          {q:'What is boot?', a:'Boot is anything received in the exchange that is not stock of the transferee corporation - typically cash, other (non-stock) property, and in some cases liabilities treated as boot. Boot can cause gain to be recognized.'},
+          {q:'Why does cash create taxable gain?', a:'Section 351 defers gain only to the extent the transferor receives stock. When cash (or other boot) is received, the transferor has partially "cashed out," so gain is recognized up to the lesser of the realized gain or the boot received.'},
+          {q:'What is the difference between realized gain and recognized gain?', a:'Realized gain is the full economic gain (amount realized minus adjusted basis). Recognized gain is the portion that is actually taxed now. In a Section 351 exchange, recognized gain is limited to the boot received (and never exceeds realized gain).'},
+          {q:'Are services property?', a:'No. Services are not property for Section 351 purposes. Stock issued in exchange for services does not count toward the 80% control test.'},
+          {q:'Why is stock for services taxable?', a:'Receiving stock as payment for services is compensation, just like being paid in cash. The service provider generally recognizes ordinary income equal to the FMV of the stock received.'},
+          {q:'What is the corporation\'s carryover basis?', a:'In a Section 351 transfer, the corporation generally takes the transferor\'s adjusted basis in the property, increased by any gain the transferor recognized. The corporation does not get a fresh FMV basis (no step-up).'},
+          {q:'What is shareholder stock basis?', a:'The transferor\'s basis in the stock received generally equals the basis of the property transferred, minus boot received and liabilities assumed by the corporation, plus any gain recognized. This "substituted basis" preserves the deferred gain for later.'},
+          {q:'What happens when liabilities are assumed?', a:'Liabilities the corporation assumes are generally not treated as boot for gain recognition, but they reduce the shareholder\'s stock basis. If total liabilities assumed exceed the total adjusted basis of property transferred, Section 357(c) can force gain recognition on the excess - flag for advisor review.'}
+        ])}
+      </div>
+
+      <!-- ===================== CHECKLIST ===================== -->
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Checklist</span> Advisor review</div>
+        ${U.checklist([
+          'Confirm property vs. services contributions for each participant',
+          'Confirm the transferor control group owns >= 80% immediately after the exchange',
+          'Confirm all boot received (cash, other property, liabilities treated as boot)',
+          'Confirm adjusted basis and FMV of each property transferred',
+          'Confirm liabilities assumed and any Section 357(c) excess over basis',
+          'Confirm corporation carryover basis + gain recognized by each transferor',
+          'Confirm each shareholder\'s stock basis (substituted basis)',
+          'Document all assumptions and supporting valuations'
+        ])}
+      </div>
+
+    </div>
+  `,
+
+  init: function(root){
+
+    /* ---------- helpers ---------- */
+    const pfs_q = (id) => root.querySelector(id);
+    const pfs_badge = (txt, cls) => '<span class="badge ' + cls + '">' + U.esc(txt) + '</span>';
+
+    /* ---------- standing validation note ---------- */
+    const pfs_renderWarn = () => {
+      const w = pfs_q('#pfs_warn');
+      const msgs = [];
+
+      // Module 1 input checks
+      const m1 = pfs_readM1();
+      const negFields = [
+        ['Adjusted tax basis', m1.basis],
+        ['FMV of property', m1.fmvprop],
+        ['FMV of stock received', m1.stock],
+        ['Cash received', m1.cash],
+        ['Other boot received', m1.otherboot],
+        ['Liabilities assumed', m1.liab],
+        ['Liabilities treated as boot', m1.liabboot]
+      ];
+      negFields.forEach(([lbl, v]) => {
+        if (!isNaN(v) && v < 0) msgs.push({cls:'err', t:'Calculator 1: ' + lbl + ' cannot be negative.'});
+      });
+      [['Adjusted tax basis', m1.basisRaw, m1.basis]].forEach(([lbl, raw, v]) => {
+        if (raw.trim() !== '' && isNaN(v)) msgs.push({cls:'err', t:'Calculator 1: ' + lbl + ' is not a valid number.'});
+      });
+      if (m1.basisRaw.trim() === '') msgs.push({cls:'err', t:'Calculator 1: adjusted tax basis is required to compute gain.'});
+      if (m1.stockRaw.trim() === '' && m1.cashRaw.trim() === '' && m1.otherbootRaw.trim() === '')
+        msgs.push({cls:'err', t:'Calculator 1: enter FMV of stock and/or boot received.'});
+      [['Shareholder ownership %', m1.shpct], ['Transferor group ownership %', m1.grppct]].forEach(([lbl, v]) => {
+        if (!isNaN(v) && (v < 0 || v > 100)) msgs.push({cls:'err', t:'Calculator 1: ' + lbl + ' must be between 0 and 100.'});
+      });
+      if (m1.forstock === 'No') msgs.push({cls:'', t:'Calculator 1: transfer is not for corporation stock - Section 351 nonrecognition may not apply.'});
+      if (m1.ctrl === 'No') msgs.push({cls:'', t:'Calculator 1: shareholder is not in the control group - full gain may be recognized.'});
+
+      // Module 3 input checks
+      const m3 = pfs_readM3();
+      [['Transferor adjusted basis', m3.basis], ['Property FMV', m3.fmv], ['Cash or boot paid', m3.boot], ['Liability assumed', m3.liab], ['Gain recognized', m3.gain]]
+        .forEach(([lbl, v]) => { if (!isNaN(v) && v < 0) msgs.push({cls:'err', t:'Calculator 3: ' + lbl + ' cannot be negative.'}); });
+      if (m3.basisRaw.trim() === '') msgs.push({cls:'err', t:'Calculator 3: transferor adjusted basis is required.'});
+
+      let html = '<div class="warnmsg"><span class="wi">i</span>Simplified CPA study mode - this is not a full tax return and omits many Section 351 / 357 nuances.</div>';
+      msgs.forEach(m => {
+        html += '<div class="warnmsg ' + (m.cls === 'err' ? 'err' : '') + '"><span class="wi">' + (m.cls === 'err' ? '!' : 'i') + '</span>' + U.esc(m.t) + '</div>';
+      });
+      w.innerHTML = html;
+    };
+
+    /* ===================== MODULE 1 ===================== */
+    const pfs_readM1 = () => {
+      const g = (id) => pfs_q(id) ? pfs_q(id).value : '';
+      return {
+        sh: g('#pfs_m1_sh'), corp: g('#pfs_m1_corp'), prop: g('#pfs_m1_prop'),
+        basisRaw: g('#pfs_m1_basis'), basis: U.num(g('#pfs_m1_basis')),
+        fmvpropRaw: g('#pfs_m1_fmvprop'), fmvprop: U.num(g('#pfs_m1_fmvprop')),
+        stockRaw: g('#pfs_m1_stock'), stock: U.num(g('#pfs_m1_stock')),
+        cashRaw: g('#pfs_m1_cash'), cash: U.num(g('#pfs_m1_cash')),
+        otherbootRaw: g('#pfs_m1_otherboot'), otherboot: U.num(g('#pfs_m1_otherboot')),
+        liabRaw: g('#pfs_m1_liab'), liab: U.num(g('#pfs_m1_liab')),
+        liabbootRaw: g('#pfs_m1_liabboot'), liabboot: U.num(g('#pfs_m1_liabboot')),
+        shpct: U.num(g('#pfs_m1_shpct')), grppct: U.num(g('#pfs_m1_grppct')),
+        ctrl: g('#pfs_m1_ctrl'), forstock: g('#pfs_m1_forstock'), notes: g('#pfs_m1_notes')
+      };
+    };
+
+    const pfs_computeM1 = () => {
+      const m = pfs_readM1();
+      const stock = U.num0(m.stockRaw);
+      const cash = U.num0(m.cashRaw);
+      const otherboot = U.num0(m.otherbootRaw);
+      const liabboot = U.num0(m.liabbootRaw);
+      const basis = U.num0(m.basisRaw);
+
+      const ar = stock + cash + otherboot + liabboot;
+      const rg = ar - basis;
+      const boot = cash + otherboot + liabboot;
+      const recog = Math.max(0, Math.min(rg, boot));
+      const deferred = rg - recog;
+
+      pfs_q('#pfs_m1_o_ar').textContent = U.fmtUSD(ar);
+      pfs_q('#pfs_m1_o_rg').textContent = U.fmtUSD(rg);
+      pfs_q('#pfs_m1_o_boot').textContent = U.fmtUSD(boot);
+      pfs_q('#pfs_m1_o_recog').textContent = U.fmtUSD(recog);
+      pfs_q('#pfs_m1_o_def').textContent = U.fmtUSD(deferred);
+
+      const grppct = isNaN(m.grppct) ? 0 : m.grppct;
+      const ctrlEl = pfs_q('#pfs_m1_o_ctrl');
+      if (grppct >= 80) ctrlEl.innerHTML = pfs_badge('Control met - ' + U.fmtNum(grppct) + '% >= 80%', 'good');
+      else ctrlEl.innerHTML = pfs_badge('Control NOT met - ' + U.fmtNum(grppct) + '% < 80%', 'bad');
+
+      const msg = pfs_q('#pfs_m1_o_msg');
+      let h = '';
+      if (boot > 0) {
+        h += '<div class="headline ' + (recog > 0 ? 'warn' : 'info') + '"><span class="hl-ico">!</span>' +
+             U.esc(m.sh || 'The shareholder') + ' received ' + U.fmtUSD(boot) + ' of boot &rarr; recognizes ' +
+             U.fmtUSD(recog) + ' of gain (lesser of realized gain ' + U.fmtUSD(rg) + ' or boot).' +
+             '<span class="hl-sub">Deferred gain of ' + U.fmtUSD(deferred) + ' is preserved in the stock basis.</span></div>';
+      } else {
+        h += '<div class="headline good"><span class="hl-ico">&#10003;</span>No boot received &rarr; ' +
+             U.esc(m.sh || 'the shareholder') + ' recognizes ' + U.fmtUSD(recog) + ' of gain under Section 351.' +
+             '<span class="hl-sub">Full realized gain of ' + U.fmtUSD(rg) + ' is deferred.</span></div>';
+      }
+      // shareholder stock basis insight
+      const stockBasis = basis - boot - U.num0(m.liabRaw) + recog;
+      h += '<div class="insight">Estimated shareholder stock basis = basis ' + U.fmtUSD(basis) +
+           ' &minus; boot ' + U.fmtUSD(boot) + ' &minus; liabilities assumed ' + U.fmtUSD(U.num0(m.liabRaw)) +
+           ' + gain recognized ' + U.fmtUSD(recog) + ' = <b>' + U.fmtUSD(stockBasis) + '</b>.</div>';
+      msg.innerHTML = h;
+
+      pfs_renderWarn();
+      return {ar, rg, boot, recog, deferred, stockBasis, m};
+    };
+
+    pfs_q('#pfs_m1_reset').addEventListener('click', () => {
+      const set = (id, v) => { if (pfs_q(id)) pfs_q(id).value = v; };
+      set('#pfs_m1_sh','Dole'); set('#pfs_m1_corp','Enson Corp.'); set('#pfs_m1_prop','Building');
+      set('#pfs_m1_basis','35,000'); set('#pfs_m1_fmvprop','100,000'); set('#pfs_m1_stock','60,000');
+      set('#pfs_m1_cash','40,000'); set('#pfs_m1_otherboot','0'); set('#pfs_m1_liab','0'); set('#pfs_m1_liabboot','0');
+      set('#pfs_m1_shpct','100'); set('#pfs_m1_grppct','100');
+      pfs_q('#pfs_m1_ctrl').value='Yes'; pfs_q('#pfs_m1_forstock').value='Yes'; set('#pfs_m1_notes','');
+      pfs_computeM1();
+    });
+
+    /* ===================== MODULE 2 ===================== */
+    const pfs_m2_seed = [
+      {name:'Adams', type:'Services', pct:'10', basis:'', fmv:'', boot:'0', notes:'Stock for services'},
+      {name:'Beck', type:'Property', pct:'20', basis:'', fmv:'', boot:'0', notes:''},
+      {name:'Carr', type:'Property', pct:'70', basis:'60,000', fmv:'70,000', boot:'0', notes:''}
+    ];
+
+    const pfs_m2_typeOptions = (sel) => {
+      const opts = ['Property','Services','Property and Services','Cash','Unknown'];
+      return opts.map(o => '<option' + (o === sel ? ' selected' : '') + '>' + o + '</option>').join('');
+    };
+
+    const pfs_m2_addRow = (d) => {
+      d = d || {name:'', type:'Property', pct:'', basis:'', fmv:'', boot:'0', notes:''};
+      const body = pfs_q('#pfs_m2_body');
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td><input class="ipt txt pfs_m2_name" value="' + U.esc(d.name) + '"></td>' +
+        '<td><select class="ipt pfs_m2_type">' + pfs_m2_typeOptions(d.type) + '</select></td>' +
+        '<td class="num"><input class="ipt pfs_m2_pct" style="text-align:right" value="' + U.esc(d.pct) + '"></td>' +
+        '<td class="num"><input class="ipt pfs_m2_basis" style="text-align:right" value="' + U.esc(d.basis) + '"></td>' +
+        '<td class="num"><input class="ipt pfs_m2_fmv" style="text-align:right" value="' + U.esc(d.fmv) + '"></td>' +
+        '<td class="num"><input class="ipt pfs_m2_boot" style="text-align:right" value="' + U.esc(d.boot) + '"></td>' +
+        '<td class="pfs_m2_counts"></td>' +
+        '<td class="num pfs_m2_realized"></td>' +
+        '<td class="num pfs_m2_recog"></td>' +
+        '<td><input class="ipt txt pfs_m2_notes" value="' + U.esc(d.notes) + '"></td>' +
+        '<td><button class="rowbtn pfs_m2_del" type="button" title="Remove">&times;</button></td>';
+      body.appendChild(tr);
+    };
+
+    const pfs_m2_seedRows = () => {
+      pfs_q('#pfs_m2_body').innerHTML = '';
+      pfs_m2_seed.forEach(pfs_m2_addRow);
+    };
+
+    const pfs_computeM2 = () => {
+      const rows = Array.from(pfs_q('#pfs_m2_body').querySelectorAll('tr'));
+      let qualPct = 0;
+      let flagReview = false;
+      const svcRows = [];
+
+      rows.forEach(tr => {
+        const type = tr.querySelector('.pfs_m2_type').value;
+        const pct = U.num0(tr.querySelector('.pfs_m2_pct').value);
+        const basis = U.num0(tr.querySelector('.pfs_m2_basis').value);
+        const fmv = U.num0(tr.querySelector('.pfs_m2_fmv').value);
+        const boot = U.num0(tr.querySelector('.pfs_m2_boot').value);
+        const name = tr.querySelector('.pfs_m2_name').value;
+
+        // counts toward control?
+        let counts = false, countsTxt = '', countsCls = 'neutral';
+        if (type === 'Property') { counts = true; countsTxt = 'Yes'; countsCls = 'good'; }
+        else if (type === 'Services') { counts = false; countsTxt = 'No'; countsCls = 'bad'; }
+        else if (type === 'Property and Services') { counts = true; countsTxt = 'Review'; countsCls = 'warn'; flagReview = true; }
+        else { counts = false; countsTxt = 'No'; countsCls = 'neutral'; }
+
+        if (counts) qualPct += pct;
+
+        tr.querySelector('.pfs_m2_counts').innerHTML = pfs_badge(countsTxt, countsCls);
+
+        // realized / recognized (property-bearing rows)
+        const hasProp = (type === 'Property' || type === 'Property and Services');
+        const realCell = tr.querySelector('.pfs_m2_realized');
+        const recogCell = tr.querySelector('.pfs_m2_recog');
+        if (hasProp && (tr.querySelector('.pfs_m2_basis').value.trim() !== '' || tr.querySelector('.pfs_m2_fmv').value.trim() !== '')) {
+          const realized = fmv - basis;
+          const recog = boot > 0 ? Math.max(0, Math.min(realized, boot)) : 0;
+          realCell.textContent = U.fmtUSD(realized);
+          recogCell.textContent = U.fmtUSD(recog);
+        } else {
+          realCell.textContent = '-';
+          recogCell.textContent = '-';
+        }
+
+        // service compensation
+        if (type === 'Services' || type === 'Property and Services') {
+          if (fmv > 0) svcRows.push({name: name || 'Service provider', comp: fmv, note:'(uses FMV property field as stock FMV)'});
+        }
+      });
+
+      pfs_q('#pfs_m2_o_ctrlpct').textContent = U.fmtNum(qualPct) + '%';
+      const cell = pfs_q('#pfs_m2_o_ctrlcell');
+      let cellH = (qualPct >= 80)
+        ? pfs_badge('Control met - ' + U.fmtNum(qualPct) + '% >= 80%', 'good')
+        : pfs_badge('Control NOT met - ' + U.fmtNum(qualPct) + '% < 80%', 'bad');
+      if (flagReview) cellH += ' ' + pfs_badge('Property + Services row - review', 'warn');
+      cell.innerHTML = cellH;
+
+      // service comp note
+      const svcEl = pfs_q('#pfs_m2_o_svc');
+      if (svcRows.length) {
+        let s = '<div class="insight"><b>Service compensation (ordinary income):</b><ul class="bullets">';
+        svcRows.forEach(r => { s += '<li>' + U.esc(r.name) + ': ' + U.fmtUSD(r.comp) + ' <span class="muted">' + r.note + '</span></li>'; });
+        s += '</ul></div>';
+        svcEl.innerHTML = s;
+      } else {
+        svcEl.innerHTML = '<div class="note">No service rows with a stock FMV entered. For a service provider, enter the FMV of stock received in the "FMV property" column to estimate taxable compensation.</div>';
+      }
+
+      // message
+      const msg = pfs_q('#pfs_m2_o_msg');
+      let h = '';
+      if (qualPct >= 80) {
+        h = '<div class="headline good"><span class="hl-ico">&#10003;</span>Property transferors control ' + U.fmtNum(qualPct) +
+            '% &rarr; the 80% control test is met. Property-only transferors with no boot recognize no gain.</div>';
+      } else {
+        h = '<div class="headline bad"><span class="hl-ico">!</span>Property transferors control only ' + U.fmtNum(qualPct) +
+            '% &rarr; the 80% control test is NOT met. Section 351 nonrecognition does not apply; transferors may recognize full realized gain.</div>';
+      }
+      if (flagReview) {
+        h += '<div class="warnmsg"><span class="wi">i</span>A "Property and Services" transferor is counted toward control here, but the stock attributable to services generally does not count - confirm the property/service split with an advisor.</div>';
+      }
+      msg.innerHTML = h;
+
+      pfs_renderWarn();
+      return {qualPct};
+    };
+
+    pfs_q('#pfs_m2_add').addEventListener('click', () => { pfs_m2_addRow(); pfs_computeM2(); });
+    pfs_q('#pfs_m2_clear').addEventListener('click', () => { pfs_q('#pfs_m2_body').innerHTML = ''; pfs_computeM2(); });
+    pfs_q('#pfs_m2_reset').addEventListener('click', () => { pfs_m2_seedRows(); pfs_computeM2(); });
+    pfs_q('#pfs_m2_body').addEventListener('click', (e) => {
+      if (e.target.classList.contains('pfs_m2_del')) {
+        e.target.closest('tr').remove();
+        pfs_computeM2();
+      }
+    });
+
+    /* ===================== MODULE 3 ===================== */
+    const pfs_readM3 = () => {
+      const g = (id) => pfs_q(id) ? pfs_q(id).value : '';
+      return {
+        tr: g('#pfs_m3_tr'), corp: g('#pfs_m3_corp'), prop: g('#pfs_m3_prop'),
+        basisRaw: g('#pfs_m3_basis'), basis: U.num(g('#pfs_m3_basis')),
+        fmvRaw: g('#pfs_m3_fmv'), fmv: U.num(g('#pfs_m3_fmv')),
+        stock: g('#pfs_m3_stock'),
+        bootRaw: g('#pfs_m3_boot'), boot: U.num(g('#pfs_m3_boot')),
+        liabRaw: g('#pfs_m3_liab'), liab: U.num(g('#pfs_m3_liab')),
+        gainRaw: g('#pfs_m3_gain'), gain: U.num(g('#pfs_m3_gain')),
+        qual: g('#pfs_m3_qual'), notes: g('#pfs_m3_notes')
+      };
+    };
+
+    const pfs_computeM3 = () => {
+      const m = pfs_readM3();
+      const basis = U.num0(m.basisRaw);
+      const gain = U.num0(m.gainRaw);
+      const liab = U.num0(m.liabRaw);
+      const corpBasis = basis + gain;
+
+      pfs_q('#pfs_m3_o_basis').textContent = U.fmtUSD(corpBasis);
+
+      const msg = pfs_q('#pfs_m3_o_msg');
+      let h = '';
+      if (m.qual === 'Yes') {
+        h += '<div class="headline good"><span class="hl-ico">&#10003;</span>' +
+             U.esc(m.corp || 'The corporation') + '\'s basis = transferor adjusted basis ' + U.fmtUSD(basis) +
+             ' + gain recognized ' + U.fmtUSD(gain) + ' = <b>' + U.fmtUSD(corpBasis) + '</b> (carryover basis).</div>';
+      } else if (m.qual === 'No') {
+        h += '<div class="headline warn"><span class="hl-ico">!</span>Not a qualifying Section 351 exchange &rarr; ' +
+             'cost / purchase basis rules (generally FMV ' + U.fmtUSD(U.num0(m.fmvRaw)) + ') may apply instead of carryover basis. Confirm with an advisor.</div>';
+      } else {
+        h += '<div class="headline info"><span class="hl-ico">?</span>Qualification unknown &rarr; if Section 351 applies, carryover basis = ' +
+             U.fmtUSD(corpBasis) + '; if not, FMV/purchase rules may apply.</div>';
+      }
+      if (liab > basis) {
+        h += '<div class="warnmsg err"><span class="wi">!</span>Liability assumed (' + U.fmtUSD(liab) +
+             ') exceeds the transferor\'s adjusted basis (' + U.fmtUSD(basis) +
+             '). Section 357(c) may force the transferor to recognize gain on the excess - advisor review required.</div>';
+      }
+      msg.innerHTML = h;
+
+      pfs_renderWarn();
+      return {corpBasis, m};
+    };
+
+    pfs_q('#pfs_m3_reset').addEventListener('click', () => {
+      const set = (id, v) => { if (pfs_q(id)) pfs_q(id).value = v; };
+      set('#pfs_m3_tr','Lind'); set('#pfs_m3_corp','Ace Corp.'); set('#pfs_m3_prop','Building');
+      set('#pfs_m3_basis','40,000'); set('#pfs_m3_fmv','82,000'); set('#pfs_m3_stock','');
+      set('#pfs_m3_boot','0'); set('#pfs_m3_liab','10,000'); set('#pfs_m3_gain','0');
+      pfs_q('#pfs_m3_qual').value='Yes'; set('#pfs_m3_notes','');
+      pfs_computeM3();
+    });
+
+    /* ---------- live recompute (delegated) ---------- */
+    const pfs_recomputeAll = () => { pfs_computeM1(); pfs_computeM2(); pfs_computeM3(); };
+    root.addEventListener('input', pfs_recomputeAll);
+    root.addEventListener('change', pfs_recomputeAll);
+
+    /* ---------- initial render ---------- */
+    pfs_m2_seedRows();
+    pfs_computeM1();
+    pfs_computeM2();
+    pfs_computeM3();
+  },
+
+  summary: function(root){
+    const q = (id) => root.querySelector(id);
+    const v = (id) => (q(id) ? q(id).value : '');
+    const t = (id) => (q(id) ? q(id).textContent : '');
+
+    const L = [];
+    L.push('PROPERTY FOR STOCK - SHAREHOLDER GAIN (Section 351) - CPA study summary');
+    L.push('');
+    L.push('CALCULATOR 1 - Shareholder gain');
+    L.push('  Shareholder: ' + v('#pfs_m1_sh') + '   Corporation: ' + v('#pfs_m1_corp'));
+    L.push('  Property: ' + v('#pfs_m1_prop'));
+    L.push('  Adjusted basis: ' + v('#pfs_m1_basis') + '   FMV property: ' + v('#pfs_m1_fmvprop'));
+    L.push('  FMV stock received: ' + v('#pfs_m1_stock') + '   Cash: ' + v('#pfs_m1_cash') +
+           '   Other boot: ' + v('#pfs_m1_otherboot') + '   Liab treated as boot: ' + v('#pfs_m1_liabboot'));
+    L.push('  Formula: Recognized gain = lesser of (realized gain, boot), not below 0');
+    L.push('  Amount realized: ' + t('#pfs_m1_o_ar'));
+    L.push('  Realized gain:   ' + t('#pfs_m1_o_rg'));
+    L.push('  Boot received:   ' + t('#pfs_m1_o_boot'));
+    L.push('  RECOGNIZED GAIN: ' + t('#pfs_m1_o_recog'));
+    L.push('  Deferred gain:   ' + t('#pfs_m1_o_def'));
+    L.push('');
+    L.push('CALCULATOR 2 - Transferor group control test');
+    L.push('  Formula: control = sum of stock % for property contributors; must be >= 80%');
+    L.push('  Qualifying control %: ' + t('#pfs_m2_o_ctrlpct'));
+    const rows = Array.from(root.querySelectorAll('#pfs_m2_body tr'));
+    rows.forEach(tr => {
+      const nm = tr.querySelector('.pfs_m2_name') ? tr.querySelector('.pfs_m2_name').value : '';
+      const ty = tr.querySelector('.pfs_m2_type') ? tr.querySelector('.pfs_m2_type').value : '';
+      const pc = tr.querySelector('.pfs_m2_pct') ? tr.querySelector('.pfs_m2_pct').value : '';
+      const rz = tr.querySelector('.pfs_m2_realized') ? tr.querySelector('.pfs_m2_realized').textContent : '';
+      const rg = tr.querySelector('.pfs_m2_recog') ? tr.querySelector('.pfs_m2_recog').textContent : '';
+      L.push('   - ' + nm + ' | ' + ty + ' | stock ' + pc + '% | realized ' + rz + ' | recognized ' + rg);
+    });
+    L.push('');
+    L.push('CALCULATOR 3 - Corporation basis in property');
+    L.push('  Transferor: ' + v('#pfs_m3_tr') + '   Corporation: ' + v('#pfs_m3_corp'));
+    L.push('  Formula: Corp basis = transferor adjusted basis + gain recognized by transferor');
+    L.push('  Transferor adjusted basis: ' + v('#pfs_m3_basis') + '   Gain recognized: ' + v('#pfs_m3_gain') +
+           '   Liability assumed: ' + v('#pfs_m3_liab'));
+    L.push('  CORPORATION BASIS: ' + t('#pfs_m3_o_basis'));
+    L.push('');
+    L.push('Key warnings: boot (cash/other property/liabilities treated as boot) triggers gain up to the lesser of realized gain or boot;');
+    L.push('services are not property and do not count toward the 80% control test; stock for services is taxable compensation;');
+    L.push('liabilities assumed in excess of basis can trigger Section 357(c) gain.');
+    L.push('');
+    L.push('Education/planning only - review with a qualified tax advisor before relying on this.');
+    return L.join('\n');
+  }
+});
+</script>
+
+<!-- ===== PAGE: ep ===== -->
+<script>
+registerPage({
+  top:'dividend', topLabel:'Dividend',
+  sub:'accumulated-current-ep', subLabel:'Accumulated and Current E&P',
+  title:'Accumulated and Current E&P',
+  html: `
+  <div class="wrap">
+
+    <div class="card">
+      <p class="lead">A C-corporation distribution is classified in a fixed order. Each dollar is tested against current + accumulated earnings &amp; profits (E&amp;P) first, then against the shareholder's stock basis, and only what remains is capital gain.</p>
+      <div class="grp-h first"><span class="grp-tag">CORE RULE</span> Order of classification</div>
+      <ol class="bullets">
+        <li><b>1. Dividend income</b> — to the extent of <b>total E&amp;P</b> (accumulated + current). Ordinary dividend, taxable to the shareholder.</li>
+        <li><b>2. Return of capital</b> — any excess over E&amp;P, but only up to the shareholder's <b>stock basis</b>. Not taxed now; it <b>reduces basis</b>.</li>
+        <li><b>3. Capital gain</b> — anything left <b>after basis hits zero</b>. Taxed as gain on sale of stock (short- or long-term).</li>
+      </ol>
+      <p class="note">Book retained earnings is <b>not</b> the same as E&amp;P. E&amp;P is a separate tax measure of a corporation's economic ability to pay dividends.</p>
+    </div>
+
+    <div class="card">
+      <div class="formula">
+        <div class="ftitle">Distribution classification formulas</div>
+        <div class="eq">Total E&amp;P = Accumulated E&amp;P + Current E&amp;P</div>
+        <div class="eq">Dividend income = lesser of ( Total E&amp;P , Total distributions )</div>
+        <div class="eq">Non-dividend distribution = Total distributions − Dividend income</div>
+        <div class="eq">Return of capital = lesser of ( Non-dividend distribution , Stock basis )</div>
+        <div class="eq">Capital gain = Non-dividend distribution − Return of capital</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">WORKED EXAMPLE</span> Locke Corp.</div>
+      <p class="lead">Locke Corp. begins the year with <b>$30,000</b> accumulated E&amp;P and earns <b>$20,000</b> current E&amp;P. It makes two cash distributions of <b>$40,000</b> each (total <b>$80,000</b>). How much of the total distribution is taxed as dividend income?</p>
+
+      ${U.choices({
+        stem:'Total dividend income reported by Locke’s shareholders:',
+        options:[
+          {key:'A', text:'$50,000', why:'Correct. Dividend income is the lesser of total E&P ($30,000 + $20,000 = $50,000) and total distributions ($80,000). Total E&P is smaller, so $50,000 is dividend income; the remaining $30,000 is a non-dividend distribution.'},
+          {key:'B', text:'$80,000', why:'Wrong. This assumes the entire distribution is a dividend. Dividends are capped at total E&P ($50,000); the excess $30,000 cannot be a dividend.'},
+          {key:'C', text:'$20,000', why:'Wrong. This counts only current E&P and ignores the $30,000 of accumulated E&P. Both layers support dividend treatment.'},
+          {key:'D', text:'$0', why:'Wrong. There is positive total E&P of $50,000, so distributions are dividends to that extent. $0 would only apply with no E&P and no excess.'}
+        ],
+        correct:'A'
+      })}
+
+      <div class="step">
+        <div class="step-h"><span class="step-n">1</span> Build total E&amp;P, then tax the dividend layer <span class="step-tag g">DIVIDEND</span></div>
+        <div class="calc">
+          <div class="cr"><span class="cl">Beginning accumulated E&amp;P</span><span>$30,000</span></div>
+          <div class="cr"><span class="cl">Current E&amp;P</span><span>+ $20,000</span></div>
+          <div class="cr sub"><span class="cl">Total E&amp;P</span><span>$50,000</span></div>
+          <div class="cr"><span class="cl">Total distributions</span><span>$80,000</span></div>
+          <div class="cr tot"><span class="cl">Dividend income = lesser($50,000, $80,000)</span><span>$50,000</span></div>
+        </div>
+        <div class="step-rule">The excess $80,000 − $50,000 = <b>$30,000</b> is a non-dividend distribution: first return of capital, then capital gain beyond basis.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-h"><span class="step-n">2</span> Basis extension — one shareholder receives the full $80,000 (stock basis $25,000) <span class="step-tag n">BASIS</span></div>
+        <div class="calc">
+          <div class="cr"><span class="cl">Dividend income (from Step 1)</span><span>$50,000</span></div>
+          <div class="cr"><span class="cl">Non-dividend distribution = $80,000 − $50,000</span><span>$30,000</span></div>
+          <div class="cr"><span class="cl">Beginning stock basis</span><span>$25,000</span></div>
+          <div class="cr sub"><span class="cl">Return of capital = lesser($30,000, $25,000)</span><span>$25,000</span></div>
+          <div class="cr"><span class="cl">Ending stock basis = $25,000 − $25,000</span><span>$0</span></div>
+          <div class="cr tot"><span class="cl">Capital gain = $30,000 − $25,000</span><span>$5,000</span></div>
+        </div>
+        <div class="step-mean">Final breakdown: dividend income <b>$50,000</b>, return of capital <b>$25,000</b>, capital gain <b>$5,000</b>, ending stock basis <b>$0</b>.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">CALCULATOR</span> Corporation E&amp;P &amp; distributions</div>
+      <div class="grid cols-2">
+        <div class="field"><label class="hint">Corporation name</label><input class="ipt txt" id="ep_corpName" value="Locke Corp."></div>
+        <div class="field"><label class="hint">Tax year</label><input class="ipt txt" id="ep_taxYear" value="2026"></div>
+        <div class="field"><label class="hint">Beginning accumulated E&amp;P ($)</label><input class="ipt" id="ep_accEP" value="30,000"></div>
+        <div class="field"><label class="hint">Current E&amp;P ($)</label><input class="ipt" id="ep_curEP" value="20,000"></div>
+        <div class="field"><label class="hint">Total cash distributions ($)</label><input class="ipt" id="ep_totDist" value="80,000"></div>
+        <div class="field"><label class="hint">Number of distributions</label><input class="ipt" id="ep_numDist" value="2"></div>
+      </div>
+      <div class="grid cols-2" style="margin-top:8px">
+        <div class="field"><label class="hint">Distribution 1 label / amount</label><input class="ipt txt" id="ep_dist1lbl" value="Q2 cash" placeholder="label"></div>
+        <div class="field"><label class="hint">&nbsp;</label><input class="ipt" id="ep_dist1amt" value="40,000" placeholder="amount ($)"></div>
+        <div class="field"><label class="hint">Distribution 2 label / amount</label><input class="ipt txt" id="ep_dist2lbl" value="Q4 cash" placeholder="label"></div>
+        <div class="field"><label class="hint">&nbsp;</label><input class="ipt" id="ep_dist2amt" value="40,000" placeholder="amount ($)"></div>
+      </div>
+      <div class="field" style="margin-top:8px"><label class="hint">Corporation notes</label><input class="ipt txt" id="ep_corpNotes" value="" placeholder="optional"></div>
+
+      <div class="grp-h"><span class="grp-tag">CALCULATOR</span> Shareholder</div>
+      <div class="grid cols-2">
+        <div class="field"><label class="hint">Shareholder name</label><input class="ipt txt" id="ep_shName" value="Sole shareholder"></div>
+        <div class="field"><label class="hint">Ownership %</label><input class="ipt" id="ep_ownPct" value="100"></div>
+        <div class="field"><label class="hint">Beginning stock basis ($)</label><input class="ipt" id="ep_basis" value="25,000"></div>
+        <div class="field"><label class="hint">Distribution received ($)</label><input class="ipt" id="ep_shDist" value="80,000"></div>
+        <div class="field"><label class="hint">Holding period</label>
+          <select class="ipt" id="ep_holdPer">
+            <option value="Long-term" selected>Long-term</option>
+            <option value="Short-term">Short-term</option>
+            <option value="Unknown">Unknown</option>
+          </select>
+        </div>
+        <div class="field"><label class="hint">Shareholder notes</label><input class="ipt txt" id="ep_shNotes" value="" placeholder="optional"></div>
+      </div>
+
+      <div class="grp-h"><span class="grp-tag">FLAGS</span> Advanced facts</div>
+      <div class="grid cols-3">
+        <div class="field"><label class="hint">Current E&amp;P</label>
+          <select class="ipt" id="ep_fCur"><option selected>Positive</option><option>Zero</option><option>Negative</option></select></div>
+        <div class="field"><label class="hint">Accumulated E&amp;P</label>
+          <select class="ipt" id="ep_fAcc"><option selected>Positive</option><option>Zero</option><option>Negative</option></select></div>
+        <div class="field"><label class="hint">Multiple shareholders?</label>
+          <select class="ipt" id="ep_fMulti"><option selected>No</option><option>Yes</option></select></div>
+        <div class="field"><label class="hint">Pro rata distributions?</label>
+          <select class="ipt" id="ep_fPro"><option selected>Yes</option><option>No</option><option>Unknown</option></select></div>
+        <div class="field"><label class="hint">Property distribution?</label>
+          <select class="ipt" id="ep_fProp"><option selected>No</option><option>Yes</option><option>Unknown</option></select></div>
+        <div class="field"><label class="hint">Stock redemption?</label>
+          <select class="ipt" id="ep_fRedeem"><option selected>No</option><option>Yes</option><option>Unknown</option></select></div>
+        <div class="field"><label class="hint">Liquidating distribution?</label>
+          <select class="ipt" id="ep_fLiq"><option selected>No</option><option>Yes</option><option>Unknown</option></select></div>
+      </div>
+
+      <div class="warnings" id="ep_warn"></div>
+
+      <div class="bignum-wrap" style="margin-top:14px">
+        <div class="bignum"><div class="bn-label">Total E&amp;P</div><div class="bn-val" id="ep_oTotEP">$0</div></div>
+        <div class="bignum accent"><div class="bn-label">Dividend income</div><div class="bn-val" id="ep_oDiv">$0</div></div>
+        <div class="bignum"><div class="bn-label">Return of capital</div><div class="bn-val" id="ep_oROC">$0</div></div>
+        <div class="bignum"><div class="bn-label">Capital gain</div><div class="bn-val" id="ep_oGain">$0</div></div>
+        <div class="bignum"><div class="bn-label">Ending stock basis</div><div class="bn-val" id="ep_oEndBasis">$0</div></div>
+      </div>
+
+      <div class="calc" style="margin-top:14px">
+        <div class="cr"><span class="cl">Accumulated E&amp;P + Current E&amp;P</span><span id="ep_cTotEP">$0</span></div>
+        <div class="cr sub"><span class="cl">Total E&amp;P</span><span id="ep_cTotEP2">$0</span></div>
+        <div class="cr"><span class="cl">Dividend = min(total distributions, total E&amp;P)</span><span id="ep_cDiv">$0</span></div>
+        <div class="cr"><span class="cl">Non-dividend distribution = distributions − dividend</span><span id="ep_cNonDiv">$0</span></div>
+        <div class="cr"><span class="cl">Return of capital = min(non-dividend, stock basis)</span><span id="ep_cROC">$0</span></div>
+        <div class="cr"><span class="cl">Ending basis = basis − return of capital</span><span id="ep_cEndBasis">$0</span></div>
+        <div class="cr tot"><span class="cl">Capital gain = non-dividend − return of capital</span><span id="ep_cGain">$0</span></div>
+      </div>
+
+      <div class="headline info" id="ep_headline" style="margin-top:14px">
+        <span class="hl-ico">&#9432;</span>
+        <div><div id="ep_hlMain">Enter facts to classify the distribution.</div><div class="hl-sub" id="ep_hlSub"></div></div>
+      </div>
+
+      <div class="toolbar" style="margin-top:12px">
+        <button class="btn ghost sm" id="ep_reset">Reset to Locke example</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">FAQ</span> Dividends, E&amp;P &amp; basis</div>
+      ${U.faq([
+        {q:'What is a dividend for tax purposes?', a:'A distribution of cash or property by a corporation to its shareholders out of its earnings and profits (E&P). It is taxable as a dividend only to the extent of E&P; amounts beyond E&P are not dividends.'},
+        {q:'What is E&P?', a:'Earnings &amp; profits is a tax concept measuring a corporation’s economic capacity to pay dividends without returning capital. It starts from taxable income with adjustments and is separate from both taxable income and book retained earnings.'},
+        {q:'What is accumulated E&P?', a:'The running total of undistributed E&P from all prior years, measured as of the first day of the current tax year. It is the second layer of dividend capacity after current E&P.'},
+        {q:'What is current E&P?', a:'E&P generated during the current tax year, measured at year-end. Current E&P can make distributions dividends even when accumulated E&P is negative (a deficit).'},
+        {q:'What happens when distributions exceed E&P?', a:'The excess is a non-dividend distribution: first a tax-free return of capital that reduces stock basis, then capital gain once basis reaches zero.'},
+        {q:'What is return of capital?', a:'The portion of a distribution that exceeds E&P but is covered by stock basis. It is not taxed currently; instead it reduces the shareholder’s basis dollar-for-dollar.'},
+        {q:'How does a distribution reduce stock basis?', a:'After the dividend layer, each non-dividend dollar reduces basis until basis is zero. A lower basis means a larger gain on a future sale.'},
+        {q:'When does capital gain happen?', a:'Once basis is fully recovered (basis = $0), any remaining non-dividend distribution is taxed as capital gain — long-term or short-term based on the holding period of the stock.'},
+        {q:'Difference between a regular and a liquidating distribution?', a:'A regular (non-liquidating) distribution is tested against E&P first. A liquidating distribution is treated as full payment in exchange for the stock under different rules — generally capital gain/loss measured against basis, not the E&P ordering shown here.'},
+        {q:'Why can book retained earnings differ from E&P?', a:'Book retained earnings follows GAAP; E&P follows tax rules with its own adjustments (e.g., timing of depreciation, certain non-deductible items, tax-exempt income). The two routinely differ.'}
+      ])}
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">ADVISOR REVIEW</span> Before relying on this</div>
+      ${U.checklist([
+        'Confirm current and accumulated E&P (separate from book retained earnings)',
+        'Confirm each shareholder’s stock basis',
+        'Confirm distribution amounts and dates',
+        'Confirm pro-rata vs non-pro-rata treatment',
+        'Watch for property distributions and stock redemptions',
+        'Separate any liquidating distributions — different rules apply',
+        'Document all assumptions and sources'
+      ])}
+    </div>
+
+  </div>`,
+
+  init: function(root){
+    const ep_$ = (id)=>root.querySelector(id);
+
+    const ep_compute = function(){
+      const accEP = U.num0(ep_$('#ep_accEP').value);
+      const curEP = U.num0(ep_$('#ep_curEP').value);
+      const totDist = U.num0(ep_$('#ep_totDist').value);
+      const basis = U.num0(ep_$('#ep_basis').value);
+      const shDist = U.num0(ep_$('#ep_shDist').value);
+      const ownPct = U.num(ep_$('#ep_ownPct').value);
+
+      // Core E&P math (corporation level, on total distributions)
+      const totalEP = accEP + curEP;
+
+      // Basis / capital-gain layer uses the SHAREHOLDER's own distribution & basis.
+      // Dividend portion attributable to this shareholder is capped by the E&P pool;
+      // for the worked example (sole shareholder) shDist mirrors totDist.
+      const shTotalEP = totalEP; // total E&P pool
+      const shDividend = Math.max(0, Math.min(shDist, shTotalEP));
+      const shNonDiv = Math.max(0, shDist - shDividend);
+      const roc = Math.max(0, Math.min(shNonDiv, basis));
+      const endBasis = Math.max(0, basis - roc);
+      const capGain = Math.max(0, shNonDiv - roc);
+
+      // Outputs (headline cards reflect the shareholder-level full picture)
+      ep_$('#ep_oTotEP').textContent = U.fmtUSD(totalEP);
+      ep_$('#ep_oDiv').textContent = U.fmtUSD(shDividend);
+      ep_$('#ep_oROC').textContent = U.fmtUSD(roc);
+      ep_$('#ep_oGain').textContent = U.fmtUSD(capGain);
+      ep_$('#ep_oEndBasis').textContent = U.fmtUSD(endBasis);
+
+      // Calc rows
+      ep_$('#ep_cTotEP').textContent = U.fmtUSD(accEP) + ' + ' + U.fmtUSD(curEP);
+      ep_$('#ep_cTotEP2').textContent = U.fmtUSD(totalEP);
+      ep_$('#ep_cDiv').textContent = U.fmtUSD(shDividend);
+      ep_$('#ep_cNonDiv').textContent = U.fmtUSD(shNonDiv);
+      ep_$('#ep_cROC').textContent = U.fmtUSD(roc);
+      ep_$('#ep_cEndBasis').textContent = U.fmtUSD(endBasis);
+      ep_$('#ep_cGain').textContent = U.fmtUSD(capGain);
+
+      // Headline
+      const hlMain = ep_$('#ep_hlMain'), hlSub = ep_$('#ep_hlSub'), hl = ep_$('#ep_headline');
+      hl.className = 'headline info';
+      hlMain.textContent = 'Dividend ' + U.fmtUSD(shDividend) + ' · Return of capital ' + U.fmtUSD(roc) + ' · Capital gain ' + U.fmtUSD(capGain);
+      let subTxt = 'Total E&P ' + U.fmtUSD(totalEP) + '; ending stock basis ' + U.fmtUSD(endBasis) + '.';
+      if(capGain > 0){ hl.className = 'headline warn'; subTxt += ' Basis fully recovered — excess is taxable capital gain.'; }
+      else if(roc > 0){ hl.className = 'headline info'; subTxt += ' Part of the distribution is a tax-free return of capital.'; }
+      else if(shDividend > 0){ hl.className = 'headline good'; subTxt += ' Entire distribution is an ordinary dividend.'; }
+      hlSub.textContent = subTxt;
+
+      // Validation
+      const warn = ep_$('#ep_warn');
+      let w = [];
+      const neg = (v,lbl)=>{ if(v<0) w.push({err:true, t:lbl + ' cannot be negative.'}); };
+      neg(U.num0(ep_$('#ep_totDist').value),'Total cash distributions');
+      neg(U.num0(ep_$('#ep_basis').value),'Beginning stock basis');
+      neg(U.num0(ep_$('#ep_shDist').value),'Distribution received');
+      if(ep_$('#ep_accEP').value.trim()==='' ) w.push({err:true, t:'Beginning accumulated E&P is required.'});
+      if(ep_$('#ep_curEP').value.trim()==='' ) w.push({err:true, t:'Current E&P is required.'});
+      if(ep_$('#ep_totDist').value.trim()==='' ) w.push({err:true, t:'Total cash distributions are required.'});
+      if(ep_$('#ep_basis').value.trim()==='' ) w.push({err:true, t:'Beginning stock basis is required for the return-of-capital / gain test.'});
+      if(!isNaN(ownPct) && (ownPct < 0 || ownPct > 100)) w.push({err:true, t:'Ownership % must be between 0 and 100.'});
+      if(isNaN(ownPct)) w.push({err:false, t:'Ownership % is blank or invalid.'});
+      if(accEP < 0 || curEP < 0) w.push({err:false, t:'Negative E&P (a deficit) changes the analysis — current-E&P deficits net against accumulated E&P by date; review the ordering rules.'});
+      if(ep_$('#ep_fProp').value==='Yes') w.push({err:false, t:'Property distributions: dividend amount uses property FMV and E&P is reduced by FMV (or basis if greater); built-in gain may also increase E&P. Not modeled here.'});
+      if(ep_$('#ep_fRedeem').value==='Yes') w.push({err:false, t:'Stock redemptions may qualify for sale-or-exchange (capital) treatment under §302 rather than the dividend ordering above.'});
+      if(ep_$('#ep_fLiq').value==='Yes') w.push({err:false, t:'Liquidating distributions are NOT tested against E&P — they are treated as payment in exchange for stock. This calculator does not apply.'});
+      if(!isNaN(shDist) && !isNaN(totDist) && Math.abs(shDist - totDist) > 0.005 && ep_$('#ep_fMulti').value==='No') w.push({err:false, t:'Shareholder distribution ≠ total distributions, but “Multiple shareholders” is No — check the figures.'});
+      w.push({err:false, t:'Simplified CPA study mode — not a full tax return. E&P adjustments, dates, property, redemptions and liquidations are not fully modeled.'});
+
+      warn.innerHTML = w.map(x=>'<div class="warnmsg'+(x.err?' err':'')+'"><span class="wi">'+(x.err?'⚠':'ℹ')+'</span><span>'+U.esc(x.t)+'</span></div>').join('');
+    };
+
+    root.addEventListener('input', ep_compute);
+    root.addEventListener('change', ep_compute);
+
+    const ep_reset = ep_$('#ep_reset');
+    if(ep_reset){
+      ep_reset.addEventListener('click', ()=>{
+        ep_$('#ep_corpName').value='Locke Corp.'; ep_$('#ep_taxYear').value='2026';
+        ep_$('#ep_accEP').value='30,000'; ep_$('#ep_curEP').value='20,000';
+        ep_$('#ep_totDist').value='80,000'; ep_$('#ep_numDist').value='2';
+        ep_$('#ep_dist1lbl').value='Q2 cash'; ep_$('#ep_dist1amt').value='40,000';
+        ep_$('#ep_dist2lbl').value='Q4 cash'; ep_$('#ep_dist2amt').value='40,000';
+        ep_$('#ep_corpNotes').value='';
+        ep_$('#ep_shName').value='Sole shareholder'; ep_$('#ep_ownPct').value='100';
+        ep_$('#ep_basis').value='25,000'; ep_$('#ep_shDist').value='80,000';
+        ep_$('#ep_holdPer').value='Long-term'; ep_$('#ep_shNotes').value='';
+        ep_$('#ep_fCur').value='Positive'; ep_$('#ep_fAcc').value='Positive';
+        ep_$('#ep_fMulti').value='No'; ep_$('#ep_fPro').value='Yes';
+        ep_$('#ep_fProp').value='No'; ep_$('#ep_fRedeem').value='No'; ep_$('#ep_fLiq').value='No';
+        ep_compute();
+        U.toast('Reset to Locke Corp. example');
+      });
+    }
+
+    ep_compute();
+  },
+
+  summary: function(root){
+    const ep_$ = (id)=>root.querySelector(id);
+    const accEP = U.num0(ep_$('#ep_accEP').value);
+    const curEP = U.num0(ep_$('#ep_curEP').value);
+    const totDist = U.num0(ep_$('#ep_totDist').value);
+    const basis = U.num0(ep_$('#ep_basis').value);
+    const shDist = U.num0(ep_$('#ep_shDist').value);
+    const totalEP = accEP + curEP;
+    const dividend = Math.max(0, Math.min(shDist, totalEP));
+    const nonDiv = Math.max(0, shDist - dividend);
+    const roc = Math.max(0, Math.min(nonDiv, basis));
+    const endBasis = Math.max(0, basis - roc);
+    const capGain = Math.max(0, nonDiv - roc);
+    const corp = ep_$('#ep_corpName').value || 'Corporation';
+    const sh = ep_$('#ep_shName').value || 'Shareholder';
+
+    return [
+      'ACCUMULATED AND CURRENT E&P — DISTRIBUTION CLASSIFICATION',
+      '',
+      'Corporation: ' + corp + ' (tax year ' + (ep_$('#ep_taxYear').value||'') + ')',
+      '  Beginning accumulated E&P: ' + U.fmtUSD(accEP),
+      '  Current E&P: ' + U.fmtUSD(curEP),
+      '  Total cash distributions: ' + U.fmtUSD(totDist),
+      '',
+      'Shareholder: ' + sh + ' (ownership ' + (ep_$('#ep_ownPct').value||'') + '%)',
+      '  Beginning stock basis: ' + U.fmtUSD(basis),
+      '  Distribution received: ' + U.fmtUSD(shDist),
+      '  Holding period: ' + (ep_$('#ep_holdPer').value||''),
+      '',
+      'FORMULAS',
+      '  Total E&P = Accumulated + Current',
+      '  Dividend income = lesser(Total E&P, Total distributions)',
+      '  Non-dividend = Distributions - Dividend',
+      '  Return of capital = lesser(Non-dividend, Stock basis)',
+      '  Capital gain = Non-dividend - Return of capital',
+      '',
+      'RESULTS',
+      '  Total E&P: ' + U.fmtUSD(totalEP),
+      '  Dividend income: ' + U.fmtUSD(dividend),
+      '  Non-dividend distribution: ' + U.fmtUSD(nonDiv),
+      '  Return of capital: ' + U.fmtUSD(roc),
+      '  Ending stock basis: ' + U.fmtUSD(endBasis),
+      '  Capital gain: ' + U.fmtUSD(capGain),
+      '',
+      'KEY WARNINGS',
+      '  - Liquidating distributions, redemptions, and property distributions follow different rules and are not fully modeled.',
+      '  - E&P is a tax measure, separate from book retained earnings.',
+      '  - Negative (deficit) E&P changes the ordering analysis.',
+      '',
+      'Education/planning only — review with a qualified tax advisor before relying on this.'
+    ].join('\n');
+  }
+});
+</script>
+
+<!-- ===== PAGE: liq ===== -->
+<script>
+registerPage({
+  top: 'liquidation', topLabel: 'Liquidation',
+  sub: 'stock-gain-loss', subLabel: 'Stock-Gain/Loss',
+  title: 'Liquidation Stock-Gain/Loss',
+  html: `
+    <div class="wrap">
+
+      <div class="lead">
+        A <b>complete corporate liquidation</b> triggers <b>two separate</b> gain/loss calculations on
+        different bases for different taxpayers. Keep them apart:
+        the <b>corporation</b> is treated as if it <b>sold its property at FMV</b>, while the
+        <b>shareholder</b> is treated as if they <b>sold their stock</b> for what they received.
+      </div>
+
+      <div class="card">
+        <div class="formula">
+          <div class="ftitle">Core formulas (two separate calculations)</div>
+          <div class="eq"><b>Corporation-level gain/loss</b> = FMV of property distributed &minus; corporation's adjusted basis in property</div>
+          <div class="eq"><b>Shareholder-level gain/loss</b> = FMV of property (+ cash) received &minus; shareholder's adjusted basis in stock surrendered</div>
+          <div class="step-rule" style="margin-top:8px">These are <b>SEPARATE</b> calculations — different bases, different taxpayers.</div>
+        </div>
+      </div>
+
+      <!-- WORKED EXAMPLE -->
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Worked example</span> Krol Corp. — distributes appreciated securities</div>
+        <p class="lead" style="margin-top:6px">
+          Krol Corp. distributes marketable securities (adjusted basis <b>$100,000</b>, FMV <b>$150,000</b>)
+          to redeem stock in a <b>complete liquidation</b>. What is Krol's recognized gain or loss?
+        </p>
+
+        ${U.choices({
+          stem: "What gain or loss does Krol Corp. (the corporation) recognize on the distribution?",
+          options: [
+            { key: 'A', text: '$50,000 capital gain', why: 'Correct. In a complete liquidation the corporation is treated as if it sold the property at FMV: $150,000 FMV − $100,000 basis = $50,000 gain. Marketable securities are capital assets, so the gain is capital.' },
+            { key: 'B', text: '$50,000 ordinary income', why: 'Right amount, wrong character. The $50,000 gain is correct, but marketable securities are capital assets, so the gain is capital — not ordinary.' },
+            { key: 'C', text: '$150,000 capital gain', why: "That's the FMV (the full amount realized), not the gain. Gain = FMV − adjusted basis = $150,000 − $100,000 = $50,000." },
+            { key: 'D', text: '$0 gain', why: 'Appreciated property distributed in a complete liquidation DOES create gain — the corporation is deemed to sell it at FMV. Gain is not deferred.' }
+          ],
+          correct: 'A'
+        })}
+
+        <div class="step">
+          <div class="step-h"><span class="step-n">1</span> <span class="step-tag g">Complete liquidation → deemed sale at FMV</span></div>
+          <div class="step-rule">In a complete liquidation, the corporation recognizes gain/loss as if it <b>sold the distributed property at fair market value</b>.</div>
+        </div>
+
+        <div class="step">
+          <div class="step-h"><span class="step-n">2</span> <span class="step-tag g">Compute corporation-level gain</span></div>
+          <div class="calc">
+            <div class="cr"><span class="cl">FMV of property distributed</span><span>${U.fmtUSD(150000)}</span></div>
+            <div class="cr"><span class="cl">Less: corporation's adjusted basis</span><span>&minus; ${U.fmtUSD(100000)}</span></div>
+            <div class="cr tot"><span class="cl">Corporation-level gain</span><span>${U.fmtUSD(50000)}</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-h"><span class="step-n">3</span> <span class="step-tag g">Character</span></div>
+          <div class="step-rule">Marketable securities are <b>capital assets</b> → the $50,000 gain is a <b>capital gain</b>.</div>
+        </div>
+
+        <div class="headline good">
+          <span class="hl-ico">✓</span>
+          <span>$50,000 capital gain
+            <span class="hl-sub">FMV $150,000 − basis $100,000; capital character (marketable securities)</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- CORPORATION-LEVEL CALCULATOR -->
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Calculator 1</span> Corporation-level gain/loss (property distributed)</div>
+
+        <div class="grid cols-3">
+          <div class="field">
+            <label class="hint">Corporation name</label>
+            <input class="ipt txt" id="liq_corpName" type="text" value="Krol Corp.">
+          </div>
+          <div class="field">
+            <label class="hint">Liquidation type</label>
+            <select class="ipt" id="liq_liqType">
+              <option value="Complete" selected>Complete</option>
+              <option value="Partial">Partial</option>
+              <option value="Unknown">Unknown</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="hint">Complete liquidation?</label>
+            <select class="ipt" id="liq_isComplete">
+              <option value="Yes" selected>Yes</option>
+              <option value="No">No</option>
+              <option value="Unknown">Unknown</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label class="hint">Property distributed</label>
+            <input class="ipt txt" id="liq_propName" type="text" value="Marketable securities">
+          </div>
+          <div class="field">
+            <label class="hint">Property type</label>
+            <select class="ipt" id="liq_propType">
+              <option value="Cash">Cash</option>
+              <option value="Marketable securities" selected>Marketable securities</option>
+              <option value="Inventory">Inventory</option>
+              <option value="Depreciable business property">Depreciable business property</option>
+              <option value="Land">Land</option>
+              <option value="Building">Building</option>
+              <option value="Intangible">Intangible</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="hint">Distribution date</label>
+            <input class="ipt" id="liq_distDate" type="date">
+          </div>
+
+          <div class="field">
+            <label class="hint">Adjusted tax basis ($)</label>
+            <input class="ipt" id="liq_corpBasis" type="text" value="100,000">
+          </div>
+          <div class="field">
+            <label class="hint">FMV on distribution date ($)</label>
+            <input class="ipt" id="liq_corpFMV" type="text" value="150,000">
+          </div>
+          <div class="field">
+            <label class="hint">Liability attached ($)</label>
+            <input class="ipt" id="liq_liabAttached" type="text" value="0">
+          </div>
+
+          <div class="field">
+            <label class="hint">Liability assumed by shareholder ($)</label>
+            <input class="ipt" id="liq_liabAssumed" type="text" value="0">
+          </div>
+          <div class="field" style="grid-column:span 2">
+            <label class="hint">Notes</label>
+            <input class="ipt txt" id="liq_corpNotes" type="text" placeholder="optional">
+          </div>
+        </div>
+
+        <div class="warnings" id="liq_corpWarn"></div>
+
+        <div class="bignum-wrap">
+          <div class="bignum">
+            <div class="bn-label">Deemed amount realized (FMV)</div>
+            <div class="bn-val" id="liq_outRealized">—</div>
+          </div>
+          <div class="bignum accent">
+            <div class="bn-label">Corporation-level gain / (loss)</div>
+            <div class="bn-val" id="liq_outCorpGain">—</div>
+          </div>
+        </div>
+
+        <div class="calc" id="liq_corpCalc"></div>
+
+        <div id="liq_charWrap" style="margin-top:10px"></div>
+      </div>
+
+      <!-- SHAREHOLDER-LEVEL CALCULATOR -->
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Calculator 2</span> Shareholder-level gain/loss (stock surrendered)</div>
+
+        <div class="grid cols-3">
+          <div class="field">
+            <label class="hint">Shareholder name</label>
+            <input class="ipt txt" id="liq_shName" type="text" value="Shareholder">
+          </div>
+          <div class="field">
+            <label class="hint">Stock type</label>
+            <select class="ipt" id="liq_stockType">
+              <option value="Common" selected>Common</option>
+              <option value="Preferred">Preferred</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="hint">Holding period</label>
+            <select class="ipt" id="liq_holdPeriod">
+              <option value="Long-term (&gt; 1 yr)" selected>Long-term (&gt; 1 yr)</option>
+              <option value="Short-term (&le; 1 yr)">Short-term (&le; 1 yr)</option>
+              <option value="Unknown">Unknown</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label class="hint">Stock basis ($)</label>
+            <input class="ipt" id="liq_stockBasis" type="text" value="90,000">
+          </div>
+          <div class="field">
+            <label class="hint">Cash received ($)</label>
+            <input class="ipt" id="liq_cashRecd" type="text" value="0">
+          </div>
+          <div class="field">
+            <label class="hint">FMV of property received ($)</label>
+            <input class="ipt" id="liq_propRecd" type="text" value="150,000">
+          </div>
+
+          <div class="field">
+            <label class="hint">Liability assumed by shareholder ($)</label>
+            <input class="ipt" id="liq_shLiab" type="text" value="0">
+          </div>
+          <div class="field">
+            <label class="hint">Ownership %</label>
+            <input class="ipt" id="liq_ownPct" type="text" value="100">
+          </div>
+          <div class="field">
+            <label class="hint">Notes</label>
+            <input class="ipt txt" id="liq_shNotes" type="text" placeholder="optional">
+          </div>
+        </div>
+
+        <div class="warnings" id="liq_shWarn"></div>
+
+        <div class="bignum-wrap">
+          <div class="bignum">
+            <div class="bn-label">Amount realized</div>
+            <div class="bn-val" id="liq_outShRealized">—</div>
+          </div>
+          <div class="bignum accent">
+            <div class="bn-label">Shareholder-level gain / (loss)</div>
+            <div class="bn-val" id="liq_outShGain">—</div>
+          </div>
+        </div>
+
+        <div class="calc" id="liq_shCalc"></div>
+
+        <div class="note" style="margin-top:10px">
+          Stock is treated as <b>sold or exchanged</b> in a complete liquidation, so the shareholder's gain/loss is
+          <b>generally capital</b> (long-term or short-term per the holding period).
+        </div>
+      </div>
+
+      <!-- DISTINCTION -->
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Don't mix them up</span> Two different gains</div>
+        <div class="grid cols-2">
+          <div class="insight">
+            <b>Corporation-level gain</b><br>
+            Based on the <b>property distributed</b>.<br>
+            = FMV − corporation's basis in property.<br>
+            <span class="muted">Krol: $150,000 − $100,000 = <b>$50,000</b>.</span>
+          </div>
+          <div class="insight">
+            <b>Shareholder-level gain</b><br>
+            Based on the <b>stock surrendered</b>.<br>
+            = value received − shareholder's stock basis.<br>
+            <span class="muted">Different basis, different taxpayer.</span>
+          </div>
+        </div>
+        <div class="note" style="margin-top:10px">
+          <b>Different bases, different taxpayers.</b> The corporation uses its basis in the <i>property</i>;
+          the shareholder uses their basis in the <i>stock</i>. Compute each independently.
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">FAQ</span> Common questions</div>
+        ${U.faq([
+          { q: 'What is a complete liquidation?', a: 'A complete liquidation occurs when a corporation winds up its affairs, distributes all of its assets to shareholders, and ceases to exist as a going concern. The corporation redeems all of its stock and dissolves.' },
+          { q: 'Why is the corporation treated as selling the property?', a: 'Under the liquidation rules, a corporation that distributes appreciated (or depreciated) property in a complete liquidation generally recognizes gain or loss as if it had sold that property to the distributee at its fair market value. This prevents appreciation from escaping corporate-level tax.' },
+          { q: 'What is corporation-level gain?', a: "The gain or loss the corporation itself recognizes on the property it distributes: FMV of the property minus the corporation's adjusted basis in that property." },
+          { q: 'What is shareholder-level gain?', a: "The gain or loss the shareholder recognizes on surrendering their stock: the value received (cash + FMV of property, less liabilities assumed) minus the shareholder's adjusted basis in the stock." },
+          { q: 'Why are the two gains separate?', a: 'They involve different taxpayers (the corporation vs. the shareholder), different assets (distributed property vs. surrendered stock), and different bases (corporate property basis vs. shareholder stock basis). Each is computed independently.' },
+          { q: 'What happens when appreciated property is distributed?', a: 'The corporation recognizes a gain equal to FMV minus its basis (e.g., Krol: $150,000 − $100,000 = $50,000). The shareholder takes the property at its FMV as new basis.' },
+          { q: 'What happens when depreciated property is distributed?', a: 'In a complete liquidation, the corporation generally may recognize a loss (FMV below basis), subject to anti-abuse limitations on certain related-party or built-in-loss property. Always confirm the loss is allowed before relying on it.' },
+          { q: 'Why are marketable securities capital assets?', a: 'Marketable securities held for investment are capital assets, so gain or loss on their deemed sale is capital in character rather than ordinary.' },
+          { q: 'When would gain be ordinary income?', a: 'When the distributed asset is ordinary in character — for example, inventory, or depreciation recapture on depreciable property. Recapture is taxed as ordinary income up to the recapture amount.' },
+          { q: 'When would Section 1231 apply?', a: 'Section 1231 applies to depreciable property and real property used in a trade or business held more than one year (e.g., a building or business land). Net 1231 gains can receive capital treatment while net 1231 losses are ordinary.' },
+          { q: 'What happens to shareholder stock basis?', a: 'The shareholder uses their adjusted basis in the surrendered stock to compute gain/loss. After the liquidation, the stock is gone; property received takes a new FMV basis in the shareholder\'s hands.' },
+          { q: 'What if liabilities are attached?', a: "If the distributed property is subject to a liability (or the shareholder assumes a liability), the corporation's amount realized is not treated as less than the liability, and the shareholder's amount realized is reduced by liabilities assumed. Confirm liability amounts on the distribution date." }
+        ])}
+      </div>
+
+      <!-- CHECKLIST -->
+      <div class="card">
+        <div class="grp-h first"><span class="grp-tag">Advisor review</span> Before you rely on this</div>
+        ${U.checklist([
+          'Confirm complete vs. partial liquidation',
+          'Confirm property FMV on the distribution date',
+          'Confirm corporation adjusted basis by asset',
+          'Confirm asset character (capital / §1231 / ordinary / recapture)',
+          'Confirm shareholder stock basis and holding period',
+          'Account for liabilities attached or assumed',
+          'Separate corporation-level and shareholder-level results',
+          'Document assumptions'
+        ])}
+      </div>
+
+    </div>
+  `,
+  init: function (root) {
+    const $ = (id) => root.querySelector('#' + id);
+
+    const liq_charNote = (propType) => {
+      const ordinary = ['Inventory'];
+      const recapture = ['Depreciable business property'];
+      const cap1231 = ['Land', 'Building'];
+      const capital = ['Marketable securities'];
+      if (propType === 'Cash') return { cls: 'info', text: 'Cash — no gain or loss recognized on a cash distribution.' };
+      if (ordinary.includes(propType)) return { cls: 'warn', text: 'Inventory is an ordinary asset → gain is ORDINARY income (not capital).' };
+      if (recapture.includes(propType)) return { cls: 'warn', text: 'Depreciable business property → may trigger depreciation RECAPTURE (ordinary) up to recapture amount; remainder may be §1231.' };
+      if (cap1231.includes(propType)) return { cls: 'info', text: 'Business land/building → generally §1231 property (net §1231 gain may be capital; net §1231 loss is ordinary).' };
+      if (capital.includes(propType)) return { cls: 'good', text: 'Marketable securities are capital assets → gain/loss is CAPITAL.' };
+      return { cls: 'neutral', text: 'Character depends on the specific asset — confirm capital / §1231 / ordinary / recapture treatment.' };
+    };
+
+    const liq_compute = () => {
+      // ---------- Corporation level ----------
+      const corpWarn = $('liq_corpWarn');
+      let cw = [];
+      cw.push('<div class="warnmsg"><span class="wi">ℹ</span> Simplified CPA study mode — not a full tax return.</div>');
+
+      const liqType = $('liq_liqType').value;
+      const isComplete = $('liq_isComplete').value;
+      const propType = $('liq_propType').value;
+      const corpBasisRaw = $('liq_corpBasis').value;
+      const corpFMVRaw = $('liq_corpFMV').value;
+      const liabAttached = U.num0($('liq_liabAttached').value);
+      const liabAssumed = U.num0($('liq_liabAssumed').value);
+
+      const corpBasis = U.num(corpBasisRaw);
+      const corpFMV = U.num(corpFMVRaw);
+
+      if (corpBasisRaw.trim() === '' || isNaN(corpBasis)) {
+        cw.push('<div class="warnmsg err"><span class="wi">⚠</span> Enter the corporation\'s adjusted tax basis in the property.</div>');
+      } else if (corpBasis < 0) {
+        cw.push('<div class="warnmsg err"><span class="wi">⚠</span> Adjusted basis cannot be negative.</div>');
+      }
+      if (corpFMVRaw.trim() === '' || isNaN(corpFMV)) {
+        cw.push('<div class="warnmsg err"><span class="wi">⚠</span> Enter the property FMV on the distribution date.</div>');
+      } else if (corpFMV < 0) {
+        cw.push('<div class="warnmsg err"><span class="wi">⚠</span> FMV cannot be negative.</div>');
+      }
+      if (liabAttached < 0 || liabAssumed < 0) {
+        cw.push('<div class="warnmsg err"><span class="wi">⚠</span> Liability amounts cannot be negative.</div>');
+      }
+      if (liqType !== 'Complete' || isComplete !== 'Yes') {
+        cw.push('<div class="warnmsg"><span class="wi">ℹ</span> This tool models a COMPLETE liquidation. Partial/unknown liquidations follow different rules — confirm treatment.</div>');
+      }
+
+      const haveCorp = !(corpBasisRaw.trim() === '' || isNaN(corpBasis) || corpFMVRaw.trim() === '' || isNaN(corpFMV));
+
+      if (haveCorp) {
+        // Amount realized = FMV, but not less than liability attached (debt rule)
+        const realized = Math.max(corpFMV, liabAttached);
+        const corpGain = realized - corpBasis;
+
+        $('liq_outRealized').textContent = U.fmtUSD(realized);
+        $('liq_outCorpGain').textContent = U.fmtUSD(corpGain);
+
+        const calcRows = [];
+        if (liabAttached > corpFMV && liabAttached > 0) {
+          calcRows.push('<div class="cr"><span class="cl">FMV of property distributed</span><span>' + U.fmtUSD(corpFMV) + '</span></div>');
+          calcRows.push('<div class="cr"><span class="cl">Liability attached (amount realized not less than debt)</span><span>' + U.fmtUSD(liabAttached) + '</span></div>');
+          calcRows.push('<div class="cr sub"><span class="cl">Deemed amount realized</span><span>' + U.fmtUSD(realized) + '</span></div>');
+        } else {
+          calcRows.push('<div class="cr"><span class="cl">Deemed amount realized (FMV)</span><span>' + U.fmtUSD(realized) + '</span></div>');
+        }
+        calcRows.push('<div class="cr"><span class="cl">Less: corporation\'s adjusted basis</span><span>&minus; ' + U.fmtUSD(corpBasis) + '</span></div>');
+        calcRows.push('<div class="cr tot"><span class="cl">Corporation-level gain / (loss)</span><span>' + U.fmtUSD(corpGain) + '</span></div>');
+        $('liq_corpCalc').innerHTML = calcRows.join('');
+
+        const ch = liq_charNote(propType);
+        let gainWord = corpGain > 0 ? 'gain' : (corpGain < 0 ? 'loss' : 'no gain/loss');
+        $('liq_charWrap').innerHTML =
+          '<div class="badge ' + ch.cls + '">Character: ' + U.esc(ch.text) + '</div>' +
+          (corpGain < 0 ? '<div class="warnmsg" style="margin-top:8px"><span class="wi">ℹ</span> Loss recognized — confirm the loss is allowed (related-party / built-in-loss limitations may disallow it).</div>' : '');
+      } else {
+        $('liq_outRealized').textContent = '—';
+        $('liq_outCorpGain').textContent = '—';
+        $('liq_corpCalc').innerHTML = '';
+        $('liq_charWrap').innerHTML = '';
+      }
+
+      corpWarn.innerHTML = cw.join('');
+
+      // ---------- Shareholder level ----------
+      const shWarn = $('liq_shWarn');
+      let sw = [];
+      sw.push('<div class="warnmsg"><span class="wi">ℹ</span> Simplified CPA study mode — not a full tax return.</div>');
+
+      const stockBasisRaw = $('liq_stockBasis').value;
+      const cashRaw = $('liq_cashRecd').value;
+      const propRaw = $('liq_propRecd').value;
+      const shLiab = U.num0($('liq_shLiab').value);
+      const ownPctRaw = $('liq_ownPct').value;
+
+      const stockBasis = U.num(stockBasisRaw);
+      const cashRecd = U.num0(cashRaw);
+      const propRecd = U.num0(propRaw);
+      const ownPct = U.num(ownPctRaw);
+
+      if (stockBasisRaw.trim() === '' || isNaN(stockBasis)) {
+        sw.push('<div class="warnmsg err"><span class="wi">⚠</span> Enter the shareholder\'s adjusted basis in the stock.</div>');
+      } else if (stockBasis < 0) {
+        sw.push('<div class="warnmsg err"><span class="wi">⚠</span> Stock basis cannot be negative.</div>');
+      }
+      if (cashRecd < 0 || propRecd < 0 || shLiab < 0) {
+        sw.push('<div class="warnmsg err"><span class="wi">⚠</span> Cash, property FMV, and liabilities cannot be negative.</div>');
+      }
+      if (!isNaN(ownPct) && (ownPct < 0 || ownPct > 100)) {
+        sw.push('<div class="warnmsg err"><span class="wi">⚠</span> Ownership % must be between 0 and 100.</div>');
+      }
+
+      const haveSh = !(stockBasisRaw.trim() === '' || isNaN(stockBasis));
+
+      if (haveSh) {
+        const shRealized = cashRecd + propRecd - shLiab;
+        const shGain = shRealized - stockBasis;
+
+        $('liq_outShRealized').textContent = U.fmtUSD(shRealized);
+        $('liq_outShGain').textContent = U.fmtUSD(shGain);
+
+        const sRows = [];
+        sRows.push('<div class="cr"><span class="cl">Cash received</span><span>' + U.fmtUSD(cashRecd) + '</span></div>');
+        sRows.push('<div class="cr"><span class="cl">Add: FMV of property received</span><span>+ ' + U.fmtUSD(propRecd) + '</span></div>');
+        if (shLiab > 0) {
+          sRows.push('<div class="cr"><span class="cl">Less: liabilities assumed</span><span>&minus; ' + U.fmtUSD(shLiab) + '</span></div>');
+        }
+        sRows.push('<div class="cr sub"><span class="cl">Amount realized</span><span>' + U.fmtUSD(shRealized) + '</span></div>');
+        sRows.push('<div class="cr"><span class="cl">Less: stock basis surrendered</span><span>&minus; ' + U.fmtUSD(stockBasis) + '</span></div>');
+        sRows.push('<div class="cr tot"><span class="cl">Shareholder-level gain / (loss)</span><span>' + U.fmtUSD(shGain) + '</span></div>');
+        $('liq_shCalc').innerHTML = sRows.join('');
+      } else {
+        $('liq_outShRealized').textContent = '—';
+        $('liq_outShGain').textContent = '—';
+        $('liq_shCalc').innerHTML = '';
+      }
+
+      shWarn.innerHTML = sw.join('');
+    };
+
+    root.addEventListener('input', liq_compute);
+    root.addEventListener('change', liq_compute);
+    liq_compute();
+  },
+  summary: function (root) {
+    const $ = (id) => root.querySelector('#' + id);
+    const corpName = $('liq_corpName').value || 'Corporation';
+    const propName = $('liq_propName').value || 'property';
+    const propType = $('liq_propType').value;
+    const corpBasis = U.num0($('liq_corpBasis').value);
+    const corpFMV = U.num0($('liq_corpFMV').value);
+    const liabAttached = U.num0($('liq_liabAttached').value);
+    const realized = Math.max(corpFMV, liabAttached);
+    const corpGain = realized - corpBasis;
+
+    const shName = $('liq_shName').value || 'Shareholder';
+    const stockBasis = U.num0($('liq_stockBasis').value);
+    const cashRecd = U.num0($('liq_cashRecd').value);
+    const propRecd = U.num0($('liq_propRecd').value);
+    const shLiab = U.num0($('liq_shLiab').value);
+    const shRealized = cashRecd + propRecd - shLiab;
+    const shGain = shRealized - stockBasis;
+
+    const lines = [];
+    lines.push('LIQUIDATION — STOCK GAIN/LOSS (complete liquidation)');
+    lines.push('Two separate calculations: corporation-level (property) and shareholder-level (stock).');
+    lines.push('');
+    lines.push('CORPORATION-LEVEL (' + corpName + ')');
+    lines.push('Property distributed: ' + propName + ' (' + propType + ')');
+    lines.push('Adjusted basis: ' + U.fmtUSD(corpBasis) + '; FMV: ' + U.fmtUSD(corpFMV) + (liabAttached ? ('; liability attached: ' + U.fmtUSD(liabAttached)) : ''));
+    lines.push('Formula: Corp gain/loss = FMV (amount realized) − corp adjusted basis');
+    lines.push('Deemed amount realized: ' + U.fmtUSD(realized));
+    lines.push('Corporation-level gain/(loss): ' + U.fmtUSD(corpGain));
+    lines.push('');
+    lines.push('SHAREHOLDER-LEVEL (' + shName + ')');
+    lines.push('Stock basis: ' + U.fmtUSD(stockBasis) + '; cash received: ' + U.fmtUSD(cashRecd) + '; property FMV received: ' + U.fmtUSD(propRecd) + (shLiab ? ('; liabilities assumed: ' + U.fmtUSD(shLiab)) : ''));
+    lines.push('Formula: SH gain/loss = (cash + FMV property − liabilities assumed) − stock basis');
+    lines.push('Amount realized: ' + U.fmtUSD(shRealized));
+    lines.push('Shareholder-level gain/(loss): ' + U.fmtUSD(shGain) + ' (generally capital — stock is sold/exchanged)');
+    lines.push('');
+    lines.push('Key warnings: keep the two gains separate (different bases, different taxpayers); confirm asset character (capital/§1231/ordinary/recapture); account for liabilities; confirm complete vs. partial liquidation.');
+    lines.push('');
+    lines.push('Education/planning only — review with a qualified tax advisor before relying on this.');
+    return lines.join('\n');
+  }
+});
+</script>
+
+</body>
+</html>
