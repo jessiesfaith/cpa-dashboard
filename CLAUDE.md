@@ -21,8 +21,9 @@ Generic workflow rules live in `~/.claude/CLAUDE.md` (they apply to every repo).
   acceptance numbers (each page prefilled to a known answer; see HANDOFF.md).
 - **Deploy:** Vercel static (`vercel.json` -> `cleanUrls`). CLI: `npx vercel --prod
   --scope jessica-dougherty-s-projects`. (Git-connect later if desired -- see HANDOFF.md.)
-- **Production:** https://cpa-dashboard.vercel.app + app.fastinsights.io tile/proxy.
-  Vercel project `cpa-dashboard` (team `jessica-dougherty-s-projects`).
+- **Production:** https://cpa-dashboard-ashy.vercel.app + app.fastinsights.io/cpa-dashboard tile/proxy.
+  Vercel project `cpa-dashboard` (team `jessica-dougherty-s-projects`). NOTE: plain
+  `cpa-dashboard.vercel.app` is owned by someone else, so the prod alias is `cpa-dashboard-ashy`.
 
 ## GitHub / accounts (Jessica)
 - This is **Jessica's** ecosystem (like the other Fast Insights tools). Vercel CLI on this machine
