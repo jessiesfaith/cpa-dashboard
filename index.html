@@ -122,6 +122,35 @@
   .step-mean{font-size:13px;line-height:1.6;border-left:3px solid var(--accent);padding:2px 0 2px 12px;margin-top:8px}
   .step-mean b{color:var(--accent)}
 
+  /* ---- worked-math "spreadsheet" table (teaching: every step, no skips) ---- */
+  .mwrap{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:0 0 16px;background:var(--panel2)}
+  .mhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+    padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--line)}
+  .mhead .mttl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--accent)}
+  .mhead .mttl .msub{display:block;text-transform:none;letter-spacing:0;color:var(--muted);font-size:12px;font-weight:400;margin-top:2px}
+  .mbadge{font-size:11px;font-weight:700;padding:4px 11px;border-radius:999px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+  .mbadge.ex{background:var(--panel2);color:var(--muted);border:1px solid var(--line)}
+  .mbadge.live{background:rgba(0,200,5,.16);color:var(--good);border:1px solid var(--good)}
+  table.mtable{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums;background:var(--bg)}
+  table.mtable th,table.mtable td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top;line-height:1.45}
+  table.mtable thead th{background:var(--panel);font-size:11px;text-transform:uppercase;letter-spacing:.04em;
+    color:var(--muted);font-weight:700}
+  table.mtable td.amt,table.mtable th.amt{text-align:right;white-space:nowrap;width:1%;font-weight:600}
+  table.mtable td.how{color:var(--muted);font-size:12.5px}
+  table.mtable td.how code{background:var(--panel);padding:1px 6px;border-radius:4px;font-size:.92em;color:var(--ink)}
+  table.mtable tr.sect td{background:var(--panel2);font-weight:700;color:var(--ink);font-size:12px;
+    text-transform:uppercase;letter-spacing:.04em}
+  table.mtable tr.sect td .sn{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;
+    border-radius:6px;background:var(--accent);color:#001a00;font-size:12px;font-weight:700;margin-right:9px}
+  table.mtable tr.in td.lbl{padding-left:26px}
+  table.mtable tr.sub td{font-weight:700;background:var(--panel)}
+  table.mtable tr.result td{font-weight:700;background:rgba(0,200,5,.09)}
+  table.mtable tr.result td.amt{color:var(--accent);font-size:15px}
+  table.mtable .exq{color:var(--muted);font-style:italic}     /* value pulled from the example default */
+  table.mtable .op{color:var(--muted);font-weight:400;margin-right:3px}
+  .mfoot{font-size:12px;color:var(--muted);padding:9px 14px;border-top:1px solid var(--line);line-height:1.55;background:var(--panel)}
+  .mfoot b{color:var(--ink)}
+
   /* ---- answer-choice cards ---- */
   .qstem{font-size:15px;font-weight:600;margin:0 0 4px}
   .choices{display:grid;gap:9px;margin:10px 0 4px}
@@ -323,6 +352,50 @@
       return '<div class="checklist">'+items.map(function(t){
         return '<label><input type="checkbox"><span>'+t+'</span></label>';
       }).join("")+'</div>';
+    },
+    /* format a USD amount for a worked-math table; ex=true marks it as an
+       example-default value (rendered muted + italic so it reads "example"). */
+    fval: function(n, ex){
+      var s = U.fmtUSD(n);
+      return ex ? '<span class="exq">'+s+'</span>' : s;
+    },
+    /* Build an Excel-style worked-math table that shows every step (no skips).
+       def = {
+         title, subtitle,                       header text
+         mode: 'example' | 'live',              badge (example vs your numbers)
+         cols: ['Line item','How the math works','Amount'],   (3 cols; optional)
+         rows: [ {kind,label,how,amount} ],
+         foot                                   optional caption HTML
+       }
+       row.kind: 'sect'  full-width step header (label can hold <span class="sn">1</span>)
+                 'in'    indented input / addend line
+                 'sub'   subtotal (bold)
+                 'result'final answer (accent)
+                 'plain' a normal row (default) */
+    mtable: function(def){
+      var cols = def.cols || ['Line item','How the math works','Amount'];
+      var thead = '<thead><tr>'+cols.map(function(c,i){
+        return '<th'+(i===cols.length-1?' class="amt"':'')+'>'+U.esc(c)+'</th>';
+      }).join('')+'</tr></thead>';
+      var body = (def.rows||[]).map(function(r){
+        if(r.kind==='sect'){
+          return '<tr class="sect"><td colspan="'+cols.length+'">'+(r.label||'')+'</td></tr>';
+        }
+        var cls = r.kind || 'plain';
+        var lblCls = (r.kind==='in') ? ' class="lbl"' : '';
+        return '<tr class="'+cls+'">'+
+          '<td'+lblCls+'>'+(r.label||'')+'</td>'+
+          '<td class="how">'+(r.how||'')+'</td>'+
+          '<td class="amt">'+(r.amount==null?'':r.amount)+'</td>'+
+        '</tr>';
+      }).join('');
+      var badge = (def.mode==='live')
+        ? '<span class="mbadge live">✏️ Your numbers</span>'
+        : '<span class="mbadge ex">📘 Example values</span>';
+      var head = '<div class="mhead"><div class="mttl">'+U.esc(def.title||'Worked math')+
+        (def.subtitle?'<span class="msub">'+def.subtitle+'</span>':'')+'</div>'+badge+'</div>';
+      var foot = def.foot ? '<div class="mfoot">'+def.foot+'</div>' : '';
+      return '<div class="mwrap">'+head+'<table class="mtable">'+thead+'<tbody>'+body+'</tbody></table>'+foot+'</div>';
     },
     /* clipboard copy with toast */
     copy: function(text){
@@ -602,17 +675,7 @@ registerPage({
           </div>
         </div>
 
-        <div class="formula" style="margin-top:14px">
-          <div class="ftitle">Worked solution</div>
-          <div class="step">
-            <div class="step-h"><span class="step-n">1</span> Annual limitation = FMV &times; long-term tax-exempt rate</div>
-            <div class="calc" id="n382_calc1"></div>
-          </div>
-          <div class="step">
-            <div class="step-h"><span class="step-n">2</span> Years to fully use pre-change NOL</div>
-            <div class="calc" id="n382_calc2"></div>
-          </div>
-        </div>
+        <div id="n382_math" style="margin-top:14px"></div>
 
         <div class="grp-h"><span class="grp-tag">Unused pre-change NOL remaining</span></div>
         <div class="tbl-scroll">
@@ -798,6 +861,52 @@ registerPage({
       return html;
     }
 
+    // ---- worked-math table (every step; example when blank, live when typed) ----
+    var N382_EX = {fmv:10000000, rate:0.0365, preNOL:5000000};
+    function n382_eff(){
+      function num(id, key){ var el = root.querySelector(id); var raw = el ? String(el.value) : '';
+        var blank = raw.trim() === ''; return { v: blank ? N382_EX[key] : U.num0(raw), ex: blank }; }
+      var rEl = root.querySelector('#n382_rate'); var rRaw = rEl ? String(rEl.value) : '';
+      var rBlank = rRaw.trim() === ''; var rate = rBlank ? N382_EX.rate : U.normRate(rRaw);
+      if(isNaN(rate)){ rate = N382_EX.rate; rBlank = true; }
+      return { fmv:num('#n382_fmv','fmv'), preNOL:num('#n382_preNOL','preNOL'), rate:{v:rate, ex:rBlank} };
+    }
+    function n382_isLive(){
+      function diff(id, exVal, isRate){ var el = root.querySelector(id); if(!el) return false;
+        var raw = String(el.value).trim(); if(raw === '') return false;
+        var v = isRate ? U.normRate(raw) : U.num0(raw); return !isNaN(v) && v !== exVal; }
+      return diff('#n382_fmv', N382_EX.fmv) || diff('#n382_preNOL', N382_EX.preNOL) || diff('#n382_rate', N382_EX.rate, true);
+    }
+    function n382_renderMath(){
+      var host = root.querySelector('#n382_math'); if(!host) return;
+      var e = n382_eff();
+      var fmv = e.fmv.v, rate = e.rate.v, preNOL = e.preNOL.v;
+      var annual = fmv * rate;
+      var rawYears = annual > 0 ? preNOL / annual : NaN;
+      var years = annual > 0 ? Math.ceil(preNOL / annual) : NaN;
+      var fv = U.fval, $ = U.fmtUSD;
+      var pct = e.rate.ex ? '<span class="exq">'+U.fmtPct(rate,2)+'</span>' : U.fmtPct(rate,2);
+      var rows = [
+        {kind:'sect', label:'<span class="sn">1</span> Annual Section 382 limitation <span class="op">= FMV before the change × long-term tax-exempt rate</span>'},
+        {kind:'in', label:'FMV of the loss corporation before the change', amount: fv(fmv, e.fmv.ex)},
+        {kind:'in', label:'<span class="op">×</span> Long-term tax-exempt rate', amount: pct},
+        {kind:'result', label:'Annual Section 382 limitation — usable NOL per year', amount: $(annual)},
+
+        {kind:'sect', label:'<span class="sn">2</span> Years to fully use the pre-change NOL <span class="op">= pre-change NOL ÷ annual limitation, rounded up</span>'},
+        {kind:'in', label:'Pre-change NOL', amount: fv(preNOL, e.preNOL.ex)},
+        {kind:'in', label:'<span class="op">÷</span> Annual limitation', how:'from step 1', amount: $(annual)},
+        {kind:'in', label:'Exact quotient', how:'<code>NOL ÷ limit</code>', amount: (isNaN(rawYears) ? '—' : U.fmtNum(Math.round(rawYears*100)/100))},
+        {kind:'sub', label:'Years to fully use', how:'<code>round up</code>', amount: (isNaN(years) ? '—' : U.fmtNum(years)+' year'+(years===1?'':'s'))}
+      ];
+      host.innerHTML = U.mtable({
+        title:'Worked math — Section 382 limitation',
+        subtitle:'From company value to the NOL you can actually use each year.',
+        mode: n382_isLive() ? 'live' : 'example',
+        rows: rows,
+        foot:'The limitation caps how much pre-change NOL is usable <b>each year</b> — it does not erase the NOL. A lower company value (or rate) strands more loss each year. <i>Grey italic</i> = example default used because the field is blank.'
+      });
+    }
+
     // Single compute pass: validation, core calc, projection table, headline.
     function n382_compute(){
       var warn = root.querySelector('#n382_warn');
@@ -863,25 +972,9 @@ registerPage({
       }
       root.querySelector('#n382_years').textContent = isNaN(years) ? '—' : U.fmtNum(years);
 
-      // Worked solution — step 1.
-      if(!isNaN(annual)){
-        root.querySelector('#n382_calc1').innerHTML =
-          '<div class="cr"><span class="cl">FMV before change</span><span>'+U.fmtUSD(fmv)+'</span></div>' +
-          '<div class="cr"><span class="cl">&times; Long-term tax-exempt rate</span><span>'+U.fmtPct(rate,2)+'</span></div>' +
-          '<div class="cr tot"><span class="cl">Annual Section 382 limitation</span><span>'+U.fmtUSD(annual)+'</span></div>';
-      } else {
-        root.querySelector('#n382_calc1').innerHTML = '<div class="cr"><span class="cl muted">Enter FMV and rate to compute.</span><span></span></div>';
-      }
-
-      // Worked solution — step 2.
-      if(!isNaN(years) && !isNaN(annual) && annual>0 && !isNaN(preNOL)){
-        root.querySelector('#n382_calc2').innerHTML =
-          '<div class="cr"><span class="cl">Pre-change NOL</span><span>'+U.fmtUSD(preNOL)+'</span></div>' +
-          '<div class="cr"><span class="cl">&divide; Annual limitation</span><span>'+U.fmtUSD(annual)+'</span></div>' +
-          '<div class="cr tot"><span class="cl">Years to fully use (round up)</span><span>'+U.fmtNum(years)+'</span></div>';
-      } else {
-        root.querySelector('#n382_calc2').innerHTML = '<div class="cr"><span class="cl muted">Needs a positive annual limitation and pre-change NOL.</span><span></span></div>';
-      }
+      // Worked solution is now rendered as a full step-by-step table that
+      // always shows the math (example values when fields are blank).
+      n382_renderMath();
 
       // Remaining NOL projection after 1/5/10/20 years.
       var rem = root.querySelector('#n382_remBody');
@@ -1211,6 +1304,7 @@ registerPage({
           <div class="note" id="cons_capNote" style="margin-top:10px"></div>
         </div>
       </div>
+      <div id="cons_math" style="margin-top:16px"></div>
     </div>
 
     <div class="card">
@@ -1244,6 +1338,7 @@ registerPage({
           </div>
         </div>
       </div>
+      <div id="cons_psMath" style="margin-top:14px"></div>
     </div>
 
     <div class="card">
@@ -1276,6 +1371,7 @@ registerPage({
           </div>
         </div>
       </div>
+      <div id="cons_elMath" style="margin-top:14px"></div>
     </div>
 
     <div class="card">
@@ -1447,6 +1543,14 @@ registerPage({
         capNote.innerHTML = 'Net capital result is a gain (or zero); it is included above. Corporate net capital losses, if any, would carry back/forward to capital-gain years.';
       }
 
+      cons_renderMath({
+        sumOpInc:sumOpInc, sumOpLoss:sumOpLoss, netOpInc:netOpInc,
+        sum1231g:sum1231g, sum1231l:sum1231l, net1231:net1231, net1231ordLoss:net1231ordLoss,
+        ordinaryIncome:ordinaryIncome, totalCapGains:totalCapGains, totalCapLosses:totalCapLosses,
+        netCapResult:netCapResult, netCapGainIncluded:netCapGainIncluded,
+        sumDivFrom:sumDivFrom, cti:cti, rows:rows
+      });
+
       warn.innerHTML = msgs.join('');
     }
 
@@ -1491,6 +1595,7 @@ registerPage({
       root.querySelector('#cons_psDefer').textContent    = U.fmtUSD(deferred);
       root.querySelector('#cons_psBig').textContent      = U.fmtUSD(deferred);
 
+      cons_psRenderMath();
       w.innerHTML = msgs.join('');
     }
 
@@ -1529,7 +1634,153 @@ registerPage({
       root.querySelector('#cons_elCTI').textContent      = U.fmtUSD(cti);
       root.querySelector('#cons_elBig').textContent      = U.fmtUSD(cti);
 
+      cons_elRenderMath();
       w.innerHTML = msgs.join('');
+    }
+
+    /* ---------- worked-math tables (every step; Excel view) ---------- */
+    function cons_sig(list){
+      return list.map(function(m){
+        return ['name','inGroup','own','opInc','opLoss','g1231','l1231','capG','capL','divFrom','divPaid','divInter']
+          .map(function(k){ return String(m[k]||'').trim(); }).join('|');
+      }).join('||');
+    }
+    function cons_isExample(rows){
+      var s = cons_sig(rows);
+      return s === cons_sig(cons_PRESS_SWANK) || s === cons_sig(cons_AB_GROUP);
+    }
+    function cons_renderMath(d){
+      var host = root.querySelector('#cons_math'); if(!host) return;
+      var $ = U.fmtUSD;
+      var rows = [
+        {kind:'sect', label:'<span class="sn">1</span> Combine operating income <span class="op">= Σ operating income − Σ operating loss (all members)</span>'},
+        {kind:'in', label:'Total operating income (all members)', amount:$(d.sumOpInc)},
+        {kind:'in', label:'<span class="op">−</span> Total operating loss (all members)', amount:$(d.sumOpLoss)},
+        {kind:'sub', label:'Net operating income', amount:$(d.netOpInc)},
+
+        {kind:'sect', label:'<span class="sn">2</span> Net Section 1231 result <span class="op">= Σ §1231 gains − Σ §1231 losses</span>'},
+        {kind:'in', label:'Total Section 1231 gains', amount:$(d.sum1231g)},
+        {kind:'in', label:'<span class="op">−</span> Total Section 1231 losses', amount:$(d.sum1231l)},
+        {kind:'sub', label:'Net Section 1231',
+         how: d.net1231<0 ? 'net loss → treated as ordinary' : (d.net1231>0 ? 'net gain → joins capital netting' : 'no net §1231'),
+         amount:$(d.net1231)},
+
+        {kind:'sect', label:'<span class="sn">3</span> Ordinary income <span class="op">= net operating income − net §1231 ordinary loss</span>'},
+        {kind:'in', label:'Net operating income', how:'from step 1', amount:$(d.netOpInc)},
+        {kind:'in', label:'<span class="op">−</span> Net §1231 ordinary loss', how:'only when §1231 is a net loss', amount:$(d.net1231ordLoss)},
+        {kind:'sub', label:'Ordinary income', amount:$(d.ordinaryIncome)},
+
+        {kind:'sect', label:'<span class="sn">4</span> Net capital gain included <span class="op">= (capital gains + §1231 net gain) − capital losses, not below $0</span>'},
+        {kind:'in', label:'Total capital gains (incl. net §1231 gain)', amount:$(d.totalCapGains)},
+        {kind:'in', label:'<span class="op">−</span> Total capital losses', amount:$(d.totalCapLosses)},
+        {kind:'in', label:'Net capital result', amount:$(d.netCapResult)},
+        {kind:'in', label:'Floor at $0', how:'a corporate net capital loss can’t offset ordinary income', amount:$(d.netCapGainIncluded)},
+        {kind:'sub', label:'Net capital gain included', amount:$(d.netCapGainIncluded)},
+
+        {kind:'sect', label:'<span class="sn">5</span> Intercompany dividends <span class="op">= received − eliminated (net zero)</span>'},
+        {kind:'in', label:'Intercompany dividends received', amount:$(d.sumDivFrom)},
+        {kind:'in', label:'<span class="op">−</span> Eliminated (cash stayed inside the group)', amount:$(d.sumDivFrom)},
+        {kind:'sub', label:'Net intercompany dividend effect', amount:$(0)},
+
+        {kind:'result', label:'Consolidated taxable income',
+         how:'ordinary income + net capital gain + net dividend effect', amount:$(d.cti)}
+      ];
+      host.innerHTML = U.mtable({
+        title:'Worked math — consolidated taxable income',
+        subtitle:'How each member’s items combine into one group total.',
+        mode: cons_isExample(d.rows) ? 'example' : 'live',
+        rows: rows,
+        foot:'Operating items combine; a net §1231 <b>loss</b> is ordinary while a net §1231 <b>gain</b> joins capital netting; capital losses offset only capital gains; intercompany dividends net to zero. Figures come from the member grid above.'
+      });
+    }
+
+    var CONS_PS_EX = {basis:50000, price:90000};
+    function cons_psEff(){
+      function f(id,key){ var el=root.querySelector(id); var raw=el?String(el.value):''; var blank=raw.trim()==='';
+        return {v: blank?CONS_PS_EX[key]:U.num0(raw), ex:blank}; }
+      return { basis:f('#cons_psBasis','basis'), price:f('#cons_psPrice','price') };
+    }
+    function cons_psIsLive(){
+      return [['#cons_psBasis','basis'],['#cons_psPrice','price']].some(function(p){
+        var el=root.querySelector(p[0]); if(!el) return false; var raw=String(el.value).trim();
+        return raw!=='' && U.num0(raw)!==CONS_PS_EX[p[1]]; });
+    }
+    function cons_psRenderMath(){
+      var host=root.querySelector('#cons_psMath'); if(!host) return;
+      var e=cons_psEff(); var basis=e.basis.v, price=e.price.v;
+      var inter=root.querySelector('#cons_psInter').value;
+      var outside=root.querySelector('#cons_psOutside').value;
+      var realized=price-basis;
+      var deferred=(inter==='Yes'&&outside==='No')?realized:0;
+      var recognized=realized-deferred;
+      var fv=U.fval, $=U.fmtUSD;
+      var rows=[
+        {kind:'sect', label:'<span class="sn">1</span> Realized gain <span class="op">= sale price − adjusted basis</span>'},
+        {kind:'in', label:'Sale price', amount:fv(price,e.price.ex)},
+        {kind:'in', label:'<span class="op">−</span> Adjusted basis', amount:fv(basis,e.basis.ex)},
+        {kind:'sub', label:'Realized gain', amount:$(realized)},
+        {kind:'sect', label:'<span class="sn">2</span> Recognized vs deferred <span class="op">= defer the gain while the asset stays in the group</span>'},
+        {kind:'in', label:'Status', how:'intercompany = '+inter+'; sold outside = '+outside, amount:''},
+        {kind:'in', label:'Deferred gain',
+         how:(inter==='Yes'&&outside==='No')?'intercompany & still in the group → defer the whole gain':'not deferred (left the group or not intercompany)',
+         amount:$(deferred)},
+        {kind:'result', label:'Recognized currently', how:'realized − deferred', amount:$(recognized)},
+        {kind:'sub', label:'Deferred gain (restored when it leaves the group)', amount:$(deferred)}
+      ];
+      host.innerHTML=U.mtable({
+        title:'Worked math — intercompany property sale',
+        subtitle:'Gain between members is deferred until the asset leaves the group.',
+        mode: cons_psIsLive()?'live':'example',
+        rows:rows,
+        foot:'A sale between members defers the gain; it is recognized only when the property is sold to an outsider. <i>Grey italic</i> = example default used because the field is blank.'
+      });
+    }
+
+    var CONS_EL_EX = {a:300000, b:200000, invProfit:60000, propGain:20000};
+    function cons_elEff(){
+      function f(id,key){ var el=root.querySelector(id); var raw=el?String(el.value):''; var blank=raw.trim()==='';
+        return {v: blank?CONS_EL_EX[key]:U.num0(raw), ex:blank}; }
+      return { a:f('#cons_elA','a'), b:f('#cons_elB','b'), invProfit:f('#cons_elInvProfit','invProfit'), propGain:f('#cons_elPropGain','propGain') };
+    }
+    function cons_elIsLive(){
+      var map={'#cons_elA':'a','#cons_elB':'b','#cons_elInvProfit':'invProfit','#cons_elPropGain':'propGain'};
+      return Object.keys(map).some(function(id){ var el=root.querySelector(id); if(!el) return false;
+        var raw=String(el.value).trim(); return raw!=='' && U.num0(raw)!==CONS_EL_EX[map[id]]; });
+    }
+    function cons_elRenderMath(){
+      var host=root.querySelector('#cons_elMath'); if(!host) return;
+      var e=cons_elEff(); var a=e.a.v, b=e.b.v, invProfit=e.invProfit.v, propGain=e.propGain.v;
+      var invOut=root.querySelector('#cons_elInvOut').value;
+      var invPartial=U.num0(root.querySelector('#cons_elInvPartial').value);
+      var propOut=root.querySelector('#cons_elPropOut').value;
+      var realizedOutside=(invOut==='Partial')?Math.min(invPartial,invProfit):(invOut==='Yes'?invProfit:0);
+      var invElim=invProfit-realizedOutside;
+      var propElim=(propOut==='No')?propGain:0;
+      var combined=a+b;
+      var cti=combined-invElim-propElim;
+      var fv=U.fval, $=U.fmtUSD;
+      var rows=[
+        {kind:'sect', label:'<span class="sn">1</span> Combine operating income <span class="op">= Member A + Member B</span>'},
+        {kind:'in', label:'Member A operating income', amount:fv(a,e.a.ex)},
+        {kind:'in', label:'<span class="op">+</span> Member B operating income', amount:fv(b,e.b.ex)},
+        {kind:'sub', label:'Combined operating income', amount:$(combined)},
+        {kind:'sect', label:'<span class="sn">2</span> Eliminate unrealized inventory profit <span class="op">= profit − amount resold outside the group</span>'},
+        {kind:'in', label:'Intercompany inventory profit', amount:fv(invProfit,e.invProfit.ex)},
+        {kind:'in', label:'<span class="op">−</span> Amount resold outside the group', how:'sold outside = '+invOut, amount:$(realizedOutside)},
+        {kind:'sub', label:'Inventory profit eliminated', amount:$(invElim)},
+        {kind:'sect', label:'<span class="sn">3</span> Eliminate intercompany property gain <span class="op">= gain unless the property left the group</span>'},
+        {kind:'in', label:'Intercompany property gain', amount:fv(propGain,e.propGain.ex)},
+        {kind:'in', label:'Eliminated?', how: propOut==='No'?'still inside the group → eliminate':'left the group → not eliminated', amount:$(propElim)},
+        {kind:'sub', label:'Property gain eliminated', amount:$(propElim)},
+        {kind:'result', label:'Consolidated taxable income', how:'combined − inventory elim − property elim', amount:$(cti)}
+      ];
+      host.innerHTML=U.mtable({
+        title:'Worked math — intercompany eliminations',
+        subtitle:'Remove unrealized intra-group profit until it is earned outside.',
+        mode: cons_elIsLive()?'live':'example',
+        rows:rows,
+        foot:'Intra-group profit is removed until the item is sold to an outsider. <i>Grey italic</i> = example default used because the field is blank.'
+      });
     }
 
     /* ---------- live wiring ---------- */
@@ -1804,6 +2055,7 @@ registerPage({
 
         <div class="row"><span class="k">80% control status</span><span class="v" id="pfs_m1_o_ctrl"></span></div>
         <div id="pfs_m1_o_msg"></div>
+        <div id="pfs_m1_math"></div>
       </div>
 
       <!-- ===================== MODULE 2 ===================== -->
@@ -1876,6 +2128,7 @@ registerPage({
           <div class="bignum accent"><span class="bn-label">Corporation basis in property</span><span class="bn-val" id="pfs_m3_o_basis">$0</span></div>
         </div>
         <div id="pfs_m3_o_msg"></div>
+        <div id="pfs_m3_math"></div>
       </div>
 
       <!-- ===================== FAQ ===================== -->
@@ -1982,6 +2235,81 @@ registerPage({
       };
     };
 
+    /* ---- worked-math table (every step; example when blank, live when typed) ---- */
+    const PFS_M1_EX = {basis:35000, fmvprop:100000, stock:60000, cash:40000, otherboot:0, liabboot:0, liab:0};
+    const pfs_m1_eff = () => {
+      const g = (id) => { const el = pfs_q(id); return el ? el.value : ''; };
+      const f = (id, key) => { const raw = String(g(id)); const blank = raw.trim() === '';
+                               return { v: blank ? PFS_M1_EX[key] : U.num0(raw), ex: blank }; };
+      return { basis:f('#pfs_m1_basis','basis'), stock:f('#pfs_m1_stock','stock'), cash:f('#pfs_m1_cash','cash'),
+               otherboot:f('#pfs_m1_otherboot','otherboot'), liabboot:f('#pfs_m1_liabboot','liabboot'),
+               liab:f('#pfs_m1_liab','liab') };
+    };
+    const pfs_m1_isLive = () =>
+      [['#pfs_m1_basis','basis'],['#pfs_m1_stock','stock'],['#pfs_m1_cash','cash'],['#pfs_m1_otherboot','otherboot'],
+       ['#pfs_m1_liabboot','liabboot'],['#pfs_m1_liab','liab']]
+        .some(([id,key]) => { const el = pfs_q(id); if (!el) return false; const raw = String(el.value).trim();
+                              return raw !== '' && U.num0(raw) !== PFS_M1_EX[key]; });
+
+    const pfs_m1_renderMath = () => {
+      const host = pfs_q('#pfs_m1_math'); if (!host) return;
+      const e = pfs_m1_eff();
+      const stock = e.stock.v, cash = e.cash.v, ob = e.otherboot.v, lb = e.liabboot.v, basis = e.basis.v, liab = e.liab.v;
+      const ar = stock + cash + ob + lb;
+      const rg = ar - basis;
+      const boot = cash + ob + lb;
+      const lesser = Math.min(rg, boot);
+      const recog = Math.max(0, lesser);
+      const deferred = rg - recog;
+      const stockBasis = basis - boot - liab + recog;
+      const fv = U.fval, $ = U.fmtUSD;
+      const rows = [
+        {kind:'sect', label:'<span class="sn">1</span> Amount realized <span class="op">= FMV stock + cash + other boot + liabilities treated as boot</span>'},
+        {kind:'in', label:'FMV of stock received', amount: fv(stock, e.stock.ex)},
+        {kind:'in', label:'<span class="op">+</span> Cash received', amount: fv(cash, e.cash.ex)},
+        {kind:'in', label:'<span class="op">+</span> Other boot received', amount: fv(ob, e.otherboot.ex)},
+        {kind:'in', label:'<span class="op">+</span> Liabilities treated as boot', amount: fv(lb, e.liabboot.ex)},
+        {kind:'sub', label:'Amount realized', how:'add the four lines above', amount: $(ar)},
+
+        {kind:'sect', label:'<span class="sn">2</span> Realized gain <span class="op">= amount realized − adjusted basis</span>'},
+        {kind:'in', label:'Amount realized', how:'from step 1', amount: $(ar)},
+        {kind:'in', label:'<span class="op">−</span> Adjusted tax basis of property', amount: fv(basis, e.basis.ex)},
+        {kind:'sub', label:'Realized gain', how:'the full economic gain', amount: $(rg)},
+
+        {kind:'sect', label:'<span class="sn">3</span> Boot received <span class="op">= cash + other boot + liabilities treated as boot</span>'},
+        {kind:'in', label:'Cash received', amount: fv(cash, e.cash.ex)},
+        {kind:'in', label:'<span class="op">+</span> Other boot received', amount: fv(ob, e.otherboot.ex)},
+        {kind:'in', label:'<span class="op">+</span> Liabilities treated as boot', amount: fv(lb, e.liabboot.ex)},
+        {kind:'sub', label:'Boot received', how:'everything received that is not stock', amount: $(boot)},
+
+        {kind:'sect', label:'<span class="sn">4</span> Recognized gain <span class="op">= lesser of (realized gain, boot), not below $0</span>'},
+        {kind:'in', label:'Realized gain', how:'from step 2', amount: $(rg)},
+        {kind:'in', label:'Boot received', how:'from step 3', amount: $(boot)},
+        {kind:'in', label:'Lesser of the two', how:'<code>min(realized, boot)</code>', amount: $(lesser)},
+        {kind:'in', label:'Floor at zero', how:'<code>max($0, lesser)</code>', amount: $(recog)},
+        {kind:'result', label:'Recognized gain — taxed now', amount: $(recog)},
+
+        {kind:'sect', label:'<span class="sn">5</span> Deferred gain <span class="op">= realized gain − recognized gain</span>'},
+        {kind:'in', label:'Realized gain', how:'from step 2', amount: $(rg)},
+        {kind:'in', label:'<span class="op">−</span> Recognized gain', how:'from step 4', amount: $(recog)},
+        {kind:'sub', label:'Deferred gain — preserved in the stock basis', amount: $(deferred)},
+
+        {kind:'sect', label:'<span class="sn">6</span> Shareholder stock basis <span class="op">= basis − boot − liabilities assumed + gain recognized</span>'},
+        {kind:'in', label:'Adjusted basis of property', amount: fv(basis, e.basis.ex)},
+        {kind:'in', label:'<span class="op">−</span> Boot received', how:'from step 3', amount: $(boot)},
+        {kind:'in', label:'<span class="op">−</span> Liabilities assumed by corp', amount: fv(liab, e.liab.ex)},
+        {kind:'in', label:'<span class="op">+</span> Gain recognized', how:'from step 4', amount: $(recog)},
+        {kind:'sub', label:'Shareholder stock basis', amount: $(stockBasis)}
+      ];
+      host.innerHTML = U.mtable({
+        title:'Worked math — shareholder gain',
+        subtitle:'Every step from the transfer facts to recognized gain and stock basis.',
+        mode: pfs_m1_isLive() ? 'live' : 'example',
+        rows: rows,
+        foot:'<b>Recognized gain</b> is the part taxed now; <b>deferred gain</b> rolls into the stock basis and is taxed later when the stock is sold. <i>Grey italic</i> = taken from the example because that field is blank — type a number into any field to use your own figures.'
+      });
+    };
+
     const pfs_computeM1 = () => {
       const m = pfs_readM1();
       const stock = U.num0(m.stockRaw);
@@ -2026,6 +2354,7 @@ registerPage({
            ' + gain recognized ' + U.fmtUSD(recog) + ' = <b>' + U.fmtUSD(stockBasis) + '</b>.</div>';
       msg.innerHTML = h;
 
+      pfs_m1_renderMath();
       pfs_renderWarn();
       return {ar, rg, boot, recog, deferred, stockBasis, m};
     };
@@ -2184,6 +2513,48 @@ registerPage({
       };
     };
 
+    /* ---- worked-math table for corporation's basis ---- */
+    const PFS_M3_EX = {basis:40000, fmv:82000, boot:0, liab:10000, gain:0};
+    const pfs_m3_eff = () => {
+      const g = (id) => { const el = pfs_q(id); return el ? el.value : ''; };
+      const f = (id, key) => { const raw = String(g(id)); const blank = raw.trim() === '';
+                               return { v: blank ? PFS_M3_EX[key] : U.num0(raw), ex: blank }; };
+      return { basis:f('#pfs_m3_basis','basis'), gain:f('#pfs_m3_gain','gain'), liab:f('#pfs_m3_liab','liab') };
+    };
+    const pfs_m3_isLive = () =>
+      [['#pfs_m3_basis','basis'],['#pfs_m3_gain','gain'],['#pfs_m3_liab','liab']]
+        .some(([id,key]) => { const el = pfs_q(id); if (!el) return false; const raw = String(el.value).trim();
+                              return raw !== '' && U.num0(raw) !== PFS_M3_EX[key]; });
+
+    const pfs_m3_renderMath = () => {
+      const host = pfs_q('#pfs_m3_math'); if (!host) return;
+      const e = pfs_m3_eff();
+      const basis = e.basis.v, gain = e.gain.v, liab = e.liab.v;
+      const corpBasis = basis + gain;
+      const excess = Math.max(0, liab - basis);
+      const fv = U.fval, $ = U.fmtUSD;
+      const rows = [
+        {kind:'sect', label:'<span class="sn">1</span> Corporation’s basis in the property <span class="op">= transferor’s adjusted basis + gain recognized by transferor</span>'},
+        {kind:'in', label:'Transferor’s adjusted basis (carryover)', amount: fv(basis, e.basis.ex)},
+        {kind:'in', label:'<span class="op">+</span> Gain recognized by transferor', amount: fv(gain, e.gain.ex)},
+        {kind:'result', label:'Corporation’s basis in the property', amount: $(corpBasis)},
+
+        {kind:'sect', label:'<span class="sn">2</span> Liability check — §357(c) <span class="op">= liabilities assumed − transferor’s basis (gain if positive)</span>'},
+        {kind:'in', label:'Liabilities assumed by corporation', amount: fv(liab, e.liab.ex)},
+        {kind:'in', label:'<span class="op">−</span> Transferor’s adjusted basis', amount: fv(basis, e.basis.ex)},
+        {kind:'sub', label:'Excess liabilities over basis',
+         how: excess > 0 ? 'above $0 → §357(c) gain to the transferor' : 'not above $0 → no §357(c) gain',
+         amount: $(excess)}
+      ];
+      host.innerHTML = U.mtable({
+        title:'Worked math — corporation’s basis',
+        subtitle:'Carryover basis, plus the §357(c) liability check.',
+        mode: pfs_m3_isLive() ? 'live' : 'example',
+        rows: rows,
+        foot:'The corporation takes a <b>carryover basis</b> (no step-up to FMV). If liabilities assumed exceed the property’s basis, §357(c) can force the transferor to recognize the excess as gain. <i>Grey italic</i> = example default used because the field is blank.'
+      });
+    };
+
     const pfs_computeM3 = () => {
       const m = pfs_readM3();
       const basis = U.num0(m.basisRaw);
@@ -2213,6 +2584,7 @@ registerPage({
       }
       msg.innerHTML = h;
 
+      pfs_m3_renderMath();
       pfs_renderWarn();
       return {corpBasis, m};
     };
@@ -2423,15 +2795,7 @@ registerPage({
         <div class="bignum"><div class="bn-label">Ending stock basis</div><div class="bn-val" id="ep_oEndBasis">$0</div></div>
       </div>
 
-      <div class="calc" style="margin-top:14px">
-        <div class="cr"><span class="cl">Accumulated E&amp;P + Current E&amp;P</span><span id="ep_cTotEP">$0</span></div>
-        <div class="cr sub"><span class="cl">Total E&amp;P</span><span id="ep_cTotEP2">$0</span></div>
-        <div class="cr"><span class="cl">Dividend = min(total distributions, total E&amp;P)</span><span id="ep_cDiv">$0</span></div>
-        <div class="cr"><span class="cl">Non-dividend distribution = distributions − dividend</span><span id="ep_cNonDiv">$0</span></div>
-        <div class="cr"><span class="cl">Return of capital = min(non-dividend, stock basis)</span><span id="ep_cROC">$0</span></div>
-        <div class="cr"><span class="cl">Ending basis = basis − return of capital</span><span id="ep_cEndBasis">$0</span></div>
-        <div class="cr tot"><span class="cl">Capital gain = non-dividend − return of capital</span><span id="ep_cGain">$0</span></div>
-      </div>
+      <div id="ep_math" style="margin-top:14px"></div>
 
       <div class="headline info" id="ep_headline" style="margin-top:14px">
         <span class="hl-ico">&#9432;</span>
@@ -2477,6 +2841,70 @@ registerPage({
   init: function(root){
     const ep_$ = (id)=>root.querySelector(id);
 
+    /* ---- worked-math table (every step; example when blank, live when typed) ---- */
+    const EP_EX = {accEP:30000, curEP:20000, basis:25000, shDist:80000};
+    const ep_eff = () => {
+      const f = (id,key) => { const el=ep_$(id); const raw=el?String(el.value):''; const blank=raw.trim()==='';
+        return {v: blank?EP_EX[key]:U.num0(raw), ex:blank}; };
+      return { accEP:f('#ep_accEP','accEP'), curEP:f('#ep_curEP','curEP'), basis:f('#ep_basis','basis'), shDist:f('#ep_shDist','shDist') };
+    };
+    const ep_isLive = () =>
+      [['#ep_accEP','accEP'],['#ep_curEP','curEP'],['#ep_basis','basis'],['#ep_shDist','shDist']]
+        .some(([id,key]) => { const el=ep_$(id); if(!el) return false; const raw=String(el.value).trim();
+          return raw!=='' && U.num0(raw)!==EP_EX[key]; });
+    const ep_renderMath = () => {
+      const host=ep_$('#ep_math'); if(!host) return;
+      const e=ep_eff();
+      const accEP=e.accEP.v, curEP=e.curEP.v, basis=e.basis.v, shDist=e.shDist.v;
+      const totalEP=accEP+curEP;
+      const dividend=Math.max(0,Math.min(shDist,totalEP));
+      const nonDiv=Math.max(0,shDist-dividend);
+      const roc=Math.max(0,Math.min(nonDiv,basis));
+      const endBasis=Math.max(0,basis-roc);
+      const capGain=Math.max(0,nonDiv-roc);
+      const fv=U.fval, $=U.fmtUSD;
+      const rows=[
+        {kind:'sect', label:'<span class="sn">1</span> Total E&P <span class="op">= accumulated E&P + current E&P</span>'},
+        {kind:'in', label:'Beginning accumulated E&P', amount:fv(accEP,e.accEP.ex)},
+        {kind:'in', label:'<span class="op">+</span> Current E&P', amount:fv(curEP,e.curEP.ex)},
+        {kind:'sub', label:'Total E&P', amount:$(totalEP)},
+
+        {kind:'sect', label:'<span class="sn">2</span> Dividend income <span class="op">= lesser of (total E&P, distribution)</span>'},
+        {kind:'in', label:'Distribution received', amount:fv(shDist,e.shDist.ex)},
+        {kind:'in', label:'Total E&P', how:'from step 1', amount:$(totalEP)},
+        {kind:'in', label:'Lesser of the two', how:'<code>min(distribution, total E&P)</code>', amount:$(dividend)},
+        {kind:'result', label:'Dividend income — ordinary, taxed now', amount:$(dividend)},
+
+        {kind:'sect', label:'<span class="sn">3</span> Non-dividend distribution <span class="op">= distribution − dividend income</span>'},
+        {kind:'in', label:'Distribution received', amount:fv(shDist,e.shDist.ex)},
+        {kind:'in', label:'<span class="op">−</span> Dividend income', how:'from step 2', amount:$(dividend)},
+        {kind:'sub', label:'Non-dividend distribution', amount:$(nonDiv)},
+
+        {kind:'sect', label:'<span class="sn">4</span> Return of capital <span class="op">= lesser of (non-dividend distribution, stock basis)</span>'},
+        {kind:'in', label:'Non-dividend distribution', how:'from step 3', amount:$(nonDiv)},
+        {kind:'in', label:'Beginning stock basis', amount:fv(basis,e.basis.ex)},
+        {kind:'in', label:'Lesser of the two', how:'<code>min(non-dividend, basis)</code>', amount:$(roc)},
+        {kind:'sub', label:'Return of capital — not taxed; reduces basis', amount:$(roc)},
+
+        {kind:'sect', label:'<span class="sn">5</span> Ending stock basis <span class="op">= beginning basis − return of capital</span>'},
+        {kind:'in', label:'Beginning stock basis', amount:fv(basis,e.basis.ex)},
+        {kind:'in', label:'<span class="op">−</span> Return of capital', how:'from step 4', amount:$(roc)},
+        {kind:'sub', label:'Ending stock basis', amount:$(endBasis)},
+
+        {kind:'sect', label:'<span class="sn">6</span> Capital gain <span class="op">= non-dividend distribution − return of capital</span>'},
+        {kind:'in', label:'Non-dividend distribution', how:'from step 3', amount:$(nonDiv)},
+        {kind:'in', label:'<span class="op">−</span> Return of capital', how:'from step 4', amount:$(roc)},
+        {kind:'result', label:'Capital gain — taxed as gain on the stock', amount:$(capGain)}
+      ];
+      host.innerHTML=U.mtable({
+        title:'Worked math — distribution classification',
+        subtitle:'Each dollar is tested against E&P, then basis, then capital gain — in order.',
+        mode: ep_isLive()?'live':'example',
+        rows:rows,
+        foot:'A distribution is a <b>dividend</b> up to total E&P, then a tax-free <b>return of capital</b> down to zero basis, and finally <b>capital gain</b>. <i>Grey italic</i> = example default used because the field is blank.'
+      });
+    };
+
     const ep_compute = function(){
       const accEP = U.num0(ep_$('#ep_accEP').value);
       const curEP = U.num0(ep_$('#ep_curEP').value);
@@ -2505,14 +2933,8 @@ registerPage({
       ep_$('#ep_oGain').textContent = U.fmtUSD(capGain);
       ep_$('#ep_oEndBasis').textContent = U.fmtUSD(endBasis);
 
-      // Calc rows
-      ep_$('#ep_cTotEP').textContent = U.fmtUSD(accEP) + ' + ' + U.fmtUSD(curEP);
-      ep_$('#ep_cTotEP2').textContent = U.fmtUSD(totalEP);
-      ep_$('#ep_cDiv').textContent = U.fmtUSD(shDividend);
-      ep_$('#ep_cNonDiv').textContent = U.fmtUSD(shNonDiv);
-      ep_$('#ep_cROC').textContent = U.fmtUSD(roc);
-      ep_$('#ep_cEndBasis').textContent = U.fmtUSD(endBasis);
-      ep_$('#ep_cGain').textContent = U.fmtUSD(capGain);
+      // Worked solution now rendered as a full step-by-step table.
+      ep_renderMath();
 
       // Headline
       const hlMain = ep_$('#ep_hlMain'), hlSub = ep_$('#ep_hlSub'), hl = ep_$('#ep_headline');
@@ -2783,7 +3205,7 @@ registerPage({
           </div>
         </div>
 
-        <div class="calc" id="liq_corpCalc"></div>
+        <div id="liq_corpMath"></div>
 
         <div id="liq_charWrap" style="margin-top:10px"></div>
       </div>
@@ -2854,7 +3276,7 @@ registerPage({
           </div>
         </div>
 
-        <div class="calc" id="liq_shCalc"></div>
+        <div id="liq_shMath"></div>
 
         <div class="note" style="margin-top:10px">
           Stock is treated as <b>sold or exchanged</b> in a complete liquidation, so the shareholder's gain/loss is
@@ -2937,6 +3359,72 @@ registerPage({
       return { cls: 'neutral', text: 'Character depends on the specific asset — confirm capital / §1231 / ordinary / recapture treatment.' };
     };
 
+    /* ---- worked-math tables (every step; example when blank, live when typed) ---- */
+    const LIQ_CORP_EX = {corpBasis:100000, corpFMV:150000, liabAttached:0};
+    const LIQ_SH_EX = {stockBasis:90000, cashRecd:0, propRecd:150000, shLiab:0};
+    const liq_effNum = (id, exVal) => { const el=$(id); const raw=el?String(el.value):''; const blank=raw.trim()==='';
+      return {v: blank?exVal:U.num0(raw), ex:blank}; };
+    const liq_isLive = (pairs) => pairs.some(([id,exVal]) => { const el=$(id); if(!el) return false;
+      const raw=String(el.value).trim(); return raw!=='' && U.num0(raw)!==exVal; });
+
+    const liq_renderCorpMath = () => {
+      const host=$('liq_corpMath'); if(!host) return;
+      const basis=liq_effNum('liq_corpBasis',LIQ_CORP_EX.corpBasis);
+      const fmv=liq_effNum('liq_corpFMV',LIQ_CORP_EX.corpFMV);
+      const liab=liq_effNum('liq_liabAttached',LIQ_CORP_EX.liabAttached);
+      const realized=Math.max(fmv.v, liab.v);
+      const gain=realized-basis.v;
+      const fv=U.fval, $$=U.fmtUSD;
+      const ch=liq_charNote($('liq_propType').value);
+      const rows=[
+        {kind:'sect', label:'<span class="sn">1</span> Deemed amount realized <span class="op">= FMV of the property (but not less than any liability attached)</span>'},
+        {kind:'in', label:'FMV of property distributed', amount:fv(fmv.v,fmv.ex)},
+        {kind:'in', label:'Liability attached to the property', amount:fv(liab.v,liab.ex)},
+        {kind:'in', label:'Amount realized', how:'<code>max(FMV, liability)</code>', amount:$$(realized)},
+        {kind:'sub', label:'Deemed amount realized', amount:$$(realized)},
+        {kind:'sect', label:'<span class="sn">2</span> Corporation-level gain / (loss) <span class="op">= deemed amount realized − corporation’s basis in the property</span>'},
+        {kind:'in', label:'Deemed amount realized', how:'from step 1', amount:$$(realized)},
+        {kind:'in', label:'<span class="op">−</span> Corporation’s adjusted basis in the property', amount:fv(basis.v,basis.ex)},
+        {kind:'result', label:'Corporation-level gain / (loss)', amount:$$(gain)}
+      ];
+      host.innerHTML=U.mtable({
+        title:'Worked math — corporation level (property distributed)',
+        subtitle:'The corporation is treated as if it sold the property at FMV.',
+        mode: liq_isLive([['liq_corpBasis',LIQ_CORP_EX.corpBasis],['liq_corpFMV',LIQ_CORP_EX.corpFMV],['liq_liabAttached',LIQ_CORP_EX.liabAttached]])?'live':'example',
+        rows:rows,
+        foot:'<b>Character:</b> '+ch.text+' &nbsp;<i>Grey italic</i> = example default used because the field is blank.'
+      });
+    };
+
+    const liq_renderShMath = () => {
+      const host=$('liq_shMath'); if(!host) return;
+      const stockBasis=liq_effNum('liq_stockBasis',LIQ_SH_EX.stockBasis);
+      const cash=liq_effNum('liq_cashRecd',LIQ_SH_EX.cashRecd);
+      const prop=liq_effNum('liq_propRecd',LIQ_SH_EX.propRecd);
+      const liab=liq_effNum('liq_shLiab',LIQ_SH_EX.shLiab);
+      const realized=cash.v+prop.v-liab.v;
+      const gain=realized-stockBasis.v;
+      const fv=U.fval, $$=U.fmtUSD;
+      const rows=[
+        {kind:'sect', label:'<span class="sn">1</span> Amount realized <span class="op">= cash + FMV of property received − liabilities assumed</span>'},
+        {kind:'in', label:'Cash received', amount:fv(cash.v,cash.ex)},
+        {kind:'in', label:'<span class="op">+</span> FMV of property received', amount:fv(prop.v,prop.ex)},
+        {kind:'in', label:'<span class="op">−</span> Liabilities assumed by shareholder', amount:fv(liab.v,liab.ex)},
+        {kind:'sub', label:'Amount realized', amount:$$(realized)},
+        {kind:'sect', label:'<span class="sn">2</span> Shareholder-level gain / (loss) <span class="op">= amount realized − stock basis surrendered</span>'},
+        {kind:'in', label:'Amount realized', how:'from step 1', amount:$$(realized)},
+        {kind:'in', label:'<span class="op">−</span> Stock basis surrendered', amount:fv(stockBasis.v,stockBasis.ex)},
+        {kind:'result', label:'Shareholder-level gain / (loss)', amount:$$(gain)}
+      ];
+      host.innerHTML=U.mtable({
+        title:'Worked math — shareholder level (stock surrendered)',
+        subtitle:'The shareholder is treated as if they sold their stock for what they received.',
+        mode: liq_isLive([['liq_stockBasis',LIQ_SH_EX.stockBasis],['liq_cashRecd',LIQ_SH_EX.cashRecd],['liq_propRecd',LIQ_SH_EX.propRecd],['liq_shLiab',LIQ_SH_EX.shLiab]])?'live':'example',
+        rows:rows,
+        foot:'In a complete liquidation the stock is treated as sold or exchanged, so this gain/loss is generally <b>capital</b>. <i>Grey italic</i> = example default used because the field is blank.'
+      });
+    };
+
     const liq_compute = () => {
       // ---------- Corporation level ----------
       const corpWarn = $('liq_corpWarn');
@@ -2981,18 +3469,6 @@ registerPage({
         $('liq_outRealized').textContent = U.fmtUSD(realized);
         $('liq_outCorpGain').textContent = U.fmtUSD(corpGain);
 
-        const calcRows = [];
-        if (liabAttached > corpFMV && liabAttached > 0) {
-          calcRows.push('<div class="cr"><span class="cl">FMV of property distributed</span><span>' + U.fmtUSD(corpFMV) + '</span></div>');
-          calcRows.push('<div class="cr"><span class="cl">Liability attached (amount realized not less than debt)</span><span>' + U.fmtUSD(liabAttached) + '</span></div>');
-          calcRows.push('<div class="cr sub"><span class="cl">Deemed amount realized</span><span>' + U.fmtUSD(realized) + '</span></div>');
-        } else {
-          calcRows.push('<div class="cr"><span class="cl">Deemed amount realized (FMV)</span><span>' + U.fmtUSD(realized) + '</span></div>');
-        }
-        calcRows.push('<div class="cr"><span class="cl">Less: corporation\'s adjusted basis</span><span>&minus; ' + U.fmtUSD(corpBasis) + '</span></div>');
-        calcRows.push('<div class="cr tot"><span class="cl">Corporation-level gain / (loss)</span><span>' + U.fmtUSD(corpGain) + '</span></div>');
-        $('liq_corpCalc').innerHTML = calcRows.join('');
-
         const ch = liq_charNote(propType);
         let gainWord = corpGain > 0 ? 'gain' : (corpGain < 0 ? 'loss' : 'no gain/loss');
         $('liq_charWrap').innerHTML =
@@ -3001,10 +3477,10 @@ registerPage({
       } else {
         $('liq_outRealized').textContent = '—';
         $('liq_outCorpGain').textContent = '—';
-        $('liq_corpCalc').innerHTML = '';
         $('liq_charWrap').innerHTML = '';
       }
 
+      liq_renderCorpMath();
       corpWarn.innerHTML = cw.join('');
 
       // ---------- Shareholder level ----------
@@ -3043,23 +3519,12 @@ registerPage({
 
         $('liq_outShRealized').textContent = U.fmtUSD(shRealized);
         $('liq_outShGain').textContent = U.fmtUSD(shGain);
-
-        const sRows = [];
-        sRows.push('<div class="cr"><span class="cl">Cash received</span><span>' + U.fmtUSD(cashRecd) + '</span></div>');
-        sRows.push('<div class="cr"><span class="cl">Add: FMV of property received</span><span>+ ' + U.fmtUSD(propRecd) + '</span></div>');
-        if (shLiab > 0) {
-          sRows.push('<div class="cr"><span class="cl">Less: liabilities assumed</span><span>&minus; ' + U.fmtUSD(shLiab) + '</span></div>');
-        }
-        sRows.push('<div class="cr sub"><span class="cl">Amount realized</span><span>' + U.fmtUSD(shRealized) + '</span></div>');
-        sRows.push('<div class="cr"><span class="cl">Less: stock basis surrendered</span><span>&minus; ' + U.fmtUSD(stockBasis) + '</span></div>');
-        sRows.push('<div class="cr tot"><span class="cl">Shareholder-level gain / (loss)</span><span>' + U.fmtUSD(shGain) + '</span></div>');
-        $('liq_shCalc').innerHTML = sRows.join('');
       } else {
         $('liq_outShRealized').textContent = '—';
         $('liq_outShGain').textContent = '—';
-        $('liq_shCalc').innerHTML = '';
       }
 
+      liq_renderShMath();
       shWarn.innerHTML = sw.join('');
     };
 
