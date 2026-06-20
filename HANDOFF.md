@@ -48,5 +48,9 @@ Every spec acceptance number passed:
 
 ## Notes
 - Built via a verify-workflow (5 page modules generated + adversarially traced against acceptance
-  numbers, then integrated). Build artifacts (`_build_pages.workflow.js`, `_inject.js`) were removed.
+  numbers, then integrated). Build artifacts (`_build_pages.workflow.js`, `_inject.js`, `_analyze.js`)
+  were removed.
+- **Cleaned (2026-06-19, commit `7b1d2ee`):** removed 4 dead CSS classes (`.pill`, `.pos`, `.sub2`,
+  `.term`) and the never-called `U.fmtUSDc` helper; 0 unused classes / dead helpers remain. No
+  behavior change — all five pages re-verified after cleanup, then redeployed.
 - Existing tools/pages untouched. Only additive changes to the hub (new tile + proxy).
