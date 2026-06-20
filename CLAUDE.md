@@ -25,8 +25,8 @@ Generic workflow rules live in `~/.claude/CLAUDE.md` (they apply to every repo).
 - **Collapse-by-default (2026-06-20):** a `collapseExamples()` pass in `render()` folds supplementary
   cards (Example / Worked example / Check-your-understanding / Formulas, incl. headerless formula
   boxes) into closed `<details>`; `U.faq`/`U.checklist` and the `U.mtable` tables are collapsible too.
-  Worked-math tables default **collapsed** (teaching view is one click away — flip first render to
-  `open:true` if teaching-first is wanted).
+  Worked-math tables default **open** (teaching-first): `U.setMath` opens them on first render and
+  preserves the user's open/closed choice across keystroke re-renders.
 - **Dev (localhost):** `python -m http.server 8000` -> http://localhost:8000 (or `npx http-server`).
   Preview config name `cpa-dashboard`, port 8740.
 - **Build / test / lint / typecheck:** none configured. Verification = manual + the worked-example

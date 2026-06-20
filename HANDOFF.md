@@ -61,20 +61,24 @@ To keep the long study pages short, these now render **collapsed** and expand on
   intro boxes** (a card whose first child is a `.formula` with a `.ftitle`).
 - **FAQ** and **Review checklist** — `U.faq()` / `U.checklist()` now wrap their output in a closed
   `<details class="collapse">` with a count badge.
-- **Worked-math tables** — collapsed by default (see §1).
+- **Worked-math tables** — collapsible, but default **open** (see note below).
 
-⚠️ **Intentional behavior to know:** because the worked-math tables default **collapsed**, the
-step-by-step teaching view is hidden until the user clicks the table header on first load. This is
-per the "collapse worked math" request. To make it teaching-first instead, pass `open:true` on the
-first render (or open the first table per page) — one small change in the `*RenderMath` call sites /
-`U.setMath`.
+**Worked-math default = OPEN (teaching-first).** The worked-math tables render **open** on first
+load / navigation so the step-by-step math is visible immediately, while every other section
+(examples, formulas, FAQ, checklist) starts collapsed. `U.setMath` sets `def.open = true` on the
+first render and then **preserves the user's open/closed choice** across the per-keystroke
+re-renders — collapse a table and it stays collapsed while you keep typing; it re-opens on a fresh
+page load. (To make them default collapsed instead, change `U.setMath` to `def.open = prev ?
+prev.open : false`.)
 
 ## Verification
 **2026-06-20 (local preview, port 8740 — no console errors):** worked-math tables render the example
 numbers by default (📘 badge), recompute live and flip to ✏️ when any field is edited, blank fields
 fall back to grey-italic example values, an opened table **stays open while typing**, and every
 Example / Worked example / Check-your-understanding / Formulas / FAQ / checklist / worked-math
-section starts collapsed and expands correctly. Adversarial code audit (full-file read + HTML↔JS id
+section (examples / formulas / FAQ / checklist) starts collapsed and expands correctly, while the
+worked-math tables start **open** (teaching-first) and keep the user's collapse choice while typing.
+Adversarial code audit (full-file read + HTML↔JS id
 cross-check): no orphaned references, no recursion, all 5 `summary()` functions valid, no dead code.
 
 **2026-06-19 acceptance numbers (still pass):**
@@ -99,8 +103,6 @@ cross-check): no orphaned references, no recursion, all 5 `summary()` functions 
   (auto-deploys). `npm run build` first to catch TS errors (TS strict is the gate).
 
 ## Open follow-ups (optional)
-- **Decide the worked-math default:** currently collapsed on load. If teaching-first is preferred,
-  flip the first render to `open:true` (see §2 warning).
 - **Consolidations main table (`cons_math`)** is the one worked-math table without the per-cell
   grey-italic "example default" affordance — it's driven by the member-grid totals and shows its
   badge via `cons_isExample(rows)` (grid vs. sample datasets). Fine as-is; noted for consistency.

@@ -425,7 +425,9 @@
     setMath: function(host, def){
       if(!host) return;
       var prev = host.querySelector('details.mwrap');
-      if(prev && prev.open) def.open = true;
+      // Default OPEN on first render (teaching-first); preserve the user's
+      // open/closed choice on later re-renders (e.g. live recompute on keystroke).
+      def.open = prev ? prev.open : true;
       host.innerHTML = U.mtable(def);
     },
     /* clipboard copy with toast */
