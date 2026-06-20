@@ -498,8 +498,9 @@
     }).join("");
   }
 
-  /* Turn each "Example" / "Worked example" card into a collapsed section so the
-     long study pages stay short. The card's group header becomes the toggle. */
+  /* Turn each "Example" / "Worked example" / "Check your understanding" card into
+     a collapsed section so the long study pages stay short. The card's group
+     header becomes the toggle. */
   function collapseExamples(scope){
     var cards = scope.querySelectorAll(".card");
     Array.prototype.forEach.call(cards, function(card){
@@ -509,7 +510,7 @@
       var tag = grp.querySelector(".grp-tag");
       if(!tag) return;
       var label = tag.textContent.trim().toLowerCase();
-      if(!/^example\b/.test(label) && label !== "worked example") return;
+      if(!/^example\b/.test(label) && label !== "worked example" && label !== "check your understanding") return;
       card.dataset.exCollapsed = "1";
       var details = document.createElement("details");
       details.className = "collapse";
