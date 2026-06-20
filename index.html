@@ -161,6 +161,8 @@
   details.collapse>summary .collapse-ct{margin-left:auto;font-size:12px;font-weight:600;color:var(--muted);
     background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:2px 9px}
   details.collapse>.collapse-body{padding:4px 15px 14px}
+  /* a .card that has been turned into a collapsible "Example" defers its box to the inner details */
+  .card.collapse-host{padding:0;background:transparent;border:none;box-shadow:none}
 
   /* ---- answer-choice cards ---- */
   .qstem{font-size:15px;font-weight:600;margin:0 0 4px}
@@ -496,6 +498,34 @@
     }).join("");
   }
 
+  /* Turn each "Example" / "Worked example" card into a collapsed section so the
+     long study pages stay short. The card's group header becomes the toggle. */
+  function collapseExamples(scope){
+    var cards = scope.querySelectorAll(".card");
+    Array.prototype.forEach.call(cards, function(card){
+      if(card.dataset.exCollapsed) return;
+      var grp = card.querySelector(".grp-h");
+      if(!grp) return;
+      var tag = grp.querySelector(".grp-tag");
+      if(!tag) return;
+      var label = tag.textContent.trim().toLowerCase();
+      if(!/^example\b/.test(label) && label !== "worked example") return;
+      card.dataset.exCollapsed = "1";
+      var details = document.createElement("details");
+      details.className = "collapse";
+      var summary = document.createElement("summary");
+      summary.innerHTML = grp.innerHTML;
+      details.appendChild(summary);
+      var bodyWrap = document.createElement("div");
+      bodyWrap.className = "collapse-body";
+      grp.parentNode.removeChild(grp);
+      while(card.firstChild){ bodyWrap.appendChild(card.firstChild); }
+      details.appendChild(bodyWrap);
+      card.appendChild(details);
+      card.classList.add("collapse-host");
+    });
+  }
+
   function render(){
     var def = resolve();
     renderTopTabs(def.top);
@@ -510,6 +540,7 @@
     var body = document.getElementById("pagebody");
     body.innerHTML = def.html;
     try{ if(def.init) def.init(body); }catch(err){ console.error("page init error:", def.top, def.sub, err); }
+    collapseExamples(body);
     var cbtn = document.getElementById("copySummaryBtn");
     cbtn.onclick = function(){
       var txt;
