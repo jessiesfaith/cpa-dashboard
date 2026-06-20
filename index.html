@@ -150,6 +150,12 @@
   table.mtable .op{color:var(--muted);font-weight:400;margin-right:3px}
   .mfoot{font-size:12px;color:var(--muted);padding:9px 14px;border-top:1px solid var(--line);line-height:1.55;background:var(--panel)}
   .mfoot b{color:var(--ink)}
+  /* worked-math table is collapsible: its header bar is the toggle */
+  details.mwrap>summary.mhead{cursor:pointer;list-style:none}
+  details.mwrap>summary.mhead::-webkit-details-marker{display:none}
+  details.mwrap>summary.mhead::before{content:"▸";font-size:12px;color:var(--accent);transition:transform .15s;flex:none}
+  details.mwrap[open]>summary.mhead::before{transform:rotate(90deg)}
+  .mhead .mttl{flex:1}
 
   /* ---- collapsible section (whole FAQ / checklist groups, closed by default) ---- */
   details.collapse{border:1px solid var(--line);border-radius:8px;background:var(--panel2)}
@@ -409,10 +415,18 @@
       var badge = (def.mode==='live')
         ? '<span class="mbadge live">✏️ Your numbers</span>'
         : '<span class="mbadge ex">📘 Example values</span>';
-      var head = '<div class="mhead"><div class="mttl">'+U.esc(def.title||'Worked math')+
-        (def.subtitle?'<span class="msub">'+def.subtitle+'</span>':'')+'</div>'+badge+'</div>';
+      var head = '<summary class="mhead"><div class="mttl">'+U.esc(def.title||'Worked math')+
+        (def.subtitle?'<span class="msub">'+def.subtitle+'</span>':'')+'</div>'+badge+'</summary>';
       var foot = def.foot ? '<div class="mfoot">'+def.foot+'</div>' : '';
-      return '<div class="mwrap">'+head+'<table class="mtable">'+thead+'<tbody>'+body+'</tbody></table>'+foot+'</div>';
+      return '<details class="mwrap"'+(def.open?' open':'')+'>'+head+'<table class="mtable">'+thead+'<tbody>'+body+'</tbody></table>'+foot+'</details>';
+    },
+    /* Render a worked-math table into host, preserving its open/closed state
+       across re-renders (the calculators rebuild the table on every keystroke). */
+    setMath: function(host, def){
+      if(!host) return;
+      var prev = host.querySelector('details.mwrap');
+      if(prev && prev.open) def.open = true;
+      host.innerHTML = U.mtable(def);
     },
     /* clipboard copy with toast */
     copy: function(text){
@@ -498,28 +512,40 @@
     }).join("");
   }
 
-  /* Turn each "Example" / "Worked example" / "Check your understanding" card into
-     a collapsed section so the long study pages stay short. The card's group
-     header becomes the toggle. */
+  /* Fold supplementary cards into collapsed sections so the long study pages
+     stay short: Example / Worked example / Check your understanding / Formulas
+     (by header), plus standalone formula intro boxes that have no header. */
   function collapseExamples(scope){
     var cards = scope.querySelectorAll(".card");
     Array.prototype.forEach.call(cards, function(card){
       if(card.dataset.exCollapsed) return;
       var grp = card.querySelector(".grp-h");
-      if(!grp) return;
-      var tag = grp.querySelector(".grp-tag");
-      if(!tag) return;
-      var label = tag.textContent.trim().toLowerCase();
-      if(!/^example\b/.test(label) && label !== "worked example" && label !== "check your understanding") return;
+      var summaryHTML = null;
+      if(grp){
+        var tag = grp.querySelector(".grp-tag");
+        if(!tag) return;
+        var label = tag.textContent.trim().toLowerCase();
+        if(/^example\b/.test(label) || label === "worked example" ||
+           label === "check your understanding" || /formula/.test(label)){
+          summaryHTML = grp.innerHTML;
+          grp.parentNode.removeChild(grp);
+        } else { return; }
+      } else {
+        // No header: collapse a standalone formula intro card (first block is a .formula).
+        var first = card.firstElementChild;
+        var ftitle = card.querySelector(".formula .ftitle");
+        if(first && first.classList.contains("formula") && ftitle){
+          summaryHTML = '<span class="grp-tag">Formulas</span> ' + ftitle.textContent;
+        } else { return; }
+      }
       card.dataset.exCollapsed = "1";
       var details = document.createElement("details");
       details.className = "collapse";
       var summary = document.createElement("summary");
-      summary.innerHTML = grp.innerHTML;
+      summary.innerHTML = summaryHTML;
       details.appendChild(summary);
       var bodyWrap = document.createElement("div");
       bodyWrap.className = "collapse-body";
-      grp.parentNode.removeChild(grp);
       while(card.firstChild){ bodyWrap.appendChild(card.firstChild); }
       details.appendChild(bodyWrap);
       card.appendChild(details);
@@ -945,7 +971,7 @@ registerPage({
         {kind:'in', label:'Exact quotient', how:'<code>NOL ÷ limit</code>', amount: (isNaN(rawYears) ? '—' : U.fmtNum(Math.round(rawYears*100)/100))},
         {kind:'sub', label:'Years to fully use', how:'<code>round up</code>', amount: (isNaN(years) ? '—' : U.fmtNum(years)+' year'+(years===1?'':'s'))}
       ];
-      host.innerHTML = U.mtable({
+      U.setMath(host,{
         title:'Worked math — Section 382 limitation',
         subtitle:'From company value to the NOL you can actually use each year.',
         mode: n382_isLive() ? 'live' : 'example',
@@ -1732,7 +1758,7 @@ registerPage({
         {kind:'result', label:'Consolidated taxable income',
          how:'ordinary income + net capital gain + net dividend effect', amount:$(d.cti)}
       ];
-      host.innerHTML = U.mtable({
+      U.setMath(host,{
         title:'Worked math — consolidated taxable income',
         subtitle:'How each member’s items combine into one group total.',
         mode: cons_isExample(d.rows) ? 'example' : 'live',
@@ -1774,7 +1800,7 @@ registerPage({
         {kind:'result', label:'Recognized currently', how:'realized − deferred', amount:$(recognized)},
         {kind:'sub', label:'Deferred gain (restored when it leaves the group)', amount:$(deferred)}
       ];
-      host.innerHTML=U.mtable({
+      U.setMath(host,{
         title:'Worked math — intercompany property sale',
         subtitle:'Gain between members is deferred until the asset leaves the group.',
         mode: cons_psIsLive()?'live':'example',
@@ -1821,7 +1847,7 @@ registerPage({
         {kind:'sub', label:'Property gain eliminated', amount:$(propElim)},
         {kind:'result', label:'Consolidated taxable income', how:'combined − inventory elim − property elim', amount:$(cti)}
       ];
-      host.innerHTML=U.mtable({
+      U.setMath(host,{
         title:'Worked math — intercompany eliminations',
         subtitle:'Remove unrealized intra-group profit until it is earned outside.',
         mode: cons_elIsLive()?'live':'example',
@@ -2348,7 +2374,7 @@ registerPage({
         {kind:'in', label:'<span class="op">+</span> Gain recognized', how:'from step 4', amount: $(recog)},
         {kind:'sub', label:'Shareholder stock basis', amount: $(stockBasis)}
       ];
-      host.innerHTML = U.mtable({
+      U.setMath(host,{
         title:'Worked math — shareholder gain',
         subtitle:'Every step from the transfer facts to recognized gain and stock basis.',
         mode: pfs_m1_isLive() ? 'live' : 'example',
@@ -2593,7 +2619,7 @@ registerPage({
          how: excess > 0 ? 'above $0 → §357(c) gain to the transferor' : 'not above $0 → no §357(c) gain',
          amount: $(excess)}
       ];
-      host.innerHTML = U.mtable({
+      U.setMath(host,{
         title:'Worked math — corporation’s basis',
         subtitle:'Carryover basis, plus the §357(c) liability check.',
         mode: pfs_m3_isLive() ? 'live' : 'example',
@@ -2943,7 +2969,7 @@ registerPage({
         {kind:'in', label:'<span class="op">−</span> Return of capital', how:'from step 4', amount:$(roc)},
         {kind:'result', label:'Capital gain — taxed as gain on the stock', amount:$(capGain)}
       ];
-      host.innerHTML=U.mtable({
+      U.setMath(host,{
         title:'Worked math — distribution classification',
         subtitle:'Each dollar is tested against E&P, then basis, then capital gain — in order.',
         mode: ep_isLive()?'live':'example',
@@ -3434,7 +3460,7 @@ registerPage({
         {kind:'in', label:'<span class="op">−</span> Corporation’s adjusted basis in the property', amount:fv(basis.v,basis.ex)},
         {kind:'result', label:'Corporation-level gain / (loss)', amount:$$(gain)}
       ];
-      host.innerHTML=U.mtable({
+      U.setMath(host,{
         title:'Worked math — corporation level (property distributed)',
         subtitle:'The corporation is treated as if it sold the property at FMV.',
         mode: liq_isLive([['liq_corpBasis',LIQ_CORP_EX.corpBasis],['liq_corpFMV',LIQ_CORP_EX.corpFMV],['liq_liabAttached',LIQ_CORP_EX.liabAttached]])?'live':'example',
@@ -3463,7 +3489,7 @@ registerPage({
         {kind:'in', label:'<span class="op">−</span> Stock basis surrendered', amount:fv(stockBasis.v,stockBasis.ex)},
         {kind:'result', label:'Shareholder-level gain / (loss)', amount:$$(gain)}
       ];
-      host.innerHTML=U.mtable({
+      U.setMath(host,{
         title:'Worked math — shareholder level (stock surrendered)',
         subtitle:'The shareholder is treated as if they sold their stock for what they received.',
         mode: liq_isLive([['liq_stockBasis',LIQ_SH_EX.stockBasis],['liq_cashRecd',LIQ_SH_EX.cashRecd],['liq_propRecd',LIQ_SH_EX.propRecd],['liq_shLiab',LIQ_SH_EX.shLiab]])?'live':'example',
