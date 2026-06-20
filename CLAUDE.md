@@ -19,8 +19,10 @@ Generic workflow rules live in `~/.claude/CLAUDE.md` (they apply to every repo).
   Preview config name `cpa-dashboard`, port 8740.
 - **Build / test / lint / typecheck:** none configured. Verification = manual + the worked-example
   acceptance numbers (each page prefilled to a known answer; see HANDOFF.md).
-- **Deploy:** Vercel static (`vercel.json` -> `cleanUrls`). CLI: `npx vercel --prod
-  --scope jessica-dougherty-s-projects`. (Git-connect later if desired -- see HANDOFF.md.)
+- **Deploy:** Vercel static (`vercel.json` -> `cleanUrls`). **Git-connected, push-to-deploy VERIFIED**
+  (2026-06-19): `git push origin main` -> Vercel auto-deploys to production. Manual fallback:
+  `npx vercel --prod --scope jessica-dougherty-s-projects`. (`vercel git connect` SSH-alias gotcha
+  documented in HANDOFF.md.)
 - **Production:** https://cpa-dashboard-ashy.vercel.app + app.fastinsights.io/cpa-dashboard tile/proxy.
   Vercel project `cpa-dashboard` (team `jessica-dougherty-s-projects`). NOTE: plain
   `cpa-dashboard.vercel.app` is owned by someone else, so the prod alias is `cpa-dashboard-ashy`.
@@ -28,11 +30,11 @@ Generic workflow rules live in `~/.claude/CLAUDE.md` (they apply to every repo).
 ## GitHub / accounts (Jessica)
 - This is **Jessica's** ecosystem (like the other Fast Insights tools). Vercel CLI on this machine
   is logged in as `jessicadougherty4321-6324` (team `jessica-dougherty-s-projects`).
-- GitHub pushes for Jessica's repos use the SSH host alias **`github-jessica`** (key
-  `~/.ssh/jessiesfaith_ed25519`); remote pattern `github-jessica:jessiesfaith/<repo>.git`.
+- Repo: **`github.com/jessiesfaith/cpa-dashboard`** (public). Pushes use the SSH host alias
+  **`github-jessica`** (key `~/.ssh/jessiesfaith_ed25519`); remote = `github-jessica:jessiesfaith/cpa-dashboard.git`.
   The machine's stored HTTPS credential is Chris's (`dogsleddev`) and CANNOT push to Jessica's repos.
-- `gh` CLI is NOT logged in on this machine, so a new GitHub repo must be created on github.com (or
-  via an authenticated `gh`) before `git push` works.
+- `gh` CLI is NOT logged in on this machine; the repo was created by Jessica on github.com, then
+  `git push` + `vercel git connect` wired up push-to-deploy.
 
 ## Environment notes (this machine)
 - **OneDrive Files-On-Demand:** this repo is inside a OneDrive-synced vault; files may be cloud

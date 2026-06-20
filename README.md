@@ -45,6 +45,7 @@ are documented inline at the top of `index.html`.
 
 ## Deploy
 
-Static site on Vercel (`cleanUrls: true`). `npx vercel --prod --scope jessica-dougherty-s-projects`
-(or git push once git-connected). Production: https://cpa-dashboard-ashy.vercel.app · also surfaced
-at app.fastinsights.io/cpa-dashboard.
+Static site on Vercel (`cleanUrls: true`), git-connected: **`git push origin main` auto-deploys**
+(repo `github.com/jessiesfaith/cpa-dashboard`). Manual fallback:
+`npx vercel --prod --scope jessica-dougherty-s-projects`. Production:
+https://cpa-dashboard-ashy.vercel.app · also surfaced at app.fastinsights.io/cpa-dashboard.

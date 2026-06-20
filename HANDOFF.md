@@ -32,18 +32,17 @@ Every spec acceptance number passed:
 - Copy/export, answer-card reveal, FAQ, advisor checklist, validation all working.
 
 ## Deploy / redeploy
-- **Standalone:** `npx vercel --prod --scope jessica-dougherty-s-projects` from this folder.
-  (NOT git-connected yet — see below.)
+- **GIT-CONNECTED — push-to-deploy VERIFIED (2026-06-19).** Repo
+  `github.com/jessiesfaith/cpa-dashboard` (push via SSH alias `github-jessica`). `git push origin main`
+  → Vercel auto-deploys to production, confirmed live (deploy `dpl_76VkJx9...` from commit `39a47d3`,
+  `githubDeployment`, READY). Manual fallback: `npx vercel --prod --scope jessica-dougherty-s-projects`.
+  - `vercel git connect` gotcha (already done): it can't parse the `github-jessica:` SSH-alias remote —
+    temporarily `git remote set-url origin https://github.com/jessiesfaith/cpa-dashboard.git`, connect,
+    then restore the alias (`github-jessica:jessiesfaith/cpa-dashboard.git`).
 - **Hub tile/proxy:** edit `fast-insights-app` (Landing.tsx + vercel.json) → `git push origin main`
   (auto-deploys). `npm run build` first to catch TS errors (TS strict is the gate).
 
 ## Open follow-ups (optional)
-- **GitHub + git-connect:** this repo has a LOCAL git history (initial commit) but **no GitHub repo
-  yet** — `gh` isn't logged in on this machine, so the repo couldn't be created from CLI. To enable
-  push-to-deploy like the other tools: create `github.com/jessiesfaith/cpa-dashboard`, then
-  `git remote add origin github-jessica:jessiesfaith/cpa-dashboard.git`, `git push -u origin main`,
-  and `vercel git connect` (gotcha: the SSH-alias remote can't be parsed — temporarily set origin to
-  the https URL, connect, then restore the alias). Until then, redeploy via the CLI command above.
 - Consider a short "what's missing" review of the worked-example prose for edge phrasing.
 
 ## Notes
