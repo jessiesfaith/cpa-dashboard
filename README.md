@@ -14,8 +14,12 @@ Vanilla HTML/CSS/JS — no build step, no dependencies — in the Fast Insights 
 | Liquidation | Stock-Gain/Loss | `#/liquidation/stock-gain-loss` |
 
 Each page has: an education disclaimer, an overview, formula boxes, step-by-step worked
-examples, answer-choice cards, large currency results, input validation, a collapsible FAQ,
-an advisor-review checklist, and copy/export + print.
+examples, answer-choice cards, large currency results, input validation, copy/export + print —
+plus an **Excel-style worked-math table** on each calculator that shows example numbers when the
+fields are blank (📘 *Example values*) and recomputes live with your own numbers when you type
+(✏️ *Your numbers*), with every step shown (no steps skipped). To keep the pages short, the
+worked examples, formula boxes, worked-math tables, the FAQ, the advisor-review checklist, and the
+practice question all start **collapsed** and expand on click.
 
 > **Disclaimer:** for education and planning support only. Tax rules are technical and should be
 > reviewed by a qualified tax advisor before relying on any result. Simplified CPA study mode —
@@ -40,8 +44,12 @@ registerPage({ top, topLabel, sub, subLabel, title, html, init(root), summary(ro
 ```
 
 To add a page, append another `registerPage({...})` `<script>` block. Shared helpers
-(`U.fmtUSD`, `U.normRate`, `U.choices`, `U.faq`, `U.checklist`, `U.copy`, …) and CSS classes
-are documented inline at the top of `index.html`.
+(`U.fmtUSD`, `U.normRate`, `U.choices`, `U.faq`, `U.checklist`, `U.copy`, and the worked-math
+trio `U.mtable` / `U.fval` / `U.setMath`, …) and CSS classes are documented inline at the top of
+`index.html`. A `collapseExamples()` pass in the framework `render()` auto-folds supplementary
+cards (Example / Worked example / Check-your-understanding / Formulas, incl. headerless formula
+boxes) into collapsed `<details>`; `U.faq`/`U.checklist` and the `U.mtable` worked-math tables are
+collapsible too.
 
 ## Deploy
 

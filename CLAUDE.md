@@ -15,10 +15,23 @@ Generic workflow rules live in `~/.claude/CLAUDE.md` (they apply to every repo).
   page by appending another `registerPage(...)` `<script>`. Shared CSS classes + `U` API are
   documented in comments at the top of `index.html`. IDs/helpers per page are prefixed
   (`n382_`, `cons_`, `pfs_`, `ep_`, `liq_`) to avoid collisions.
+- **Worked-math tables (2026-06-20):** every calculator renders an Excel-style step-by-step table via
+  `U.mtable(def)` (builder) + `U.fval(n,isExample)` (example-muted `$`) + `U.setMath(host,def)`
+  (renders into host **and preserves open/closed state** across the per-keystroke re-render). Each
+  page has a `*_EX` example-default constant + `*_isLive()` mode check so blank fields show the
+  example (📘 badge) and typed fields go live (✏️ badge). 9 tables total; HANDOFF.md has the
+  per-page id/constant map. NOL/E&P/Liquidation REPLACED their old `.calc` "worked solution" blocks;
+  Consolidations ADDED tables alongside the existing `.calc` breakdown (which `summary()` still reads).
+- **Collapse-by-default (2026-06-20):** a `collapseExamples()` pass in `render()` folds supplementary
+  cards (Example / Worked example / Check-your-understanding / Formulas, incl. headerless formula
+  boxes) into closed `<details>`; `U.faq`/`U.checklist` and the `U.mtable` tables are collapsible too.
+  Worked-math tables default **collapsed** (teaching view is one click away — flip first render to
+  `open:true` if teaching-first is wanted).
 - **Dev (localhost):** `python -m http.server 8000` -> http://localhost:8000 (or `npx http-server`).
   Preview config name `cpa-dashboard`, port 8740.
 - **Build / test / lint / typecheck:** none configured. Verification = manual + the worked-example
-  acceptance numbers (each page prefilled to a known answer; see HANDOFF.md).
+  acceptance numbers (each page prefilled to a known answer; see HANDOFF.md). Also spot-check the
+  worked-math tables (example vs. live) and that the collapse-by-default sections expand correctly.
 - **Deploy:** Vercel static (`vercel.json` -> `cleanUrls`). **Git-connected, push-to-deploy VERIFIED**
   (2026-06-19): `git push origin main` -> Vercel auto-deploys to production. Manual fallback:
   `npx vercel --prod --scope jessica-dougherty-s-projects`. (`vercel git connect` SSH-alias gotcha
