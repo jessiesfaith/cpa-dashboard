@@ -3760,6 +3760,14 @@ registerPage({
       <!-- ---------- PARTNERSHIP · calculators ---------- -->
       <div class="card">
         <div class="grp-h first"><span class="grp-tag">CALCULATOR</span> Partnership — operating, one partner</div>
+        <div class="field" style="margin-bottom:12px">
+          <label class="hint">Load a JKL partner — fills <b>both</b> the operating and liquidating calculators</label>
+          <select class="ipt" id="dpn_preset">
+            <option value="janet" selected>Janet — receives $100,000 cash</option>
+            <option value="karen">Karen — receives land &amp; assumes the $60,000 debt</option>
+            <option value="lisa">Lisa — receives inventory</option>
+          </select>
+        </div>
         <div class="grid cols-2">
           <div class="field"><label class="hint">Partner name</label><input class="ipt txt" id="dpn_partner" value="Janet"></div>
           <div class="field"><label class="hint">Pre-distribution outside basis ($)</label><input class="ipt" id="dpn_preBasis" value="115,000"></div>
@@ -4311,7 +4319,24 @@ registerPage({
     root.addEventListener('change',recompute);
 
     const setVals=(map)=>{ Object.keys(map).forEach(function(id){ const el=q(id); if(el) el.value=map[id]; }); };
-    const rpn=q('#dpn_reset'); if(rpn) rpn.addEventListener('click',()=>{ setVals({'#dpn_partner':'Janet','#dpn_preBasis':'115,000','#dpn_debtBefore':'20,000','#dpn_debtAfter':'0','#dpn_cash':'100,000','#dpn_propBasis':'0','#dpn_propFMV':'0'}); q('#dpn_propType').value='None / cash only'; recompute(); U.toast('Reset to Janet (operating)'); });
+
+    /* JKL partner presets — load a partner into BOTH the operating and liquidating partnership calcs. */
+    const JKL={
+      janet:{name:'Janet', preBasis:'115,000', debtBefore:'20,000', debtAfter:'0',      cash:'100,000', propBasis:'0',       propFMV:'0',       propType:'None / cash only'},
+      karen:{name:'Karen', preBasis:'175,000', debtBefore:'20,000', debtAfter:'60,000', cash:'0',       propBasis:'90,000',  propFMV:'160,000', propType:'Capital or §1231 property'},
+      lisa: {name:'Lisa',  preBasis:'125,000', debtBefore:'20,000', debtAfter:'0',      cash:'0',       propBasis:'110,000', propFMV:'100,000', propType:'Inventory / unrealized receivable (hot asset)'}
+    };
+    function loadPartner(key){
+      const p=JKL[key]; if(!p) return;
+      setVals({'#dpn_partner':p.name,'#dpn_preBasis':p.preBasis,'#dpn_debtBefore':p.debtBefore,'#dpn_debtAfter':p.debtAfter,'#dpn_cash':p.cash,'#dpn_propBasis':p.propBasis,'#dpn_propFMV':p.propFMV});
+      if(q('#dpn_propType')) q('#dpn_propType').value=p.propType;
+      setVals({'#dpl_partner':p.name,'#dpl_preBasis':p.preBasis,'#dpl_debtBefore':p.debtBefore,'#dpl_debtAfter':p.debtAfter,'#dpl_cash':p.cash,'#dpl_propBasis':p.propBasis,'#dpl_propFMV':p.propFMV});
+      if(q('#dpl_propType')) q('#dpl_propType').value=p.propType;
+      recompute();
+    }
+    const preset=q('#dpn_preset'); if(preset) preset.addEventListener('change',function(){ loadPartner(this.value); const nm=(JKL[this.value]||{}).name||''; U.toast('Loaded '+nm+' — operating & liquidating'); });
+
+    const rpn=q('#dpn_reset'); if(rpn) rpn.addEventListener('click',()=>{ if(q('#dpn_preset')) q('#dpn_preset').value='janet'; loadPartner('janet'); U.toast('Reset to Janet (operating & liquidating)'); });
     const rpl=q('#dpl_reset'); if(rpl) rpl.addEventListener('click',()=>{ setVals({'#dpl_partner':'Liquidating partner','#dpl_preBasis':'115,000','#dpl_debtBefore':'0','#dpl_debtAfter':'0','#dpl_cash':'100,000','#dpl_propBasis':'0','#dpl_propFMV':'0'}); q('#dpl_propType').value='None / cash only'; recompute(); U.toast('Reset to liquidating example (cash-only loss)'); });
     const rcc=q('#dcc_reset'); if(rcc) rcc.addEventListener('click',()=>{ setVals({'#dcc_ep':'120,000','#dcc_cash':'100,000','#dcc_propFMV':'160,000','#dcc_propBasis':'90,000','#dcc_liab':'60,000','#dcc_shBasis':'50,000'}); recompute(); U.toast('Reset to C-corp operating example'); });
     const rcl=q('#dcl_reset'); if(rcl) rcl.addEventListener('click',()=>{ setVals({'#dcl_cash':'100,000','#dcl_propFMV':'160,000','#dcl_propBasis':'90,000','#dcl_liab':'60,000','#dcl_shBasis':'50,000'}); recompute(); U.toast('Reset to C-corp liquidating example'); });
