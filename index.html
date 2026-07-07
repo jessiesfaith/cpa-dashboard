@@ -401,12 +401,13 @@
         return '<th'+(i===cols.length-1?' class="amt"':'')+'>'+U.esc(c)+'</th>';
       }).join('')+'</tr></thead>';
       var body = (def.rows||[]).map(function(r){
+        var kAttr = r.key ? ' data-key="'+r.key+'"' : '';
         if(r.kind==='sect'){
-          return '<tr class="sect"><td colspan="'+cols.length+'">'+(r.label||'')+'</td></tr>';
+          return '<tr class="sect"'+kAttr+'><td colspan="'+cols.length+'">'+(r.label||'')+'</td></tr>';
         }
         var cls = r.kind || 'plain';
         var lblCls = (r.kind==='in') ? ' class="lbl"' : '';
-        return '<tr class="'+cls+'">'+
+        return '<tr class="'+cls+'"'+kAttr+'>'+
           '<td'+lblCls+'>'+(r.label||'')+'</td>'+
           '<td class="how">'+(r.how||'')+'</td>'+
           '<td class="amt">'+(r.amount==null?'':r.amount)+'</td>'+
@@ -4023,25 +4024,25 @@ registerPage({
       const host=q('#dpn_math'); if(!host) return; const e=dpn_eff(); const m=dpn_math(e);
       q('#dpn_oGain').textContent=$(m.gain); q('#dpn_oPost').textContent=$(m.post); q('#dpn_oProp').textContent=$(m.distProp);
       const rows=[
-        {kind:'sect',label:'<span class="sn">1</span> Debt shift adjusts outside basis <span class="op">(increase = deemed contribution, relief = deemed cash)</span>'},
-        {kind:'in',label:'Pre-distribution outside basis',amount:fv(e.preBasis.v,e.preBasis.ex)},
-        {kind:'in',label:(m.netDebt>=0?'<span class="op">+</span> Increase in share of debt (assumed)':'<span class="op">−</span> Debt relief (share decreased)'),how:'after '+$(e.debtAfter.v)+' − before '+$(e.debtBefore.v),amount:$(m.netDebt)},
-        {kind:'sub',label:'Outside basis after debt change',amount:$(m.afterDebt)},
-        (m.debtGain>0?{kind:'result',label:'Gain — debt relief exceeded basis',amount:$(m.debtGain)}:null),
-        {kind:'sect',label:'<span class="sn">2</span> Cash distribution <span class="op">(gain only if cash &gt; basis)</span>'},
-        {kind:'in',label:'Outside basis (from step 1)',amount:$(m.afterDebt)},
-        {kind:'in',label:'<span class="op">−</span> Cash distributed',amount:fv(e.cash.v,e.cash.ex)},
-        {kind:'sub',label:'Outside basis after cash',amount:$(m.afterCash)},
-        (m.cashGain>0?{kind:'result',label:'Gain — cash over basis',amount:$(m.cashGain)}:null),
+        {kind:'sect',key:'p_s1',label:'<span class="sn">1</span> Debt shift adjusts outside basis <span class="op">(increase = deemed contribution, relief = deemed cash)</span>'},
+        {kind:'in',key:'p_preBasis',label:'Pre-distribution outside basis',amount:fv(e.preBasis.v,e.preBasis.ex)},
+        {kind:'in',key:'p_debtChg',label:(m.netDebt>=0?'<span class="op">+</span> Increase in share of debt (assumed)':'<span class="op">−</span> Debt relief (share decreased)'),how:'after '+$(e.debtAfter.v)+' − before '+$(e.debtBefore.v),amount:$(m.netDebt)},
+        {kind:'sub',key:'p_afterDebt',label:'Outside basis after debt change',amount:$(m.afterDebt)},
+        (m.debtGain>0?{kind:'result',key:'p_debtGain',label:'Gain — debt relief exceeded basis',amount:$(m.debtGain)}:null),
+        {kind:'sect',key:'p_s2',label:'<span class="sn">2</span> Cash distribution <span class="op">(gain only if cash &gt; basis)</span>'},
+        {kind:'in',key:'p_fromS1',label:'Outside basis (from step 1)',amount:$(m.afterDebt)},
+        {kind:'in',key:'p_cash',label:'<span class="op">−</span> Cash distributed',amount:fv(e.cash.v,e.cash.ex)},
+        {kind:'sub',key:'p_afterCash',label:'Outside basis after cash',amount:$(m.afterCash)},
+        (m.cashGain>0?{kind:'result',key:'p_cashGain',label:'Gain — cash over basis',amount:$(m.cashGain)}:null),
         {kind:'sect',label:'<span class="sn">3</span> Property distribution <span class="op">= lesser of (inside basis, remaining outside basis); no gain</span>'},
         {kind:'in',label:'Partnership (inside) basis of property',amount:fv(e.propBasis.v,e.propBasis.ex)},
         {kind:'in',label:'Remaining outside basis (from step 2)',amount:$(m.afterCash)},
         {kind:'in',label:'Lesser of the two',how:'<code>min(inside basis, remaining basis)</code>',amount:$(m.propBasisTo)},
         {kind:'sub',label:'Post-distribution outside basis',how:'remaining basis − property basis taken (leftover stays)',amount:$(m.post)},
-        {kind:'sect',label:'<span class="sn">4</span> Answers'},
-        {kind:'result',label:'Gain (loss) recognized',amount:$(m.gain)},
-        {kind:'result',label:'Post-distribution basis in partnership interest',amount:$(m.post)},
-        {kind:'result',label:'Basis in property distributed',how:'cash at face + property carryover',amount:$(m.distProp)}
+        {kind:'sect',key:'p_s4',label:'<span class="sn">4</span> Answers'},
+        {kind:'result',key:'p_ansGain',label:'Gain (loss) recognized',amount:$(m.gain)},
+        {kind:'result',key:'p_ansBasis',label:'Post-distribution basis in partnership interest',amount:$(m.post)},
+        {kind:'result',key:'p_ansProp',label:'Basis in property distributed',how:'cash at face + property carryover',amount:$(m.distProp)}
       ].filter(Boolean);
       U.setMath(host,{title:'Worked math — partnership, operating',subtitle:'Debt shift → cash (gain test) → property (carryover, limited); interest continues.',mode:dpn_isLive()?'live':'example',rows:rows,foot:'Partnership recognizes <b>no</b> gain/loss. The partner recognizes gain only when <b>money</b> (cash + debt relief) exceeds outside basis; leftover basis <b>stays</b> in the interest. <i>Grey italic</i> = example default (blank field).'});
       const hl=q('#dpn_headline'),hm=q('#dpn_hlMain'),hs=q('#dpn_hlSub'); const nm=q('#dpn_partner').value||'Partner';
@@ -4103,21 +4104,21 @@ registerPage({
         ];
       }
       const rows=[
-        {kind:'sect',label:'<span class="sn">1</span> Debt shift adjusts outside basis <span class="op">(increase = deemed contribution, relief = deemed cash)</span>'},
-        {kind:'in',label:'Pre-distribution outside basis',amount:fv(e.preBasis.v,e.preBasis.ex)},
-        {kind:'in',label:(m.netDebt>=0?'<span class="op">+</span> Increase in share of debt (assumed)':'<span class="op">−</span> Debt relief (share decreased)'),how:'after '+$(e.debtAfter.v)+' − before '+$(e.debtBefore.v),amount:$(m.netDebt)},
-        {kind:'sub',label:'Outside basis after debt change',amount:$(m.afterDebt)},
-        (m.debtGain>0?{kind:'result',label:'Gain — debt relief exceeded basis',amount:$(m.debtGain)}:null),
-        {kind:'sect',label:'<span class="sn">2</span> Cash distribution <span class="op">(gain only if cash &gt; basis)</span>'},
-        {kind:'in',label:'Outside basis (from step 1)',amount:$(m.afterDebt)},
-        {kind:'in',label:'<span class="op">−</span> Cash distributed',amount:fv(e.cash.v,e.cash.ex)},
-        {kind:'sub',label:'Outside basis after cash',amount:$(m.afterCash)},
-        (m.cashGain>0?{kind:'result',label:'Gain — cash over basis',amount:$(m.cashGain)}:null)
+        {kind:'sect',key:'p_s1',label:'<span class="sn">1</span> Debt shift adjusts outside basis <span class="op">(increase = deemed contribution, relief = deemed cash)</span>'},
+        {kind:'in',key:'p_preBasis',label:'Pre-distribution outside basis',amount:fv(e.preBasis.v,e.preBasis.ex)},
+        {kind:'in',key:'p_debtChg',label:(m.netDebt>=0?'<span class="op">+</span> Increase in share of debt (assumed)':'<span class="op">−</span> Debt relief (share decreased)'),how:'after '+$(e.debtAfter.v)+' − before '+$(e.debtBefore.v),amount:$(m.netDebt)},
+        {kind:'sub',key:'p_afterDebt',label:'Outside basis after debt change',amount:$(m.afterDebt)},
+        (m.debtGain>0?{kind:'result',key:'p_debtGain',label:'Gain — debt relief exceeded basis',amount:$(m.debtGain)}:null),
+        {kind:'sect',key:'p_s2',label:'<span class="sn">2</span> Cash distribution <span class="op">(gain only if cash &gt; basis)</span>'},
+        {kind:'in',key:'p_fromS1',label:'Outside basis (from step 1)',amount:$(m.afterDebt)},
+        {kind:'in',key:'p_cash',label:'<span class="op">−</span> Cash distributed',amount:fv(e.cash.v,e.cash.ex)},
+        {kind:'sub',key:'p_afterCash',label:'Outside basis after cash',amount:$(m.afterCash)},
+        (m.cashGain>0?{kind:'result',key:'p_cashGain',label:'Gain — cash over basis',amount:$(m.cashGain)}:null)
       ].concat(step3).concat([
-        {kind:'sect',label:'<span class="sn">4</span> Answers <span class="op">(interest terminates)</span>'},
-        {kind:'result',label:'Gain / (loss) recognized',amount:par(m.netGL)},
-        {kind:'result',label:'Ending basis in partnership interest',amount:$(0)},
-        {kind:'result',label:'Basis in property received',how:'cash at face + property basis',amount:$(m.distProp)}
+        {kind:'sect',key:'p_s4',label:'<span class="sn">4</span> Answers <span class="op">(interest terminates)</span>'},
+        {kind:'result',key:'p_ansGain',label:'Gain / (loss) recognized',amount:par(m.netGL)},
+        {kind:'result',key:'p_ansBasis',label:'Ending basis in partnership interest',amount:$(0)},
+        {kind:'result',key:'p_ansProp',label:'Basis in property received',how:'cash at face + property basis',amount:$(m.distProp)}
       ]).filter(Boolean);
       U.setMath(host,{title:'Worked math — partnership, liquidating',subtitle:'Debt shift → cash (gain test) → remaining basis absorbed into property OR recognized as loss; interest ends at $0.',mode:dpl_isLive()?'live':'example',rows:rows,foot:'The partner’s <b>entire remaining basis</b> is absorbed into distributed property (§732(b)) — or, if only money/hot assets are received, the shortfall is a <b>capital loss</b> (§731(a)(2)). Contrast the operating calculator at left, where leftover basis stays and loss is never allowed. <i>Grey italic</i> = example default (blank field).'});
       const hl=q('#dpl_headline'),hm=q('#dpl_hlMain'),hs=q('#dpl_hlSub'); const nm=q('#dpl_partner').value||'Partner';
@@ -4150,15 +4151,15 @@ registerPage({
       const host=q('#dcc_math'); if(!host) return; const e=dcc_eff(); const m=dcc_math(e);
       q('#dcc_oCorp').textContent=$(m.corpGain); q('#dcc_oDiv').textContent=$(m.dividend); q('#dcc_oROC').textContent=$(m.roc); q('#dcc_oGain').textContent=$(m.capGain); q('#dcc_oProp').textContent=$(m.propBasis);
       const rows=[
-        {kind:'sect',label:'<span class="sn">1</span> Corporation gain on appreciated property <span class="op">(§311(b) — no loss)</span>'},
-        {kind:'in',label:'Property FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
-        {kind:'in',label:'<span class="op">−</span> Corporation adjusted basis',amount:fv(e.propBasis.v,e.propBasis.ex)},
-        {kind:'result',label:'Corporation gain (loss not recognized)',how:'increases E&P',amount:$(m.corpGain)},
-        {kind:'sect',label:'<span class="sn">2</span> Amount distributed to the shareholder'},
-        {kind:'in',label:'Cash',amount:fv(e.cash.v,e.cash.ex)},
-        {kind:'in',label:'<span class="op">+</span> Property at FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
-        {kind:'in',label:'<span class="op">−</span> Liabilities assumed by shareholder',amount:fv(e.liab.v,e.liab.ex)},
-        {kind:'sub',label:'Amount of the distribution',amount:$(m.amount)},
+        {kind:'sect',key:'c_s1',label:'<span class="sn">1</span> Corporation gain on appreciated property <span class="op">(§311(b) — no loss)</span>'},
+        {kind:'in',key:'c_propFMV',label:'Property FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
+        {kind:'in',key:'c_propBasis',label:'<span class="op">−</span> Corporation adjusted basis',amount:fv(e.propBasis.v,e.propBasis.ex)},
+        {kind:'result',key:'c_corpGain',label:'Corporation gain (loss not recognized)',how:'increases E&P',amount:$(m.corpGain)},
+        {kind:'sect',key:'c_s2',label:'<span class="sn">2</span> Amount distributed to the shareholder'},
+        {kind:'in',key:'c_cash',label:'Cash',amount:fv(e.cash.v,e.cash.ex)},
+        {kind:'in',key:'c_addFMV',label:'<span class="op">+</span> Property at FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
+        {kind:'in',key:'c_liab',label:'<span class="op">−</span> Liabilities assumed by shareholder',amount:fv(e.liab.v,e.liab.ex)},
+        {kind:'sub',key:'c_amount',label:'Amount of the distribution',amount:$(m.amount)},
         {kind:'sect',label:'<span class="sn">3</span> Dividend income <span class="op">= lesser of (amount, total E&P)</span>'},
         {kind:'in',label:'Amount distributed (step 2)',amount:$(m.amount)},
         {kind:'in',label:'Total E&P',amount:fv(e.ep.v,e.ep.ex)},
@@ -4171,7 +4172,7 @@ registerPage({
         {kind:'sect',label:'<span class="sn">5</span> Capital gain <span class="op">= non-dividend amount − return of capital</span>'},
         {kind:'result',label:'Capital gain',amount:$(m.capGain)},
         {kind:'sect',label:'<span class="sn">6</span> Shareholder basis in the property'},
-        {kind:'result',label:'Basis in distributed property (FMV, §301(d))',amount:$(m.propBasis)}
+        {kind:'result',key:'c_propBasisAns',label:'Basis in distributed property (FMV, §301(d))',amount:$(m.propBasis)}
       ];
       U.setMath(host,{title:'Worked math — C-corp, operating',subtitle:'Corporation gain on appreciated property; then dividend → return of capital → capital gain. Stock continues.',mode:dcc_isLive()?'live':'example',rows:rows,foot:'The <b>corporation recognizes gain</b> on appreciated property (no loss) and the shareholder takes it at <b>FMV</b>; income is a <b>dividend</b> first. Compare the liquidating calculator at right, where E&P is irrelevant and it becomes a stock sale. <i>Grey italic</i> = example default (blank field).'});
       const hl=q('#dcc_headline'),hm=q('#dcc_hlMain'),hs=q('#dcc_hlSub');
@@ -4198,21 +4199,21 @@ registerPage({
       const host=q('#dcl_math'); if(!host) return; const e=dcl_eff(); const m=dcl_math(e);
       q('#dcl_oCorp').textContent=par(m.corpGL); q('#dcl_oAmt').textContent=$(m.amount); q('#dcl_oSh').textContent=par(m.shGL); q('#dcl_oProp').textContent=$(m.propBasis);
       const rows=[
-        {kind:'sect',label:'<span class="sn">1</span> Corporation gain / (loss) on property <span class="op">(§336 — gain AND loss)</span>'},
-        {kind:'in',label:'Property FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
-        {kind:'in',label:'<span class="op">−</span> Corporation adjusted basis',amount:fv(e.propBasis.v,e.propBasis.ex)},
-        {kind:'result',label:'Corporation gain / (loss) recognized',how:'as if sold at FMV',amount:par(m.corpGL)},
-        {kind:'sect',label:'<span class="sn">2</span> Amount realized by the shareholder'},
-        {kind:'in',label:'Cash',amount:fv(e.cash.v,e.cash.ex)},
-        {kind:'in',label:'<span class="op">+</span> Property at FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
-        {kind:'in',label:'<span class="op">−</span> Liabilities assumed by shareholder',amount:fv(e.liab.v,e.liab.ex)},
-        {kind:'sub',label:'Amount realized',amount:$(m.amount)},
+        {kind:'sect',key:'c_s1',label:'<span class="sn">1</span> Corporation gain / (loss) on property <span class="op">(§336 — gain AND loss)</span>'},
+        {kind:'in',key:'c_propFMV',label:'Property FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
+        {kind:'in',key:'c_propBasis',label:'<span class="op">−</span> Corporation adjusted basis',amount:fv(e.propBasis.v,e.propBasis.ex)},
+        {kind:'result',key:'c_corpGain',label:'Corporation gain / (loss) recognized',how:'as if sold at FMV',amount:par(m.corpGL)},
+        {kind:'sect',key:'c_s2',label:'<span class="sn">2</span> Amount realized by the shareholder'},
+        {kind:'in',key:'c_cash',label:'Cash',amount:fv(e.cash.v,e.cash.ex)},
+        {kind:'in',key:'c_addFMV',label:'<span class="op">+</span> Property at FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
+        {kind:'in',key:'c_liab',label:'<span class="op">−</span> Liabilities assumed by shareholder',amount:fv(e.liab.v,e.liab.ex)},
+        {kind:'sub',key:'c_amount',label:'Amount realized',amount:$(m.amount)},
         {kind:'sect',label:'<span class="sn">3</span> Shareholder capital gain / (loss) <span class="op">(§331 — sale of stock; E&P irrelevant)</span>'},
         {kind:'in',label:'Amount realized (step 2)',amount:$(m.amount)},
         {kind:'in',label:'<span class="op">−</span> Stock basis',amount:fv(e.shBasis.v,e.shBasis.ex)},
         {kind:'result',label:'Capital gain / (loss)',amount:par(m.shGL)},
         {kind:'sect',label:'<span class="sn">4</span> Shareholder basis in the property'},
-        {kind:'result',label:'Basis in distributed property (FMV, §334(a))',amount:$(m.propBasis)}
+        {kind:'result',key:'c_propBasisAns',label:'Basis in distributed property (FMV, §334(a))',amount:$(m.propBasis)}
       ];
       U.setMath(host,{title:'Worked math — C-corp, liquidating',subtitle:'Corporation gain AND loss at FMV (§336); shareholder capital gain/loss as a sale of stock (§331). No dividend, no E&P.',mode:dcl_isLive()?'live':'example',rows:rows,foot:'A complete liquidation is a <b>sale of the stock</b>: the corporation recognizes gain <b>and loss</b> (§336) and the shareholder has a <b>capital gain/loss</b> (§331) — <b>E&P is irrelevant</b>. Same facts, very different answer from the operating calculator at left. <i>Grey italic</i> = example default (blank field).'});
       const hl=q('#dcl_headline'),hm=q('#dcl_hlMain'),hs=q('#dcl_hlSub');
@@ -4243,21 +4244,21 @@ registerPage({
       const host=q('#dsc_math'); if(!host) return; const e=dsc_eff(); const m=dsc_math(e);
       q('#dsc_oPass').textContent=$(m.passGain); q('#dsc_oROB').textContent=$(m.rob); q('#dsc_oGain').textContent=$(m.capGain); q('#dsc_oEnd').textContent=$(m.endBasis); q('#dsc_oProp').textContent=$(m.propBasis);
       const rows=[
-        {kind:'sect',label:'<span class="sn">1</span> Corporation gain on appreciated property passes through <span class="op">(§311(b)/§1371)</span>'},
-        {kind:'in',label:'Property FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
-        {kind:'in',label:'<span class="op">−</span> Corporation adjusted basis',amount:fv(e.propBasis.v,e.propBasis.ex)},
-        {kind:'sub',label:'Corporation gain (no loss)',amount:$(m.corpGain)},
-        {kind:'in',label:'<span class="op">×</span> Ownership %',amount:U.fmtPct(e.ownPct.v/100,0)},
-        {kind:'result',label:'Pass-through gain — taxable to shareholder',amount:$(m.passGain)},
-        {kind:'sect',label:'<span class="sn">2</span> Pass-through gain increases stock basis first'},
-        {kind:'in',label:'Stock basis before',amount:fv(e.shBasisBefore.v,e.shBasisBefore.ex)},
-        {kind:'in',label:'<span class="op">+</span> Pass-through gain (step 1)',amount:$(m.passGain)},
-        {kind:'sub',label:'Stock basis after gain',amount:$(m.basisAfterGain)},
-        {kind:'sect',label:'<span class="sn">3</span> Amount of the distribution'},
-        {kind:'in',label:'Cash',amount:fv(e.cash.v,e.cash.ex)},
-        {kind:'in',label:'<span class="op">+</span> Property at FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
-        {kind:'in',label:'<span class="op">−</span> Liabilities assumed',amount:fv(e.liab.v,e.liab.ex)},
-        {kind:'sub',label:'Amount of the distribution',amount:$(m.amount)},
+        {kind:'sect',key:'s_s1',label:'<span class="sn">1</span> Corporation gain on appreciated property passes through <span class="op">(§311(b)/§1371)</span>'},
+        {kind:'in',key:'s_propFMV',label:'Property FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
+        {kind:'in',key:'s_propBasis',label:'<span class="op">−</span> Corporation adjusted basis',amount:fv(e.propBasis.v,e.propBasis.ex)},
+        {kind:'sub',key:'s_corpGain',label:'Corporation gain (no loss)',amount:$(m.corpGain)},
+        {kind:'in',key:'s_ownPct',label:'<span class="op">×</span> Ownership %',amount:U.fmtPct(e.ownPct.v/100,0)},
+        {kind:'result',key:'s_passGain',label:'Pass-through gain — taxable to shareholder',amount:$(m.passGain)},
+        {kind:'sect',key:'s_s2',label:'<span class="sn">2</span> Pass-through gain increases stock basis first'},
+        {kind:'in',key:'s_basisBefore',label:'Stock basis before',amount:fv(e.shBasisBefore.v,e.shBasisBefore.ex)},
+        {kind:'in',key:'s_addPass',label:'<span class="op">+</span> Pass-through gain (step 1)',amount:$(m.passGain)},
+        {kind:'sub',key:'s_basisAfter',label:'Stock basis after gain',amount:$(m.basisAfterGain)},
+        {kind:'sect',key:'s_s3',label:'<span class="sn">3</span> Amount of the distribution'},
+        {kind:'in',key:'s_cash',label:'Cash',amount:fv(e.cash.v,e.cash.ex)},
+        {kind:'in',key:'s_addFMV',label:'<span class="op">+</span> Property at FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
+        {kind:'in',key:'s_liab',label:'<span class="op">−</span> Liabilities assumed',amount:fv(e.liab.v,e.liab.ex)},
+        {kind:'sub',key:'s_amount',label:'Amount of the distribution',amount:$(m.amount)},
         {kind:'sect',label:'<span class="sn">4</span> Distribution (no accumulated E&P): tax-free to basis, excess = capital gain'},
         {kind:'in',label:'Amount distributed (step 3)',amount:$(m.amount)},
         {kind:'in',label:'Stock basis after gain (step 2)',amount:$(m.basisAfterGain)},
@@ -4265,7 +4266,7 @@ registerPage({
         {kind:'sub',label:'Ending stock basis',amount:$(m.endBasis)},
         {kind:'result',label:'Capital gain (amount over basis)',amount:$(m.capGain)},
         {kind:'sect',label:'<span class="sn">5</span> Shareholder basis in the property'},
-        {kind:'result',label:'Basis in distributed property (FMV)',amount:$(m.propBasis)}
+        {kind:'result',key:'s_propBasisAns',label:'Basis in distributed property (FMV)',amount:$(m.propBasis)}
       ];
       U.setMath(host,{title:'Worked math — S-corp, operating',subtitle:'Gain passes through (basis up first), then tax-free to basis, then capital gain. Stock continues.',mode:dsc_isLive()?'live':'example',rows:rows,foot:'The gain on appreciated property <b>passes through and raises basis</b> before the distribution is tested; property to the shareholder at <b>FMV</b>. In a liquidation (right) losses also pass through and any leftover basis becomes a capital loss. <i>Grey italic</i> = example default (blank field).'});
       const hl=q('#dsc_headline'),hm=q('#dsc_hlMain'),hs=q('#dsc_hlSub');
@@ -4295,27 +4296,27 @@ registerPage({
       const host=q('#dsl_math'); if(!host) return; const e=dsl_eff(); const m=dsl_math(e);
       q('#dsl_oPass').textContent=par(m.passGL); q('#dsl_oAmt').textContent=$(m.amount); q('#dsl_oSh').textContent=par(m.shGL); q('#dsl_oProp').textContent=$(m.propBasis);
       const rows=[
-        {kind:'sect',label:'<span class="sn">1</span> Corporation gain / (loss) passes through <span class="op">(§336 / §1371 — gain AND loss)</span>'},
-        {kind:'in',label:'Property FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
-        {kind:'in',label:'<span class="op">−</span> Corporation adjusted basis',amount:fv(e.propBasis.v,e.propBasis.ex)},
-        {kind:'sub',label:'Corporation gain / (loss)',amount:par(m.corpGL)},
-        {kind:'in',label:'<span class="op">×</span> Ownership %',amount:U.fmtPct(e.ownPct.v/100,0)},
-        {kind:'result',label:'Pass-through gain / (loss) — to shareholder',amount:par(m.passGL)},
-        {kind:'sect',label:'<span class="sn">2</span> Pass-through adjusts stock basis'},
-        {kind:'in',label:'Stock basis before',amount:fv(e.shBasisBefore.v,e.shBasisBefore.ex)},
-        {kind:'in',label:'<span class="op">±</span> Pass-through gain / (loss) (step 1)',amount:par(m.passGL)},
-        {kind:'sub',label:'Adjusted stock basis',amount:$(m.basisAfter)},
-        {kind:'sect',label:'<span class="sn">3</span> Amount realized by the shareholder'},
-        {kind:'in',label:'Cash',amount:fv(e.cash.v,e.cash.ex)},
-        {kind:'in',label:'<span class="op">+</span> Property at FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
-        {kind:'in',label:'<span class="op">−</span> Liabilities assumed',amount:fv(e.liab.v,e.liab.ex)},
-        {kind:'sub',label:'Amount realized',amount:$(m.amount)},
+        {kind:'sect',key:'s_s1',label:'<span class="sn">1</span> Corporation gain / (loss) passes through <span class="op">(§336 / §1371 — gain AND loss)</span>'},
+        {kind:'in',key:'s_propFMV',label:'Property FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
+        {kind:'in',key:'s_propBasis',label:'<span class="op">−</span> Corporation adjusted basis',amount:fv(e.propBasis.v,e.propBasis.ex)},
+        {kind:'sub',key:'s_corpGain',label:'Corporation gain / (loss)',amount:par(m.corpGL)},
+        {kind:'in',key:'s_ownPct',label:'<span class="op">×</span> Ownership %',amount:U.fmtPct(e.ownPct.v/100,0)},
+        {kind:'result',key:'s_passGain',label:'Pass-through gain / (loss) — to shareholder',amount:par(m.passGL)},
+        {kind:'sect',key:'s_s2',label:'<span class="sn">2</span> Pass-through adjusts stock basis'},
+        {kind:'in',key:'s_basisBefore',label:'Stock basis before',amount:fv(e.shBasisBefore.v,e.shBasisBefore.ex)},
+        {kind:'in',key:'s_addPass',label:'<span class="op">±</span> Pass-through gain / (loss) (step 1)',amount:par(m.passGL)},
+        {kind:'sub',key:'s_basisAfter',label:'Adjusted stock basis',amount:$(m.basisAfter)},
+        {kind:'sect',key:'s_s3',label:'<span class="sn">3</span> Amount realized by the shareholder'},
+        {kind:'in',key:'s_cash',label:'Cash',amount:fv(e.cash.v,e.cash.ex)},
+        {kind:'in',key:'s_addFMV',label:'<span class="op">+</span> Property at FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
+        {kind:'in',key:'s_liab',label:'<span class="op">−</span> Liabilities assumed',amount:fv(e.liab.v,e.liab.ex)},
+        {kind:'sub',key:'s_amount',label:'Amount realized',amount:$(m.amount)},
         {kind:'sect',label:'<span class="sn">4</span> Shareholder capital gain / (loss) <span class="op">(§331 — sale of stock)</span>'},
         {kind:'in',label:'Amount realized (step 3)',amount:$(m.amount)},
         {kind:'in',label:'<span class="op">−</span> Adjusted stock basis (step 2)',amount:$(m.basisAfter)},
         {kind:'result',label:'Capital gain / (loss)',how:'unused basis becomes a capital loss',amount:par(m.shGL)},
         {kind:'sect',label:'<span class="sn">5</span> Shareholder basis in the property'},
-        {kind:'result',label:'Basis in distributed property (FMV)',amount:$(m.propBasis)}
+        {kind:'result',key:'s_propBasisAns',label:'Basis in distributed property (FMV)',amount:$(m.propBasis)}
       ];
       U.setMath(host,{title:'Worked math — S-corp, liquidating',subtitle:'Gain AND loss pass through and adjust basis; then a stock sale (§331). Leftover basis = capital loss.',mode:dsl_isLive()?'live':'example',rows:rows,foot:'Like a C-corp under §336 the corporation recognizes gain <b>and loss</b>, but here it <b>passes through</b> and adjusts basis; the liquidation is then a <b>stock sale</b> (§331). In the no-loss gain case the answer often matches the operating result — the differences are <b>loss recognition</b> and that <b>leftover basis becomes a capital loss</b>. <i>Grey italic</i> = example default (blank field).'});
       const hl=q('#dsl_headline'),hm=q('#dsl_hlMain'),hs=q('#dsl_hlSub');
@@ -4339,21 +4340,29 @@ registerPage({
       if(window.innerWidth<921) return;
       const dA=hostA.querySelector('details.mwrap'), dB=hostB.querySelector('details.mwrap');
       if(!dA||!dB||!dA.open||!dB.open) return;
-      function parts(host){
-        const rows=host.querySelectorAll('table.mtable tbody > tr');
-        let lastSect=-1;
-        for(let i=0;i<rows.length;i++){ if(rows[i].classList.contains('sect')) lastSect=i; }
-        if(lastSect<0) return null;
-        let ans=rows[lastSect];
-        for(let j=lastSect+1;j<rows.length;j++){ if(rows[j].classList.contains('result')||rows[j].classList.contains('sub')){ ans=rows[j]; break; } }
-        return {sect:rows[lastSect], ans:ans};
-      }
-      const pA=parts(hostA), pB=parts(hostB); if(!pA||!pB) return;
-      const diff=Math.round(pA.ans.getBoundingClientRect().top - pB.ans.getBoundingClientRect().top);
-      if(Math.abs(diff)<3) return;
       function spacer(px){ const tr=document.createElement('tr'); tr.className='mpad'; tr.innerHTML='<td colspan="3" style="height:'+px+'px;padding:0"></td>'; return tr; }
-      if(diff>0){ pB.sect.parentNode.insertBefore(spacer(diff), pB.sect); }
-      else { pA.sect.parentNode.insertBefore(spacer(-diff), pA.sect); }
+      /* Primary: for every row whose data-key exists on BOTH sides, push the higher one
+         down so matching rows sit at the same height. Walk top-to-bottom re-measuring —
+         we only ever insert ABOVE a row (push down), so already-aligned rows stay put. */
+      const keyedA=Array.prototype.slice.call(hostA.querySelectorAll('table.mtable tbody > tr[data-key]'));
+      const mapB={};
+      Array.prototype.forEach.call(hostB.querySelectorAll('table.mtable tbody > tr[data-key]'),function(r){ mapB[r.getAttribute('data-key')]=r; });
+      let matched=0;
+      keyedA.forEach(function(ra){
+        const rb=mapB[ra.getAttribute('data-key')]; if(!rb) return;
+        matched++;
+        const diff=Math.round(ra.getBoundingClientRect().top - rb.getBoundingClientRect().top);
+        if(Math.abs(diff)<2) return;
+        if(diff>0){ rb.parentNode.insertBefore(spacer(diff), rb); }
+        else { ra.parentNode.insertBefore(spacer(-diff), ra); }
+      });
+      if(matched>0) return;
+      /* Fallback (pairs without keys): align the last ANSWERS section. */
+      function lastSect(host){ const rows=host.querySelectorAll('table.mtable tbody > tr'); let idx=-1; for(let i=0;i<rows.length;i++){ if(rows[i].classList.contains('sect')) idx=i; } return idx<0?null:rows[idx]; }
+      const sA=lastSect(hostA), sB=lastSect(hostB); if(!sA||!sB) return;
+      const diff=Math.round(sA.getBoundingClientRect().top - sB.getBoundingClientRect().top);
+      if(Math.abs(diff)<3) return;
+      if(diff>0){ sB.parentNode.insertBefore(spacer(diff), sB); } else { sA.parentNode.insertBefore(spacer(-diff), sA); }
     }
     function alignAllMath(){
       try{ alignMathPair('#dpn_math','#dpl_math'); }catch(e){console.error(e);}
