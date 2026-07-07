@@ -3672,6 +3672,10 @@ registerPage({
       .dcmp-colhead.lq .dot{background:var(--accent);}
       .card.dcmp-liq{border-left:3px solid var(--accent);}
       .dsect td{background:rgba(0,200,5,.07);font-weight:800;letter-spacing:.03em;padding-top:11px;padding-bottom:7px;text-transform:uppercase;font-size:.74rem;}
+      /* Bottom-align the input boxes within each row so the FIELDS line up even when a
+         label wraps to two lines (labels stay top-aligned, boxes align at the bottom). */
+      .dcmp-grid .grid .field{display:flex;flex-direction:column;}
+      .dcmp-grid .grid .field .ipt{margin-top:auto;}
       /* Uniform result-box height in two-column mode so paired worked-math tables start
          level even when the liquidating labels ("gain / (loss)") wrap to more lines. */
       @media (min-width:921px){ .dcmp-grid .bignum{min-height:92px;} }
