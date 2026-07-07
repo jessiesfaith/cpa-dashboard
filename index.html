@@ -3672,6 +3672,9 @@ registerPage({
       .dcmp-colhead.lq .dot{background:var(--accent);}
       .card.dcmp-liq{border-left:3px solid var(--accent);}
       .dsect td{background:rgba(0,200,5,.07);font-weight:800;letter-spacing:.03em;padding-top:11px;padding-bottom:7px;text-transform:uppercase;font-size:.74rem;}
+      /* Uniform result-box height in two-column mode so paired worked-math tables start
+         level even when the liquidating labels ("gain / (loss)") wrap to more lines. */
+      @media (min-width:921px){ .dcmp-grid .bignum{min-height:92px;} }
       @media (max-width:920px){ .dcmp-grid{grid-template-columns:1fr;} }
     </style>
 
@@ -3768,13 +3771,13 @@ registerPage({
           <div class="field"><label class="hint">Property type</label>
             <select class="ipt" id="dpn_propType"><option selected>None / cash only</option><option>Capital or §1231 property</option><option>Inventory / unrealized receivable (hot asset)</option></select></div>
         </div>
-        <div class="warnings" id="dpn_warn"></div>
         <div class="bignum-wrap" style="margin-top:14px">
           <div class="bignum accent"><div class="bn-label">Gain recognized</div><div class="bn-val" id="dpn_oGain">$0</div></div>
           <div class="bignum"><div class="bn-label">Post-distribution outside basis</div><div class="bn-val" id="dpn_oPost">$0</div></div>
           <div class="bignum"><div class="bn-label">Basis in property distributed</div><div class="bn-val" id="dpn_oProp">$0</div></div>
         </div>
         <div id="dpn_math" style="margin-top:14px"></div>
+        <div class="warnings" id="dpn_warn" style="margin-top:12px"></div>
         <div class="headline info" id="dpn_headline" style="margin-top:14px"><span class="hl-ico">&#9432;</span><div><div id="dpn_hlMain">Enter facts.</div><div class="hl-sub" id="dpn_hlSub"></div></div></div>
         <div class="toolbar" style="margin-top:12px"><button class="btn ghost sm" id="dpn_reset">Reset to Janet</button></div>
       </div>
@@ -3791,13 +3794,13 @@ registerPage({
           <div class="field"><label class="hint">Property type</label>
             <select class="ipt" id="dpl_propType"><option selected>None / cash only</option><option>Capital or §1231 property</option><option>Inventory / unrealized receivable (hot asset)</option></select></div>
         </div>
-        <div class="warnings" id="dpl_warn"></div>
         <div class="bignum-wrap" style="margin-top:14px">
           <div class="bignum accent"><div class="bn-label">Gain / (loss) recognized</div><div class="bn-val" id="dpl_oGL">$0</div></div>
           <div class="bignum"><div class="bn-label">Ending interest basis</div><div class="bn-val" id="dpl_oEnd">$0</div></div>
           <div class="bignum"><div class="bn-label">Basis in property received</div><div class="bn-val" id="dpl_oProp">$0</div></div>
         </div>
         <div id="dpl_math" style="margin-top:14px"></div>
+        <div class="warnings" id="dpl_warn" style="margin-top:12px"></div>
         <div class="headline info" id="dpl_headline" style="margin-top:14px"><span class="hl-ico">&#9432;</span><div><div id="dpl_hlMain">Enter facts.</div><div class="hl-sub" id="dpl_hlSub"></div></div></div>
         <div class="toolbar" style="margin-top:12px"><button class="btn ghost sm" id="dpl_reset">Reset to example</button></div>
       </div>
@@ -3831,7 +3834,6 @@ registerPage({
           <div class="field"><label class="hint">Liabilities assumed by shareholder ($)</label><input class="ipt" id="dcc_liab" value="60,000"></div>
           <div class="field"><label class="hint">Shareholder stock basis ($)</label><input class="ipt" id="dcc_shBasis" value="50,000"></div>
         </div>
-        <div class="warnings" id="dcc_warn"></div>
         <div class="bignum-wrap" style="margin-top:14px">
           <div class="bignum accent"><div class="bn-label">Corporation gain</div><div class="bn-val" id="dcc_oCorp">$0</div></div>
           <div class="bignum"><div class="bn-label">Dividend income</div><div class="bn-val" id="dcc_oDiv">$0</div></div>
@@ -3840,6 +3842,7 @@ registerPage({
           <div class="bignum"><div class="bn-label">SH basis in property (FMV)</div><div class="bn-val" id="dcc_oProp">$0</div></div>
         </div>
         <div id="dcc_math" style="margin-top:14px"></div>
+        <div class="warnings" id="dcc_warn" style="margin-top:12px"></div>
         <div class="headline info" id="dcc_headline" style="margin-top:14px"><span class="hl-ico">&#9432;</span><div><div id="dcc_hlMain">Enter facts.</div><div class="hl-sub" id="dcc_hlSub"></div></div></div>
         <div class="toolbar" style="margin-top:12px"><button class="btn ghost sm" id="dcc_reset">Reset to example</button></div>
       </div>
@@ -3853,14 +3856,14 @@ registerPage({
           <div class="field"><label class="hint">Shareholder stock basis ($)</label><input class="ipt" id="dcl_shBasis" value="50,000"></div>
           <div class="field"><label class="hint">E&amp;P</label><input class="ipt txt" id="dcl_epNote" value="Irrelevant (§331)" disabled></div>
         </div>
-        <div class="warnings" id="dcl_warn"></div>
         <div class="bignum-wrap" style="margin-top:14px">
           <div class="bignum accent"><div class="bn-label">Corporation gain / (loss)</div><div class="bn-val" id="dcl_oCorp">$0</div></div>
           <div class="bignum"><div class="bn-label">Amount realized</div><div class="bn-val" id="dcl_oAmt">$0</div></div>
-          <div class="bignum"><div class="bn-label">Shareholder capital gain / (loss)</div><div class="bn-val" id="dcl_oSh">$0</div></div>
+          <div class="bignum"><div class="bn-label">SH capital gain / (loss)</div><div class="bn-val" id="dcl_oSh">$0</div></div>
           <div class="bignum"><div class="bn-label">SH basis in property (FMV)</div><div class="bn-val" id="dcl_oProp">$0</div></div>
         </div>
         <div id="dcl_math" style="margin-top:14px"></div>
+        <div class="warnings" id="dcl_warn" style="margin-top:12px"></div>
         <div class="headline info" id="dcl_headline" style="margin-top:14px"><span class="hl-ico">&#9432;</span><div><div id="dcl_hlMain">Enter facts.</div><div class="hl-sub" id="dcl_hlSub"></div></div></div>
         <div class="toolbar" style="margin-top:12px"><button class="btn ghost sm" id="dcl_reset">Reset to example</button></div>
       </div>
@@ -3896,7 +3899,6 @@ registerPage({
           <div class="field"><label class="hint">Accumulated E&amp;P (prior C-corp years)?</label>
             <select class="ipt" id="dsc_hasEP"><option selected>No</option><option>Yes</option></select></div>
         </div>
-        <div class="warnings" id="dsc_warn"></div>
         <div class="bignum-wrap" style="margin-top:14px">
           <div class="bignum accent"><div class="bn-label">Pass-through gain</div><div class="bn-val" id="dsc_oPass">$0</div></div>
           <div class="bignum"><div class="bn-label">Tax-free return of basis</div><div class="bn-val" id="dsc_oROB">$0</div></div>
@@ -3905,6 +3907,7 @@ registerPage({
           <div class="bignum"><div class="bn-label">SH basis in property (FMV)</div><div class="bn-val" id="dsc_oProp">$0</div></div>
         </div>
         <div id="dsc_math" style="margin-top:14px"></div>
+        <div class="warnings" id="dsc_warn" style="margin-top:12px"></div>
         <div class="headline info" id="dsc_headline" style="margin-top:14px"><span class="hl-ico">&#9432;</span><div><div id="dsc_hlMain">Enter facts.</div><div class="hl-sub" id="dsc_hlSub"></div></div></div>
         <div class="toolbar" style="margin-top:12px"><button class="btn ghost sm" id="dsc_reset">Reset to example</button></div>
       </div>
@@ -3917,15 +3920,16 @@ registerPage({
           <div class="field"><label class="hint">Property distributed — FMV ($)</label><input class="ipt" id="dsl_propFMV" value="160,000"></div>
           <div class="field"><label class="hint">Property distributed — corporation basis ($)</label><input class="ipt" id="dsl_propBasis" value="90,000"></div>
           <div class="field"><label class="hint">Liabilities assumed by shareholder ($)</label><input class="ipt" id="dsl_liab" value="0"></div>
+          <div class="field"><label class="hint">Accumulated E&amp;P / AAA</label><input class="ipt txt" id="dsl_epNote" value="Irrelevant (§331)" disabled></div>
         </div>
-        <div class="warnings" id="dsl_warn"></div>
         <div class="bignum-wrap" style="margin-top:14px">
           <div class="bignum accent"><div class="bn-label">Pass-through gain / (loss)</div><div class="bn-val" id="dsl_oPass">$0</div></div>
           <div class="bignum"><div class="bn-label">Amount realized</div><div class="bn-val" id="dsl_oAmt">$0</div></div>
-          <div class="bignum"><div class="bn-label">Shareholder capital gain / (loss)</div><div class="bn-val" id="dsl_oSh">$0</div></div>
+          <div class="bignum"><div class="bn-label">SH capital gain / (loss)</div><div class="bn-val" id="dsl_oSh">$0</div></div>
           <div class="bignum"><div class="bn-label">SH basis in property (FMV)</div><div class="bn-val" id="dsl_oProp">$0</div></div>
         </div>
         <div id="dsl_math" style="margin-top:14px"></div>
+        <div class="warnings" id="dsl_warn" style="margin-top:12px"></div>
         <div class="headline info" id="dsl_headline" style="margin-top:14px"><span class="hl-ico">&#9432;</span><div><div id="dsl_hlMain">Enter facts.</div><div class="hl-sub" id="dsl_hlSub"></div></div></div>
         <div class="toolbar" style="margin-top:12px"><button class="btn ghost sm" id="dsl_reset">Reset to example</button></div>
       </div>
