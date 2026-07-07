@@ -3861,12 +3861,12 @@ registerPage({
       <div class="card">
         <div class="grp-h first"><span class="grp-tag">CALCULATOR</span> C-corp — operating</div>
         <div class="grid cols-2">
-          <div class="field"><label class="hint">Total E&amp;P (accumulated + current, $)</label><input class="ipt" id="dcc_ep" value="120,000"></div>
           <div class="field"><label class="hint">Cash distributed ($)</label><input class="ipt" id="dcc_cash" value="100,000"></div>
           <div class="field"><label class="hint">Property distributed — FMV ($)</label><input class="ipt" id="dcc_propFMV" value="160,000"></div>
           <div class="field"><label class="hint">Property distributed — corporation basis ($)</label><input class="ipt" id="dcc_propBasis" value="90,000"></div>
           <div class="field"><label class="hint">Liabilities assumed by shareholder ($)</label><input class="ipt" id="dcc_liab" value="60,000"></div>
           <div class="field"><label class="hint">Shareholder stock basis ($)</label><input class="ipt" id="dcc_shBasis" value="50,000"></div>
+          <div class="field"><label class="hint">Total E&amp;P (accumulated + current, $)</label><input class="ipt" id="dcc_ep" value="120,000"></div>
         </div>
         <div class="bignum-wrap" style="margin-top:14px">
           <div class="bignum accent"><div class="bn-label">Corporation gain</div><div class="bn-val" id="dcc_oCorp">$0</div></div>
@@ -3888,7 +3888,7 @@ registerPage({
           <div class="field"><label class="hint">Property distributed — corporation basis ($)</label><input class="ipt" id="dcl_propBasis" value="90,000"></div>
           <div class="field"><label class="hint">Liabilities assumed by shareholder ($)</label><input class="ipt" id="dcl_liab" value="60,000"></div>
           <div class="field"><label class="hint">Shareholder stock basis ($)</label><input class="ipt" id="dcl_shBasis" value="50,000"></div>
-          <div class="field"><label class="hint">E&amp;P</label><input class="ipt txt" id="dcl_epNote" value="Irrelevant (§331)" disabled></div>
+          <div class="field"><label class="hint">Total E&amp;P (accumulated + current, $)</label><input class="ipt txt" id="dcl_epNote" value="Irrelevant (§331)" disabled></div>
         </div>
         <div class="bignum-wrap" style="margin-top:14px">
           <div class="bignum accent"><div class="bn-label">Corporation gain / (loss)</div><div class="bn-val" id="dcl_oCorp">$0</div></div>
@@ -3925,7 +3925,7 @@ registerPage({
         <div class="grp-h first"><span class="grp-tag">CALCULATOR</span> S-corp — operating</div>
         <div class="grid cols-2">
           <div class="field"><label class="hint">Shareholder stock basis — before ($)</label><input class="ipt" id="dsc_shBasisBefore" value="100,000"></div>
-          <div class="field"><label class="hint">Ownership % (for pass-through gain)</label><input class="ipt" id="dsc_ownPct" value="100"></div>
+          <div class="field"><label class="hint">Ownership % (for the pass-through)</label><input class="ipt" id="dsc_ownPct" value="100"></div>
           <div class="field"><label class="hint">Cash distributed ($)</label><input class="ipt" id="dsc_cash" value="100,000"></div>
           <div class="field"><label class="hint">Property distributed — FMV ($)</label><input class="ipt" id="dsc_propFMV" value="160,000"></div>
           <div class="field"><label class="hint">Property distributed — corporation basis ($)</label><input class="ipt" id="dsc_propBasis" value="90,000"></div>
@@ -3949,12 +3949,12 @@ registerPage({
         <div class="grp-h first"><span class="grp-tag">CALCULATOR</span> S-corp — liquidating</div>
         <div class="grid cols-2">
           <div class="field"><label class="hint">Shareholder stock basis — before ($)</label><input class="ipt" id="dsl_shBasisBefore" value="100,000"></div>
-          <div class="field"><label class="hint">Ownership % (for pass-through gain/loss)</label><input class="ipt" id="dsl_ownPct" value="100"></div>
+          <div class="field"><label class="hint">Ownership % (for the pass-through)</label><input class="ipt" id="dsl_ownPct" value="100"></div>
           <div class="field"><label class="hint">Cash distributed ($)</label><input class="ipt" id="dsl_cash" value="100,000"></div>
           <div class="field"><label class="hint">Property distributed — FMV ($)</label><input class="ipt" id="dsl_propFMV" value="160,000"></div>
           <div class="field"><label class="hint">Property distributed — corporation basis ($)</label><input class="ipt" id="dsl_propBasis" value="90,000"></div>
           <div class="field"><label class="hint">Liabilities assumed by shareholder ($)</label><input class="ipt" id="dsl_liab" value="0"></div>
-          <div class="field"><label class="hint">Accumulated E&amp;P / AAA</label><input class="ipt txt" id="dsl_epNote" value="Irrelevant (§331)" disabled></div>
+          <div class="field"><label class="hint">Accumulated E&amp;P (prior C-corp years)?</label><input class="ipt txt" id="dsl_epNote" value="Irrelevant (§331)" disabled></div>
         </div>
         <div class="bignum-wrap" style="margin-top:14px">
           <div class="bignum accent"><div class="bn-label">Pass-through gain / (loss)</div><div class="bn-val" id="dsl_oPass">$0</div></div>
