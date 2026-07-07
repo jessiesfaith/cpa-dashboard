@@ -4,23 +4,39 @@ Generic workflow rules live in `~/.claude/CLAUDE.md` (they apply to every repo).
 **repo-specific facts only**. Source of truth = this repo, not the chat transcript.
 
 ## Repo facts (created 2026-06-19)
-- **What:** Single-page static CPA study guide + planning calculator for four corporate-tax
+- **What:** Single-page static CPA study guide + planning calculator for five corporate-tax
   topics: Corporation (NOL Section 382, Consolidations), Property (Property for Stock - SH),
-  Dividend (Accumulated & Current E&P), Liquidation (Stock-Gain/Loss). All client-side; no accounts.
+  Dividend (Accumulated & Current E&P), Liquidation (Stock-Gain/Loss), and **Distributions**
+  (Nonliquidating vs. Liquidating, by entity — added 2026-07-06). All client-side; no accounts.
 - **Package manager / framework:** none. Vanilla HTML/CSS/JS, no `package.json`, no build step.
 - **Key file:** `index.html` -- the entire app (inlined CSS + JS).
 - **Architecture:** a small framework (hash router `#/<top>/<sub>`, top/sub-tab nav, shared `U`
-  helper object, auto-rendered disclaimer + Copy-summary/Print) plus five **page modules**. Each
+  helper object, auto-rendered disclaimer + Copy-summary/Print) plus six **page modules**. Each
   page self-registers via `registerPage({top,topLabel,sub,subLabel,title,html,init,summary})`. Add a
   page by appending another `registerPage(...)` `<script>`. Shared CSS classes + `U` API are
   documented in comments at the top of `index.html`. IDs/helpers per page are prefixed
-  (`n382_`, `cons_`, `pfs_`, `ep_`, `liq_`) to avoid collisions.
+  (`n382_`, `cons_`, `pfs_`, `ep_`, `liq_`; Distributions uses six: `dpn_`/`dpl_` partnership,
+  `dcc_`/`dcl_` C-corp, `dsc_`/`dsl_` S-corp — operating vs liquidating) to avoid collisions.
+- **Distributions module (2026-07-06):** one page (`#/distributions/nonliquidating`) laid out as a
+  **two-column comparison** — nonliquidating (operating) LEFT, liquidating RIGHT — via a scoped
+  `.dcmp-grid` (2 equal cols, stacks below 921px). Rules / worked-example / calculator cards are
+  paired row-by-row for Partnership / C-corp / S-corp; a full-width "PARTNER PRESET" bar loads a JKL
+  partner (Janet/Karen/Lisa, `dpn_preset`) into BOTH partnership calcs at once. Losses print in
+  accounting parens via `par()`. **Side-by-side alignment** (Jessica cares a lot about this): fixed
+  `table-layout` columns so labels wrap identically both sides; `U.mtable` now emits `data-key` per
+  row; corresponding rows across a pair share a key (`p_*`/`c_*`/`s_*`, incl. section headers by step
+  number); `alignMathPair()` (called at end of `recompute()`, on details-toggle, after
+  `document.fonts.ready`) walks the keyed rows and inserts pixel-exact `tr.mpad` spacers so every
+  matching row + numbered step badge lines up, with gaps only where a step is one-sided. Result-box
+  values are bottom-aligned (flex) so each `$` sits on one line. **Verify alignment via
+  `getBoundingClientRect` at ≥1440px width** (preview viewport often defaults narrow — resize first;
+  screenshots time out on this heavy page).
 - **Worked-math tables (2026-06-20):** every calculator renders an Excel-style step-by-step table via
   `U.mtable(def)` (builder) + `U.fval(n,isExample)` (example-muted `$`) + `U.setMath(host,def)`
   (renders into host **and preserves open/closed state** across the per-keystroke re-render). Each
   page has a `*_EX` example-default constant + `*_isLive()` mode check so blank fields show the
-  example (📘 badge) and typed fields go live (✏️ badge). 9 tables total; HANDOFF.md has the
-  per-page id/constant map. NOL/E&P/Liquidation REPLACED their old `.calc` "worked solution" blocks;
+  example (📘 badge) and typed fields go live (✏️ badge). 9 original tables + 6 in Distributions;
+  HANDOFF.md has the per-page id/constant map. NOL/E&P/Liquidation REPLACED their old `.calc` "worked solution" blocks;
   Consolidations ADDED tables alongside the existing `.calc` breakdown (which `summary()` still reads).
 - **Collapse-by-default (2026-06-20):** a `collapseExamples()` pass in `render()` folds supplementary
   cards (Example / Worked example / Check-your-understanding / Formulas, incl. headerless formula

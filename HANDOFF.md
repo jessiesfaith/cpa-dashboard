@@ -1,10 +1,11 @@
 # HANDOFF — CPA Dashboard (Corporate Tax Study & Calculator)
 
-_Last updated: 2026-06-20_
+_Last updated: 2026-07-06_
 
 ## Status
 **LIVE.** Single-file study guide + planning calculator, deployed to Vercel and wired into
-app.fastinsights.io. Current deployed HEAD: **`b82682f`** (worked-math tables + collapse-by-default).
+app.fastinsights.io. Current deployed HEAD: **`fc69f20`** (Distributions module — nonliquidating vs.
+liquidating, side-by-side).
 
 - **Standalone:** https://cpa-dashboard-ashy.vercel.app — Vercel project `cpa-dashboard`, team
   `jessica-dougherty-s-projects`. (Plain `cpa-dashboard.vercel.app` is owned by someone else; the
@@ -15,9 +16,10 @@ app.fastinsights.io. Current deployed HEAD: **`b82682f`** (worked-math tables + 
 
 ## What it is
 Single-file (`index.html`) CPA study guide **and** planning calculator with **Excel-style
-step-by-step worked-math tables**. Hash-routed, 4 top tabs / 5 pages:
+step-by-step worked-math tables**. Hash-routed, 5 top tabs / 6 pages:
 `#/corporation/nol-section-382`, `#/corporation/consolidations`, `#/property/property-for-stock-sh`,
-`#/dividend/accumulated-current-ep`, `#/liquidation/stock-gain-loss`. See README.md / CLAUDE.md.
+`#/dividend/accumulated-current-ep`, `#/liquidation/stock-gain-loss`,
+`#/distributions/nonliquidating`. See README.md / CLAUDE.md.
 
 ## What's new (2026-06-20)
 Two features were added across all five calculators (verified locally; no console errors):
@@ -71,6 +73,48 @@ re-renders — collapse a table and it stays collapsed while you keep typing; it
 page load. (To make them default collapsed instead, change `U.setMath` to `def.open = prev ?
 prev.open : false`.)
 
+## What's new (2026-07-06) — Distributions module
+New sixth page: **Distributions → Nonliquidating** (`#/distributions/nonliquidating`), built as a
+**two-column comparison** (nonliquidating/operating LEFT vs liquidating RIGHT) for **Partnership,
+C-corp, and S-corp**. Deployed HEAD `fc69f20`. Verified via DOM measurement at ≥1440px (no console
+errors).
+
+**Layout.** Scoped `<style>` in the page HTML: `.dcmp-grid` (2 equal columns, `gap:16px`; stacks to
+1 column below **921px**). Cards flow in pairs (rules | rules, worked-example | worked-example,
+calculator | calculator) per entity; liquidating cards get a `.dcmp-liq` accent left-border; a
+full-width **"PARTNER PRESET"** bar (`grid-column:1/-1`) sits above the partnership calculators and
+loads a JKL partner into BOTH sides via `dpn_preset`. Full-width **"AT A GLANCE"** contrast table up
+top; FAQ + advisor checklist at the bottom.
+
+**Calculators (6, ids + example constants).** Losses render in accounting parens via `par()`.
+
+| Calc (side) | Container id | Example constant | Key outputs (defaults) |
+|---|---|---|---|
+| Partnership operating | `dpn_math` | `DPN_EX` | gain $5,000 / post-basis $0 / property $100,000 (Janet) |
+| Partnership liquidating | `dpl_math` | `DPL_EX` | gain/(loss) ($15,000) / ending $0 / property $100,000 |
+| C-corp operating | `dcc_math` | `DCC_EX` | corp $70k / div $120k / ROC $50k / capgain $30k / prop $160k |
+| C-corp liquidating | `dcl_math` | `DCL_EX` | corp $70k / realized $200k / SH capital $150k / prop $160k |
+| S-corp operating | `dsc_math` | `DSC_EX` | pass $70k / RoB $170k / capgain $90k / end $0 / prop $160k |
+| S-corp liquidating | `dsl_math` | `DSL_EX` | pass $70k / realized $260k / SH capital $90k / prop $160k |
+
+**JKL partner presets** (`dpn_preset` → Janet / Karen / Lisa) load a partner into `dpn_*` AND `dpl_*`
+at once. Karen is the headline contrast: operating property basis **$90,000 carryover** vs
+liquidating **$215,000 substituted step-up**. Reproduces the Becker TBS-002210 answers exactly.
+
+**Side-by-side row alignment** (Jessica cares a lot about pixel alignment): (1) fixed
+`table-layout` columns (`44/34/22`) so the same label wraps identically both sides; (2) `U.mtable`
+now emits `data-key` per row — matching rows across a pair share a key (`p_*` / `c_*` / `s_*`, incl.
+section headers keyed by step number); (3) `alignMathPair()` (defined in `init`, called at the end of
+`recompute()`, on `mwrap` details-toggle, and after `document.fonts.ready`) walks the keyed rows
+top-to-bottom and inserts pixel-exact `tr.mpad` spacers to push the higher side down, so every
+matching row + numbered "step" badge lines up and gaps appear only where a step is one-sided
+(fallback: last-`sect` alignment for any unkeyed pair). Input boxes and result-box values are
+bottom-aligned (flex) so fields/`$` values line up even when labels wrap. **Alignment only applies in
+two-column mode (≥921px);** verify with `getBoundingClientRect` at ≥1440px (preview viewport often
+defaults narrow — resize first; screenshots time out on this heavy page).
+
+**Dev preview:** `.claude/launch.json` runs `python -m http.server 8740` (config name `cpa-dashboard`).
+
 ## Verification
 **2026-06-20 (local preview, port 8740 — no console errors):** worked-math tables render the example
 numbers by default (📘 badge), recompute live and flip to ✏️ when any field is edited, blank fields
@@ -91,6 +135,13 @@ cross-check): no orphaned references, no recursion, all 5 `summary()` functions 
 - **Dividend E&P:** total E&P **$50,000**, dividend **$50,000**, ROC **$25,000**, capital gain
   **$5,000**, ending basis **$0**.
 - **Liquidation:** corporation-level gain **$50,000** (capital); shareholder-level gain **$60,000**.
+- **Distributions (2026-07-06):** Partnership operating — Janet gain **$5,000** / basis **$0** /
+  property **$100,000**; Karen **$0 / $125,000 / $90,000**; Lisa **$0 / $0 / $105,000** (Becker
+  TBS-002210). Partnership liquidating (cash-only $100k, basis $115k) — capital loss **($15,000)**,
+  interest ends. C-corp: operating corp gain $70k / dividend $120k / ROC $50k / capgain $30k;
+  liquidating corp $70k / amount realized $200k / SH capital gain $150k. S-corp: operating pass $70k /
+  RoB $170k / capgain $90k; liquidating pass $70k / realized $260k / SH capital $90k. Losses (e.g.
+  depreciated property FMV $40k / basis $90k) flow through with accounting parens.
 
 ## Deploy / redeploy
 - **GIT-CONNECTED — push-to-deploy.** Repo `github.com/jessiesfaith/cpa-dashboard` (push via SSH
