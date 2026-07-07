@@ -3761,17 +3761,25 @@ registerPage({
         <p class="note"><b>Cash $100,000:</b> money-only and below the $115,000 basis → a <b>$15,000 capital loss</b> (an operating distribution would just leave $15,000 of basis, no loss). <b>Land only:</b> no money, so the full $115,000 basis is <b>substituted</b> into the land — a step-up from its $90,000 inside basis (operating would keep it at $90,000). <b>Cash $130,000:</b> money exceeds basis → <b>$15,000 gain</b>. Every interest terminates at $0.</p>
       </div>
 
+      <!-- ---------- PARTNERSHIP · preset bar (spans both columns) ---------- -->
+      <div class="card" style="grid-column:1 / -1;">
+        <div class="grp-h first"><span class="grp-tag">PARTNER PRESET</span> Load a JKL partner into both calculators</div>
+        <div class="grid cols-2" style="align-items:center">
+          <div class="field" style="margin:0">
+            <label class="hint">Partner — fills the operating (left) and liquidating (right) calculators below</label>
+            <select class="ipt" id="dpn_preset">
+              <option value="janet" selected>Janet — receives $100,000 cash</option>
+              <option value="karen">Karen — receives land &amp; assumes the $60,000 debt</option>
+              <option value="lisa">Lisa — receives inventory</option>
+            </select>
+          </div>
+          <div class="hint" style="margin:0;line-height:1.5">Same facts, two regimes: watch how each partner's result changes between an <b>operating</b> distribution and a <b>liquidating</b> one — Karen's land, for example, jumps from a $90,000 carryover to a $215,000 step-up.</div>
+        </div>
+      </div>
+
       <!-- ---------- PARTNERSHIP · calculators ---------- -->
       <div class="card">
         <div class="grp-h first"><span class="grp-tag">CALCULATOR</span> Partnership — operating, one partner</div>
-        <div class="field" style="margin-bottom:12px">
-          <label class="hint">Load a JKL partner — fills <b>both</b> the operating and liquidating calculators</label>
-          <select class="ipt" id="dpn_preset">
-            <option value="janet" selected>Janet — receives $100,000 cash</option>
-            <option value="karen">Karen — receives land &amp; assumes the $60,000 debt</option>
-            <option value="lisa">Lisa — receives inventory</option>
-          </select>
-        </div>
         <div class="grid cols-2">
           <div class="field"><label class="hint">Partner name</label><input class="ipt txt" id="dpn_partner" value="Janet"></div>
           <div class="field"><label class="hint">Pre-distribution outside basis ($)</label><input class="ipt" id="dpn_preBasis" value="115,000"></div>
