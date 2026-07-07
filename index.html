@@ -3651,5 +3651,366 @@ registerPage({
 });
 </script>
 
+<!-- ===== PAGE: distributions / nonliquidating ===== -->
+<script>
+registerPage({
+  top:'distributions', topLabel:'Distributions',
+  sub:'nonliquidating', subLabel:'Nonliquidating',
+  title:'Nonliquidating Distributions',
+  html: `
+  <div class="wrap">
+
+    <div class="card">
+      <p class="lead">A <b>nonliquidating</b> (operating) distribution is a payout that does <b>not</b> end the owner's interest. The tax result depends heavily on the <b>entity type</b> — partnerships, C-corps and S-corps use different rules. The three calculators below run the <b>same</b> distribution through each regime.</p>
+      <div class="grp-h first"><span class="grp-tag">BIG PICTURE</span> Same distribution, three different answers</div>
+      <table class="mtable">
+        <thead><tr><th>Question</th><th>Partnership</th><th>C-corporation</th><th>S-corporation</th></tr></thead>
+        <tbody>
+          <tr><td><b>Entity recognizes gain?</b></td><td class="how">No — never on a distribution</td><td class="how">Yes — on appreciated property (§311(b)); no loss</td><td class="how">Yes — on appreciated property; the gain <b>passes through</b></td></tr>
+          <tr><td><b>Owner's basis in property received</b></td><td class="how">Carryover (inside basis), limited to outside basis</td><td class="how">FMV</td><td class="how">FMV</td></tr>
+          <tr><td><b>Taxable to the owner?</b></td><td class="how">Tax-free unless <b>cash &gt; outside basis</b> → gain</td><td class="how">Dividend to extent of E&amp;P → return of capital → capital gain</td><td class="how">Tax-free to stock basis → capital gain (no E&amp;P)</td></tr>
+          <tr><td><b>Role of debt</b></td><td class="how">Shift in the owner's share of debt = deemed cash (relief out / assumption in)</td><td class="how">Liabilities assumed reduce the distribution amount</td><td class="how">Liabilities assumed reduce the distribution amount</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">PARTNERSHIP</span> Nonliquidating operating distribution</div>
+      <ol class="bullets">
+        <li><b>The partnership recognizes no gain or loss</b> on any distribution (unlike S/C-corps).</li>
+        <li>Order for the partner: (1) <b>increase</b> outside basis for any increase in the partner's share of debt (deemed contribution); (2) reduce basis for <b>money</b> — cash <i>plus</i> any <b>debt relief</b> — and recognize <b>gain only if money exceeds outside basis</b>; (3) take distributed <b>property at the partnership's carryover basis, limited to remaining outside basis</b> (no gain on property).</li>
+        <li>The partner's <b>basis in distributed property</b> is the carryover basis taken (cash is taken at face); post-distribution outside basis is whatever remains.</li>
+        <li><b>Rule of thumb:</b> when gain is recognized on a partnership distribution, outside basis is usually zeroed out.</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">WORKED EXAMPLE</span> JKL Partnership (TBS-002210)</div>
+      <p class="lead">Janet, Karen &amp; Lisa are equal (⅓) general partners. Pre-distribution outside bases: Janet <b>$115,000</b>, Karen <b>$175,000</b>, Lisa <b>$125,000</b>. The partnership has <b>$60,000</b> debt secured by land ($20,000 each). Year-10 distributions: <b>Janet</b> — $100,000 cash; <b>Karen</b> — land (basis $90,000, FMV $160,000) and <b>assumes the whole $60,000 debt</b>; <b>Lisa</b> — inventory (basis $110,000, FMV $100,000).</p>
+      <table class="mtable">
+        <thead><tr><th>Partner</th><th class="amt">Gain (loss) recognized</th><th class="amt">Post-distribution basis in interest</th><th class="amt">Basis in property distributed</th></tr></thead>
+        <tbody>
+          <tr class="sub"><td><b>JKL Partnership</b></td><td class="amt">$0</td><td class="amt">—</td><td class="amt">—</td></tr>
+          <tr><td>Janet — cash $100,000</td><td class="amt">$5,000</td><td class="amt">$0</td><td class="amt">$100,000</td></tr>
+          <tr><td>Karen — land (assumes debt)</td><td class="amt">$0</td><td class="amt">$125,000</td><td class="amt">$90,000</td></tr>
+          <tr><td>Lisa — inventory</td><td class="amt">$0</td><td class="amt">$0</td><td class="amt">$105,000</td></tr>
+        </tbody>
+      </table>
+      <p class="note"><b>Janet:</b> $115,000 − $20,000 debt relief = $95,000; cash $100,000 exceeds $95,000 → <b>$5,000 gain</b>, basis zeroed, cash at $100,000. <b>Karen:</b> assumes the other ⅔ of the debt → $175,000 + $40,000 = $215,000; land at carryover $90,000; post-distribution basis $215,000 − $90,000 = <b>$125,000</b>. <b>Lisa:</b> $125,000 − $20,000 relief = $105,000; inventory carryover $110,000 is <b>limited to her $105,000 basis</b> to avoid gain → inventory basis $105,000, outside basis $0. The calculator below is pre-filled with <b>Janet</b> — change inputs to reproduce Karen and Lisa.</p>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">CALCULATOR</span> Partnership — one partner</div>
+      <div class="grid cols-2">
+        <div class="field"><label class="hint">Partner name</label><input class="ipt txt" id="dpn_partner" value="Janet"></div>
+        <div class="field"><label class="hint">Pre-distribution outside basis ($)</label><input class="ipt" id="dpn_preBasis" value="115,000"></div>
+        <div class="field"><label class="hint">Share of partnership debt — before ($)</label><input class="ipt" id="dpn_debtBefore" value="20,000"></div>
+        <div class="field"><label class="hint">Share of partnership debt — after ($)</label><input class="ipt" id="dpn_debtAfter" value="0"></div>
+        <div class="field"><label class="hint">Cash distributed to partner ($)</label><input class="ipt" id="dpn_cash" value="100,000"></div>
+        <div class="field"><label class="hint">Property distributed — partnership (inside) basis ($)</label><input class="ipt" id="dpn_propBasis" value="0"></div>
+        <div class="field"><label class="hint">Property distributed — FMV ($, info)</label><input class="ipt" id="dpn_propFMV" value="0"></div>
+        <div class="field"><label class="hint">Property type</label>
+          <select class="ipt" id="dpn_propType"><option selected>None / cash only</option><option>Capital or §1231 property</option><option>Inventory / unrealized receivable (hot asset)</option></select></div>
+      </div>
+      <div class="warnings" id="dpn_warn"></div>
+      <div class="bignum-wrap" style="margin-top:14px">
+        <div class="bignum accent"><div class="bn-label">Gain recognized</div><div class="bn-val" id="dpn_oGain">$0</div></div>
+        <div class="bignum"><div class="bn-label">Post-distribution outside basis</div><div class="bn-val" id="dpn_oPost">$0</div></div>
+        <div class="bignum"><div class="bn-label">Basis in property distributed</div><div class="bn-val" id="dpn_oProp">$0</div></div>
+      </div>
+      <div id="dpn_math" style="margin-top:14px"></div>
+      <div class="headline info" id="dpn_headline" style="margin-top:14px"><span class="hl-ico">&#9432;</span><div><div id="dpn_hlMain">Enter facts.</div><div class="hl-sub" id="dpn_hlSub"></div></div></div>
+      <div class="toolbar" style="margin-top:12px"><button class="btn ghost sm" id="dpn_reset">Reset to Janet</button></div>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">C-CORP</span> Nonliquidating distribution</div>
+      <ol class="bullets">
+        <li><b>Corporation level (§311):</b> recognizes <b>gain on appreciated property</b> as if sold at FMV; <b>no loss</b> on depreciated property. Cash → no gain. The gain increases E&amp;P.</li>
+        <li><b>Shareholder level:</b> amount distributed = cash + property <b>FMV</b> − liabilities assumed. Classified in order: <b>dividend</b> to extent of E&amp;P → <b>return of capital</b> (reduces stock basis) → <b>capital gain</b>.</li>
+        <li>The shareholder's <b>basis in distributed property is its FMV</b> (§301(d)) — not carryover.</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">CALCULATOR</span> C-corp — corporation + shareholder</div>
+      <div class="grid cols-2">
+        <div class="field"><label class="hint">Total E&amp;P (accumulated + current, $)</label><input class="ipt" id="dcc_ep" value="120,000"></div>
+        <div class="field"><label class="hint">Cash distributed ($)</label><input class="ipt" id="dcc_cash" value="100,000"></div>
+        <div class="field"><label class="hint">Property distributed — FMV ($)</label><input class="ipt" id="dcc_propFMV" value="160,000"></div>
+        <div class="field"><label class="hint">Property distributed — corporation basis ($)</label><input class="ipt" id="dcc_propBasis" value="90,000"></div>
+        <div class="field"><label class="hint">Liabilities assumed by shareholder ($)</label><input class="ipt" id="dcc_liab" value="60,000"></div>
+        <div class="field"><label class="hint">Shareholder stock basis ($)</label><input class="ipt" id="dcc_shBasis" value="50,000"></div>
+      </div>
+      <div class="warnings" id="dcc_warn"></div>
+      <div class="bignum-wrap" style="margin-top:14px">
+        <div class="bignum accent"><div class="bn-label">Corporation gain</div><div class="bn-val" id="dcc_oCorp">$0</div></div>
+        <div class="bignum"><div class="bn-label">Dividend income</div><div class="bn-val" id="dcc_oDiv">$0</div></div>
+        <div class="bignum"><div class="bn-label">Return of capital</div><div class="bn-val" id="dcc_oROC">$0</div></div>
+        <div class="bignum"><div class="bn-label">Capital gain</div><div class="bn-val" id="dcc_oGain">$0</div></div>
+        <div class="bignum"><div class="bn-label">SH basis in property (FMV)</div><div class="bn-val" id="dcc_oProp">$0</div></div>
+      </div>
+      <div id="dcc_math" style="margin-top:14px"></div>
+      <div class="headline info" id="dcc_headline" style="margin-top:14px"><span class="hl-ico">&#9432;</span><div><div id="dcc_hlMain">Enter facts.</div><div class="hl-sub" id="dcc_hlSub"></div></div></div>
+      <div class="toolbar" style="margin-top:12px"><button class="btn ghost sm" id="dcc_reset">Reset to example</button></div>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">S-CORP</span> Nonliquidating distribution</div>
+      <ol class="bullets">
+        <li><b>Corporation level:</b> like a C-corp, recognizes <b>gain on appreciated property</b> (no loss) — but the gain <b>passes through</b> to shareholders and <b>increases their stock basis</b>.</li>
+        <li><b>Shareholder level (no accumulated E&amp;P):</b> the pass-through gain raises basis first; the distribution (cash + property FMV − liabilities) is then <b>tax-free to the extent of stock basis</b>, and any <b>excess is capital gain</b>.</li>
+        <li>Basis in distributed property = <b>FMV</b>. If the S-corp has <b>accumulated E&amp;P</b> from prior C-corp years, ordering runs AAA → E&amp;P (dividend) → basis → capital gain (flag below; not modeled here).</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">CALCULATOR</span> S-corp — pass-through + distribution</div>
+      <div class="grid cols-2">
+        <div class="field"><label class="hint">Shareholder stock basis — before ($)</label><input class="ipt" id="dsc_shBasisBefore" value="100,000"></div>
+        <div class="field"><label class="hint">Ownership % (for pass-through gain)</label><input class="ipt" id="dsc_ownPct" value="100"></div>
+        <div class="field"><label class="hint">Cash distributed ($)</label><input class="ipt" id="dsc_cash" value="100,000"></div>
+        <div class="field"><label class="hint">Property distributed — FMV ($)</label><input class="ipt" id="dsc_propFMV" value="160,000"></div>
+        <div class="field"><label class="hint">Property distributed — corporation basis ($)</label><input class="ipt" id="dsc_propBasis" value="90,000"></div>
+        <div class="field"><label class="hint">Liabilities assumed by shareholder ($)</label><input class="ipt" id="dsc_liab" value="0"></div>
+        <div class="field"><label class="hint">Accumulated E&amp;P (prior C-corp years)?</label>
+          <select class="ipt" id="dsc_hasEP"><option selected>No</option><option>Yes</option></select></div>
+      </div>
+      <div class="warnings" id="dsc_warn"></div>
+      <div class="bignum-wrap" style="margin-top:14px">
+        <div class="bignum accent"><div class="bn-label">Pass-through gain</div><div class="bn-val" id="dsc_oPass">$0</div></div>
+        <div class="bignum"><div class="bn-label">Tax-free return of basis</div><div class="bn-val" id="dsc_oROB">$0</div></div>
+        <div class="bignum"><div class="bn-label">Capital gain</div><div class="bn-val" id="dsc_oGain">$0</div></div>
+        <div class="bignum"><div class="bn-label">Ending stock basis</div><div class="bn-val" id="dsc_oEnd">$0</div></div>
+        <div class="bignum"><div class="bn-label">SH basis in property (FMV)</div><div class="bn-val" id="dsc_oProp">$0</div></div>
+      </div>
+      <div id="dsc_math" style="margin-top:14px"></div>
+      <div class="headline info" id="dsc_headline" style="margin-top:14px"><span class="hl-ico">&#9432;</span><div><div id="dsc_hlMain">Enter facts.</div><div class="hl-sub" id="dsc_hlSub"></div></div></div>
+      <div class="toolbar" style="margin-top:12px"><button class="btn ghost sm" id="dsc_reset">Reset to example</button></div>
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">FAQ</span> Distributions across entity types</div>
+      ${U.faq([
+        {q:'Why does a partnership never recognize gain on a distribution, but a corporation can?', a:'A partnership is an aggregate — distributing property to a partner is not a taxable sale. A corporation is a separate taxpayer, so distributing appreciated property is treated as if the corporation sold it at FMV (§311(b)); loss is not allowed. In an S-corp that gain passes through to shareholders.'},
+        {q:'When does a partner recognize gain on a distribution?', a:'Only when <b>money</b> received exceeds the partner\'s outside basis. Money includes actual cash plus any net <b>decrease</b> in the partner\'s share of partnership debt (debt relief is deemed cash).'},
+        {q:'What basis does the owner take in distributed property?', a:'Partnership: carryover (the partnership\'s inside basis), limited to the partner\'s remaining outside basis. C-corp and S-corp: fair market value.'},
+        {q:'How is debt handled?', a:'Partnership: a shift in the partner\'s share of debt is deemed cash — an increase is a deemed contribution (basis up), a decrease is a deemed cash distribution (basis down / possible gain). Corporations: liabilities the shareholder assumes reduce the amount of the distribution.'},
+        {q:'What if the S-corp has accumulated E&P?', a:'Distributions then follow the AAA ordering: tax-free out of AAA (to basis), then a taxable dividend to the extent of accumulated E&P, then return of remaining basis, then capital gain. This calculator models the common no-E&P case.'},
+        {q:'Why is inventory sometimes taken at less than the partnership\'s basis?', a:'A nonliquidating distribution can never give property a basis higher than the partner\'s remaining outside basis (§732(a)). If the partnership\'s inventory basis exceeds the partner\'s remaining basis, the property basis is limited to that remaining basis so no gain is triggered.'}
+      ])}
+    </div>
+
+    <div class="card">
+      <div class="grp-h first"><span class="grp-tag">ADVISOR REVIEW</span> Before relying on this</div>
+      ${U.checklist([
+        'Confirm the entity type (partnership vs C-corp vs S-corp) — the rules differ fundamentally',
+        'Confirm each owner\'s pre-distribution basis (outside basis / stock basis)',
+        'Confirm the partner\'s share of partnership debt before and after',
+        'Confirm property FMV and adjusted basis (entity and owner)',
+        'Watch for hot assets (§751), disproportionate distributions, and multiple properties (basis allocation)',
+        'Confirm E&P (C-corp) or accumulated E&P / AAA (S-corp)',
+        'Separate liquidating distributions — different rules apply',
+        'Document all assumptions and sources'
+      ])}
+    </div>
+
+  </div>`,
+
+  init: function(root){
+    const q = (sel)=>root.querySelector(sel);
+    const effOf = (sel, ex)=>{ const el=q(sel); const raw=el?String(el.value):''; const blank=raw.trim()===''; return {v: blank?ex:U.num0(raw), ex:blank}; };
+    const isLiveOf = (pairs)=> pairs.some(function(p){ const el=q(p[0]); if(!el) return false; const raw=String(el.value).trim(); return raw!=='' && U.num0(raw)!==p[1]; });
+    const $ = U.fmtUSD, fv = U.fval;
+
+    /* ---------------- PARTNERSHIP ---------------- */
+    const DPN_EX={preBasis:115000,debtBefore:20000,debtAfter:0,cash:100000,propBasis:0,propFMV:0};
+    const dpn_eff=()=>({preBasis:effOf('#dpn_preBasis',DPN_EX.preBasis),debtBefore:effOf('#dpn_debtBefore',DPN_EX.debtBefore),debtAfter:effOf('#dpn_debtAfter',DPN_EX.debtAfter),cash:effOf('#dpn_cash',DPN_EX.cash),propBasis:effOf('#dpn_propBasis',DPN_EX.propBasis),propFMV:effOf('#dpn_propFMV',DPN_EX.propFMV)});
+    const dpn_isLive=()=>isLiveOf([['#dpn_preBasis',DPN_EX.preBasis],['#dpn_debtBefore',DPN_EX.debtBefore],['#dpn_debtAfter',DPN_EX.debtAfter],['#dpn_cash',DPN_EX.cash],['#dpn_propBasis',DPN_EX.propBasis]]);
+    function dpn_math(e){
+      const netDebt=e.debtAfter.v-e.debtBefore.v;
+      const afterDebt=Math.max(0,e.preBasis.v+netDebt);
+      const debtGain=Math.max(0,-(e.preBasis.v+netDebt));
+      let cashGain=0, afterCash=afterDebt;
+      if(e.cash.v>afterDebt){ cashGain=e.cash.v-afterDebt; afterCash=0; } else { afterCash=afterDebt-e.cash.v; }
+      const gain=debtGain+cashGain;
+      const propBasisTo=Math.min(e.propBasis.v,afterCash);
+      const post=afterCash-propBasisTo;
+      const distProp=e.cash.v+propBasisTo;
+      return {netDebt,afterDebt,debtGain,cashGain,gain,afterCash,propBasisTo,post,distProp};
+    }
+    function dpn_render(){
+      const host=q('#dpn_math'); if(!host) return; const e=dpn_eff(); const m=dpn_math(e);
+      q('#dpn_oGain').textContent=$(m.gain); q('#dpn_oPost').textContent=$(m.post); q('#dpn_oProp').textContent=$(m.distProp);
+      const rows=[
+        {kind:'sect',label:'<span class="sn">1</span> Debt shift adjusts outside basis <span class="op">(increase = deemed contribution, relief = deemed cash)</span>'},
+        {kind:'in',label:'Pre-distribution outside basis',amount:fv(e.preBasis.v,e.preBasis.ex)},
+        {kind:'in',label:(m.netDebt>=0?'<span class="op">+</span> Increase in share of debt (assumed)':'<span class="op">−</span> Debt relief (share decreased)'),how:'after '+$(e.debtAfter.v)+' − before '+$(e.debtBefore.v),amount:$(m.netDebt)},
+        {kind:'sub',label:'Outside basis after debt change',amount:$(m.afterDebt)},
+        (m.debtGain>0?{kind:'result',label:'Gain — debt relief exceeded basis',amount:$(m.debtGain)}:null),
+        {kind:'sect',label:'<span class="sn">2</span> Cash distribution <span class="op">(gain only if cash &gt; basis)</span>'},
+        {kind:'in',label:'Outside basis (from step 1)',amount:$(m.afterDebt)},
+        {kind:'in',label:'<span class="op">−</span> Cash distributed',amount:fv(e.cash.v,e.cash.ex)},
+        {kind:'sub',label:'Outside basis after cash',amount:$(m.afterCash)},
+        (m.cashGain>0?{kind:'result',label:'Gain — cash over basis',amount:$(m.cashGain)}:null),
+        {kind:'sect',label:'<span class="sn">3</span> Property distribution <span class="op">= lesser of (inside basis, remaining outside basis); no gain</span>'},
+        {kind:'in',label:'Partnership (inside) basis of property',amount:fv(e.propBasis.v,e.propBasis.ex)},
+        {kind:'in',label:'Remaining outside basis (from step 2)',amount:$(m.afterCash)},
+        {kind:'in',label:'Lesser of the two',how:'<code>min(inside basis, remaining basis)</code>',amount:$(m.propBasisTo)},
+        {kind:'sub',label:'Post-distribution outside basis',how:'remaining basis − property basis taken',amount:$(m.post)},
+        {kind:'sect',label:'<span class="sn">4</span> Answers'},
+        {kind:'result',label:'Gain (loss) recognized',amount:$(m.gain)},
+        {kind:'result',label:'Post-distribution basis in partnership interest',amount:$(m.post)},
+        {kind:'result',label:'Basis in property distributed',how:'cash at face + property carryover',amount:$(m.distProp)}
+      ].filter(Boolean);
+      U.setMath(host,{title:'Worked math — partnership distribution',subtitle:'Debt shift → cash (gain test) → property (carryover, limited).',mode:dpn_isLive()?'live':'example',rows:rows,foot:'Partnership recognizes <b>no</b> gain/loss. The partner recognizes gain only when <b>money</b> (cash + debt relief) exceeds outside basis. <i>Grey italic</i> = example default (blank field).'});
+      const hl=q('#dpn_headline'),hm=q('#dpn_hlMain'),hs=q('#dpn_hlSub'); const nm=q('#dpn_partner').value||'Partner';
+      hl.className='headline '+(m.gain>0?'warn':'good');
+      hm.textContent=nm+': gain '+$(m.gain)+' · outside basis '+$(m.post)+' · property basis '+$(m.distProp);
+      hs.textContent=(m.gain>0?'Money exceeded outside basis, so gain is recognized and basis is zeroed.':'No gain — property is taken at carryover basis (limited to remaining outside basis).');
+      const warn=q('#dpn_warn'); let w=[];
+      if(e.propBasis.v>m.afterCash && e.propBasis.v>0) w.push({err:false,t:'Property inside basis exceeds the partner\u2019s remaining outside basis — the property basis is limited (no step-up in a nonliquidating distribution).'});
+      if(q('#dpn_propType').value.indexOf('Inventory')===0 || q('#dpn_propType').value.indexOf('Inventory /')===0) w.push({err:false,t:'Hot assets (inventory/unrealized receivables) keep ordinary character; a 5-year taint applies to distributed inventory. Character not modeled here.'});
+      w.push({err:false,t:'One partner, one property at a time. Multiple properties, §751 disproportionate distributions, and liquidating distributions use additional allocation rules not modeled here.'});
+      warn.innerHTML=w.map(x=>'<div class="warnmsg'+(x.err?' err':'')+'"><span class="wi">'+(x.err?'⚠':'ℹ')+'</span><span>'+x.t+'</span></div>').join('');
+    }
+
+    /* ---------------- C-CORP ---------------- */
+    const DCC_EX={ep:120000,cash:100000,propFMV:160000,propBasis:90000,liab:60000,shBasis:50000};
+    const dcc_eff=()=>({ep:effOf('#dcc_ep',DCC_EX.ep),cash:effOf('#dcc_cash',DCC_EX.cash),propFMV:effOf('#dcc_propFMV',DCC_EX.propFMV),propBasis:effOf('#dcc_propBasis',DCC_EX.propBasis),liab:effOf('#dcc_liab',DCC_EX.liab),shBasis:effOf('#dcc_shBasis',DCC_EX.shBasis)});
+    const dcc_isLive=()=>isLiveOf([['#dcc_ep',DCC_EX.ep],['#dcc_cash',DCC_EX.cash],['#dcc_propFMV',DCC_EX.propFMV],['#dcc_propBasis',DCC_EX.propBasis],['#dcc_liab',DCC_EX.liab],['#dcc_shBasis',DCC_EX.shBasis]]);
+    function dcc_math(e){
+      const corpGain=Math.max(0,e.propFMV.v-e.propBasis.v);
+      const lossDisallowed=Math.max(0,e.propBasis.v-e.propFMV.v);
+      const amount=Math.max(0,e.cash.v+e.propFMV.v-e.liab.v);
+      const dividend=Math.max(0,Math.min(amount,e.ep.v));
+      const nonDiv=amount-dividend;
+      const roc=Math.max(0,Math.min(nonDiv,e.shBasis.v));
+      const endBasis=e.shBasis.v-roc;
+      const capGain=nonDiv-roc;
+      return {corpGain,lossDisallowed,amount,dividend,nonDiv,roc,endBasis,capGain,propBasis:e.propFMV.v};
+    }
+    function dcc_render(){
+      const host=q('#dcc_math'); if(!host) return; const e=dcc_eff(); const m=dcc_math(e);
+      q('#dcc_oCorp').textContent=$(m.corpGain); q('#dcc_oDiv').textContent=$(m.dividend); q('#dcc_oROC').textContent=$(m.roc); q('#dcc_oGain').textContent=$(m.capGain); q('#dcc_oProp').textContent=$(m.propBasis);
+      const rows=[
+        {kind:'sect',label:'<span class="sn">1</span> Corporation gain on appreciated property <span class="op">(§311(b) — no loss)</span>'},
+        {kind:'in',label:'Property FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
+        {kind:'in',label:'<span class="op">−</span> Corporation adjusted basis',amount:fv(e.propBasis.v,e.propBasis.ex)},
+        {kind:'result',label:'Corporation gain (loss not recognized)',how:'increases E&P',amount:$(m.corpGain)},
+        {kind:'sect',label:'<span class="sn">2</span> Amount distributed to the shareholder'},
+        {kind:'in',label:'Cash',amount:fv(e.cash.v,e.cash.ex)},
+        {kind:'in',label:'<span class="op">+</span> Property at FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
+        {kind:'in',label:'<span class="op">−</span> Liabilities assumed by shareholder',amount:fv(e.liab.v,e.liab.ex)},
+        {kind:'sub',label:'Amount of the distribution',amount:$(m.amount)},
+        {kind:'sect',label:'<span class="sn">3</span> Dividend income <span class="op">= lesser of (amount, total E&P)</span>'},
+        {kind:'in',label:'Amount distributed (step 2)',amount:$(m.amount)},
+        {kind:'in',label:'Total E&P',amount:fv(e.ep.v,e.ep.ex)},
+        {kind:'result',label:'Dividend income — ordinary',amount:$(m.dividend)},
+        {kind:'sect',label:'<span class="sn">4</span> Return of capital <span class="op">= lesser of (excess, stock basis)</span>'},
+        {kind:'in',label:'Non-dividend amount = amount − dividend',amount:$(m.nonDiv)},
+        {kind:'in',label:'Stock basis',amount:fv(e.shBasis.v,e.shBasis.ex)},
+        {kind:'sub',label:'Return of capital (reduces basis)',amount:$(m.roc)},
+        {kind:'sub',label:'Ending stock basis',amount:$(m.endBasis)},
+        {kind:'sect',label:'<span class="sn">5</span> Capital gain <span class="op">= non-dividend amount − return of capital</span>'},
+        {kind:'result',label:'Capital gain',amount:$(m.capGain)},
+        {kind:'sect',label:'<span class="sn">6</span> Shareholder basis in the property'},
+        {kind:'result',label:'Basis in distributed property (FMV, §301(d))',amount:$(m.propBasis)}
+      ];
+      U.setMath(host,{title:'Worked math — C-corp distribution',subtitle:'Corporation gain on appreciated property; then dividend → return of capital → capital gain.',mode:dcc_isLive()?'live':'example',rows:rows,foot:'Unlike a partnership, the <b>corporation recognizes gain</b> on appreciated property and the shareholder takes it at <b>FMV</b>. <i>Grey italic</i> = example default (blank field).'});
+      const hl=q('#dcc_headline'),hm=q('#dcc_hlMain'),hs=q('#dcc_hlSub');
+      hl.className='headline '+(m.capGain>0?'warn':'info');
+      hm.textContent='Corp gain '+$(m.corpGain)+' · dividend '+$(m.dividend)+' · ROC '+$(m.roc)+' · capital gain '+$(m.capGain);
+      hs.textContent='Shareholder takes the property at FMV '+$(m.propBasis)+'; ending stock basis '+$(m.endBasis)+'.';
+      const warn=q('#dcc_warn'); let w=[];
+      if(m.lossDisallowed>0) w.push({err:false,t:'Property is depreciated — the corporation does NOT recognize the '+$(m.lossDisallowed)+' loss (§311(a)).'});
+      w.push({err:false,t:'E&P is increased by the gain on appreciated property and reduced by the distribution (FMV, net of liabilities). Enter total E&P as your final figure. Simplified — E&P adjustments not fully modeled.'});
+      warn.innerHTML=w.map(x=>'<div class="warnmsg'+(x.err?' err':'')+'"><span class="wi">'+(x.err?'⚠':'ℹ')+'</span><span>'+x.t+'</span></div>').join('');
+    }
+
+    /* ---------------- S-CORP ---------------- */
+    const DSC_EX={shBasisBefore:100000,ownPct:100,cash:100000,propFMV:160000,propBasis:90000,liab:0};
+    const dsc_eff=()=>({shBasisBefore:effOf('#dsc_shBasisBefore',DSC_EX.shBasisBefore),ownPct:effOf('#dsc_ownPct',DSC_EX.ownPct),cash:effOf('#dsc_cash',DSC_EX.cash),propFMV:effOf('#dsc_propFMV',DSC_EX.propFMV),propBasis:effOf('#dsc_propBasis',DSC_EX.propBasis),liab:effOf('#dsc_liab',DSC_EX.liab)});
+    const dsc_isLive=()=>isLiveOf([['#dsc_shBasisBefore',DSC_EX.shBasisBefore],['#dsc_ownPct',DSC_EX.ownPct],['#dsc_cash',DSC_EX.cash],['#dsc_propFMV',DSC_EX.propFMV],['#dsc_propBasis',DSC_EX.propBasis],['#dsc_liab',DSC_EX.liab]]);
+    function dsc_math(e){
+      const corpGain=Math.max(0,e.propFMV.v-e.propBasis.v);
+      const passGain=corpGain*(e.ownPct.v/100);
+      const basisAfterGain=e.shBasisBefore.v+passGain;
+      const amount=Math.max(0,e.cash.v+e.propFMV.v-e.liab.v);
+      const rob=Math.min(amount,basisAfterGain);
+      const endBasis=basisAfterGain-rob;
+      const capGain=amount-rob;
+      return {corpGain,passGain,basisAfterGain,amount,rob,endBasis,capGain,propBasis:e.propFMV.v};
+    }
+    function dsc_render(){
+      const host=q('#dsc_math'); if(!host) return; const e=dsc_eff(); const m=dsc_math(e);
+      q('#dsc_oPass').textContent=$(m.passGain); q('#dsc_oROB').textContent=$(m.rob); q('#dsc_oGain').textContent=$(m.capGain); q('#dsc_oEnd').textContent=$(m.endBasis); q('#dsc_oProp').textContent=$(m.propBasis);
+      const rows=[
+        {kind:'sect',label:'<span class="sn">1</span> Corporation gain on appreciated property passes through <span class="op">(§311(b)/§1371)</span>'},
+        {kind:'in',label:'Property FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
+        {kind:'in',label:'<span class="op">−</span> Corporation adjusted basis',amount:fv(e.propBasis.v,e.propBasis.ex)},
+        {kind:'sub',label:'Corporation gain (no loss)',amount:$(m.corpGain)},
+        {kind:'in',label:'<span class="op">×</span> Ownership %',amount:U.fmtPct(e.ownPct.v/100,0)},
+        {kind:'result',label:'Pass-through gain — taxable to shareholder',amount:$(m.passGain)},
+        {kind:'sect',label:'<span class="sn">2</span> Pass-through gain increases stock basis first'},
+        {kind:'in',label:'Stock basis before',amount:fv(e.shBasisBefore.v,e.shBasisBefore.ex)},
+        {kind:'in',label:'<span class="op">+</span> Pass-through gain (step 1)',amount:$(m.passGain)},
+        {kind:'sub',label:'Stock basis after gain',amount:$(m.basisAfterGain)},
+        {kind:'sect',label:'<span class="sn">3</span> Amount of the distribution'},
+        {kind:'in',label:'Cash',amount:fv(e.cash.v,e.cash.ex)},
+        {kind:'in',label:'<span class="op">+</span> Property at FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
+        {kind:'in',label:'<span class="op">−</span> Liabilities assumed',amount:fv(e.liab.v,e.liab.ex)},
+        {kind:'sub',label:'Amount of the distribution',amount:$(m.amount)},
+        {kind:'sect',label:'<span class="sn">4</span> Distribution (no accumulated E&P): tax-free to basis, excess = capital gain'},
+        {kind:'in',label:'Amount distributed (step 3)',amount:$(m.amount)},
+        {kind:'in',label:'Stock basis after gain (step 2)',amount:$(m.basisAfterGain)},
+        {kind:'sub',label:'Tax-free return of basis',how:'<code>min(amount, basis)</code>',amount:$(m.rob)},
+        {kind:'sub',label:'Ending stock basis',amount:$(m.endBasis)},
+        {kind:'result',label:'Capital gain (amount over basis)',amount:$(m.capGain)},
+        {kind:'sect',label:'<span class="sn">5</span> Shareholder basis in the property'},
+        {kind:'result',label:'Basis in distributed property (FMV)',amount:$(m.propBasis)}
+      ];
+      U.setMath(host,{title:'Worked math — S-corp distribution',subtitle:'Gain passes through (basis up first), then tax-free to basis, then capital gain.',mode:dsc_isLive()?'live':'example',rows:rows,foot:'The gain on appreciated property <b>passes through and raises basis</b> before the distribution is tested. Property to the shareholder at <b>FMV</b>. <i>Grey italic</i> = example default (blank field).'});
+      const hl=q('#dsc_headline'),hm=q('#dsc_hlMain'),hs=q('#dsc_hlSub');
+      hl.className='headline '+(m.capGain>0?'warn':'good');
+      hm.textContent='Pass-through gain '+$(m.passGain)+' · return of basis '+$(m.rob)+' · capital gain '+$(m.capGain);
+      hs.textContent='Ending stock basis '+$(m.endBasis)+'; property taken at FMV '+$(m.propBasis)+'.';
+      const warn=q('#dsc_warn'); let w=[];
+      if(q('#dsc_hasEP').value==='Yes') w.push({err:true,t:'Accumulated E&P present: ordering becomes AAA (tax-free to basis) → E&P (dividend) → remaining basis → capital gain. This calculator models the no-E&P case only.'});
+      if(Math.max(0,e.propBasis.v-e.propFMV.v)>0) w.push({err:false,t:'Property is depreciated — no loss passes through (§311(a) applies to S-corps too).'});
+      w.push({err:false,t:'Simplified: single distribution, no accumulated E&P by default, character of the pass-through gain follows the asset. Not a full return.'});
+      warn.innerHTML=w.map(x=>'<div class="warnmsg'+(x.err?' err':'')+'"><span class="wi">'+(x.err?'⚠':'ℹ')+'</span><span>'+x.t+'</span></div>').join('');
+    }
+
+    const recompute=()=>{ try{dpn_render();}catch(e){console.error(e);} try{dcc_render();}catch(e){console.error(e);} try{dsc_render();}catch(e){console.error(e);} };
+    root.addEventListener('input',recompute);
+    root.addEventListener('change',recompute);
+
+    const setVals=(map)=>{ Object.keys(map).forEach(function(id){ const el=q(id); if(el) el.value=map[id]; }); };
+    const rp=q('#dpn_reset'); if(rp) rp.addEventListener('click',()=>{ setVals({'#dpn_partner':'Janet','#dpn_preBasis':'115,000','#dpn_debtBefore':'20,000','#dpn_debtAfter':'0','#dpn_cash':'100,000','#dpn_propBasis':'0','#dpn_propFMV':'0'}); q('#dpn_propType').value='None / cash only'; recompute(); U.toast('Reset to Janet (JKL Partnership)'); });
+    const rc=q('#dcc_reset'); if(rc) rc.addEventListener('click',()=>{ setVals({'#dcc_ep':'120,000','#dcc_cash':'100,000','#dcc_propFMV':'160,000','#dcc_propBasis':'90,000','#dcc_liab':'60,000','#dcc_shBasis':'50,000'}); recompute(); U.toast('Reset to C-corp example'); });
+    const rs=q('#dsc_reset'); if(rs) rs.addEventListener('click',()=>{ setVals({'#dsc_shBasisBefore':'100,000','#dsc_ownPct':'100','#dsc_cash':'100,000','#dsc_propFMV':'160,000','#dsc_propBasis':'90,000','#dsc_liab':'0'}); q('#dsc_hasEP').value='No'; recompute(); U.toast('Reset to S-corp example'); });
+
+    recompute();
+  },
+
+  summary: function(root){
+    const q=(sel)=>root.querySelector(sel); const n=U.num0; const $=U.fmtUSD;
+    const L=['NONLIQUIDATING DISTRIBUTIONS — Partnership / C-corp / S-corp','',
+      'PARTNERSHIP ('+(q('#dpn_partner').value||'Partner')+')',
+      '  Pre-distribution outside basis: '+$(n(q('#dpn_preBasis').value))+'; debt '+$(n(q('#dpn_debtBefore').value))+' → '+$(n(q('#dpn_debtAfter').value))+'; cash '+$(n(q('#dpn_cash').value))+'; property inside basis '+$(n(q('#dpn_propBasis').value)),
+      '  Gain: '+q('#dpn_oGain').textContent+'; post-distribution basis: '+q('#dpn_oPost').textContent+'; property basis: '+q('#dpn_oProp').textContent,'',
+      'C-CORP',
+      '  E&P '+$(n(q('#dcc_ep').value))+'; cash '+$(n(q('#dcc_cash').value))+'; property FMV '+$(n(q('#dcc_propFMV').value))+'/basis '+$(n(q('#dcc_propBasis').value))+'; liab assumed '+$(n(q('#dcc_liab').value))+'; stock basis '+$(n(q('#dcc_shBasis').value)),
+      '  Corp gain: '+q('#dcc_oCorp').textContent+'; dividend: '+q('#dcc_oDiv').textContent+'; ROC: '+q('#dcc_oROC').textContent+'; capital gain: '+q('#dcc_oGain').textContent+'; property basis (FMV): '+q('#dcc_oProp').textContent,'',
+      'S-CORP',
+      '  Stock basis '+$(n(q('#dsc_shBasisBefore').value))+'; ownership '+(q('#dsc_ownPct').value||'')+'%; cash '+$(n(q('#dsc_cash').value))+'; property FMV '+$(n(q('#dsc_propFMV').value))+'/basis '+$(n(q('#dsc_propBasis').value)),
+      '  Pass-through gain: '+q('#dsc_oPass').textContent+'; tax-free return of basis: '+q('#dsc_oROB').textContent+'; capital gain: '+q('#dsc_oGain').textContent+'; ending basis: '+q('#dsc_oEnd').textContent+'; property basis (FMV): '+q('#dsc_oProp').textContent,'',
+      'Education/planning only — review with a qualified tax advisor before relying on this.'];
+    return L.join('\n');
+  }
+});
+</script>
+
 </body>
 </html>
