@@ -4034,7 +4034,7 @@ registerPage({
         {kind:'in',key:'p_cash',label:'<span class="op">−</span> Cash distributed',amount:fv(e.cash.v,e.cash.ex)},
         {kind:'sub',key:'p_afterCash',label:'Outside basis after cash',amount:$(m.afterCash)},
         (m.cashGain>0?{kind:'result',key:'p_cashGain',label:'Gain — cash over basis',amount:$(m.cashGain)}:null),
-        {kind:'sect',label:'<span class="sn">3</span> Property distribution <span class="op">= lesser of (inside basis, remaining outside basis); no gain</span>'},
+        {kind:'sect',key:'p_s3',label:'<span class="sn">3</span> Property distribution <span class="op">= lesser of (inside basis, remaining outside basis); no gain</span>'},
         {kind:'in',label:'Partnership (inside) basis of property',amount:fv(e.propBasis.v,e.propBasis.ex)},
         {kind:'in',label:'Remaining outside basis (from step 2)',amount:$(m.afterCash)},
         {kind:'in',label:'Lesser of the two',how:'<code>min(inside basis, remaining basis)</code>',amount:$(m.propBasisTo)},
@@ -4084,13 +4084,13 @@ registerPage({
       let step3=[];
       if(m.isCap){
         step3=[
-          {kind:'sect',label:'<span class="sn">3</span> Assign remaining basis to property <span class="op">(substituted basis, §732(b))</span>'},
+          {kind:'sect',key:'p_s3',label:'<span class="sn">3</span> Assign remaining basis to property <span class="op">(substituted basis, §732(b))</span>'},
           {kind:'in',label:'Remaining outside basis (from step 2)',amount:$(m.afterCash)},
           {kind:'sub',label:'Basis in distributed property',how:'entire remaining basis absorbed (step-up or step-down vs. inside basis '+$(e.propBasis.v)+')',amount:$(m.propBasisTo)}
         ];
       } else if(m.isHot){
         step3=[
-          {kind:'sect',label:'<span class="sn">3</span> Hot assets take carryover basis; excess basis = loss'},
+          {kind:'sect',key:'p_s3',label:'<span class="sn">3</span> Hot assets take carryover basis; excess basis = loss'},
           {kind:'in',label:'Partnership (inside) basis of hot assets',amount:fv(e.propBasis.v,e.propBasis.ex)},
           {kind:'in',label:'Remaining outside basis (from step 2)',amount:$(m.afterCash)},
           {kind:'sub',label:'Basis in hot assets',how:'<code>min(inside basis, remaining basis)</code>',amount:$(m.propBasisTo)},
@@ -4098,7 +4098,7 @@ registerPage({
         ].filter(Boolean);
       } else {
         step3=[
-          {kind:'sect',label:'<span class="sn">3</span> Money-only liquidation — remaining basis is a loss <span class="op">(§731(a)(2))</span>'},
+          {kind:'sect',key:'p_s3',label:'<span class="sn">3</span> Money-only liquidation — remaining basis is a loss <span class="op">(§731(a)(2))</span>'},
           {kind:'in',label:'Remaining outside basis (from step 2)',amount:$(m.afterCash)},
           {kind:'result',label:'Capital loss recognized',amount:'('+$(m.loss)+')'}
         ];
@@ -4160,11 +4160,11 @@ registerPage({
         {kind:'in',key:'c_addFMV',label:'<span class="op">+</span> Property at FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
         {kind:'in',key:'c_liab',label:'<span class="op">−</span> Liabilities assumed by shareholder',amount:fv(e.liab.v,e.liab.ex)},
         {kind:'sub',key:'c_amount',label:'Amount of the distribution',amount:$(m.amount)},
-        {kind:'sect',label:'<span class="sn">3</span> Dividend income <span class="op">= lesser of (amount, total E&P)</span>'},
+        {kind:'sect',key:'c_s3',label:'<span class="sn">3</span> Dividend income <span class="op">= lesser of (amount, total E&P)</span>'},
         {kind:'in',label:'Amount distributed (step 2)',amount:$(m.amount)},
         {kind:'in',label:'Total E&P',amount:fv(e.ep.v,e.ep.ex)},
         {kind:'result',label:'Dividend income — ordinary',amount:$(m.dividend)},
-        {kind:'sect',label:'<span class="sn">4</span> Return of capital <span class="op">= lesser of (excess, stock basis)</span>'},
+        {kind:'sect',key:'c_s4',label:'<span class="sn">4</span> Return of capital <span class="op">= lesser of (excess, stock basis)</span>'},
         {kind:'in',label:'Non-dividend amount = amount − dividend',amount:$(m.nonDiv)},
         {kind:'in',label:'Stock basis',amount:fv(e.shBasis.v,e.shBasis.ex)},
         {kind:'sub',label:'Return of capital (reduces basis)',amount:$(m.roc)},
@@ -4208,11 +4208,11 @@ registerPage({
         {kind:'in',key:'c_addFMV',label:'<span class="op">+</span> Property at FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
         {kind:'in',key:'c_liab',label:'<span class="op">−</span> Liabilities assumed by shareholder',amount:fv(e.liab.v,e.liab.ex)},
         {kind:'sub',key:'c_amount',label:'Amount realized',amount:$(m.amount)},
-        {kind:'sect',label:'<span class="sn">3</span> Shareholder capital gain / (loss) <span class="op">(§331 — sale of stock; E&P irrelevant)</span>'},
+        {kind:'sect',key:'c_s3',label:'<span class="sn">3</span> Shareholder capital gain / (loss) <span class="op">(§331 — sale of stock; E&P irrelevant)</span>'},
         {kind:'in',label:'Amount realized (step 2)',amount:$(m.amount)},
         {kind:'in',label:'<span class="op">−</span> Stock basis',amount:fv(e.shBasis.v,e.shBasis.ex)},
         {kind:'result',label:'Capital gain / (loss)',amount:par(m.shGL)},
-        {kind:'sect',label:'<span class="sn">4</span> Shareholder basis in the property'},
+        {kind:'sect',key:'c_s4',label:'<span class="sn">4</span> Shareholder basis in the property'},
         {kind:'result',key:'c_propBasisAns',label:'Basis in distributed property (FMV, §334(a))',amount:$(m.propBasis)}
       ];
       U.setMath(host,{title:'Worked math — C-corp, liquidating',subtitle:'Corporation gain AND loss at FMV (§336); shareholder capital gain/loss as a sale of stock (§331). No dividend, no E&P.',mode:dcl_isLive()?'live':'example',rows:rows,foot:'A complete liquidation is a <b>sale of the stock</b>: the corporation recognizes gain <b>and loss</b> (§336) and the shareholder has a <b>capital gain/loss</b> (§331) — <b>E&P is irrelevant</b>. Same facts, very different answer from the operating calculator at left. <i>Grey italic</i> = example default (blank field).'});
@@ -4259,13 +4259,13 @@ registerPage({
         {kind:'in',key:'s_addFMV',label:'<span class="op">+</span> Property at FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
         {kind:'in',key:'s_liab',label:'<span class="op">−</span> Liabilities assumed',amount:fv(e.liab.v,e.liab.ex)},
         {kind:'sub',key:'s_amount',label:'Amount of the distribution',amount:$(m.amount)},
-        {kind:'sect',label:'<span class="sn">4</span> Distribution (no accumulated E&P): tax-free to basis, excess = capital gain'},
+        {kind:'sect',key:'s_s4',label:'<span class="sn">4</span> Distribution (no accumulated E&P): tax-free to basis, excess = capital gain'},
         {kind:'in',label:'Amount distributed (step 3)',amount:$(m.amount)},
         {kind:'in',label:'Stock basis after gain (step 2)',amount:$(m.basisAfterGain)},
         {kind:'sub',label:'Tax-free return of basis',how:'<code>min(amount, basis)</code>',amount:$(m.rob)},
         {kind:'sub',label:'Ending stock basis',amount:$(m.endBasis)},
         {kind:'result',label:'Capital gain (amount over basis)',amount:$(m.capGain)},
-        {kind:'sect',label:'<span class="sn">5</span> Shareholder basis in the property'},
+        {kind:'sect',key:'s_s5',label:'<span class="sn">5</span> Shareholder basis in the property'},
         {kind:'result',key:'s_propBasisAns',label:'Basis in distributed property (FMV)',amount:$(m.propBasis)}
       ];
       U.setMath(host,{title:'Worked math — S-corp, operating',subtitle:'Gain passes through (basis up first), then tax-free to basis, then capital gain. Stock continues.',mode:dsc_isLive()?'live':'example',rows:rows,foot:'The gain on appreciated property <b>passes through and raises basis</b> before the distribution is tested; property to the shareholder at <b>FMV</b>. In a liquidation (right) losses also pass through and any leftover basis becomes a capital loss. <i>Grey italic</i> = example default (blank field).'});
@@ -4311,11 +4311,11 @@ registerPage({
         {kind:'in',key:'s_addFMV',label:'<span class="op">+</span> Property at FMV',amount:fv(e.propFMV.v,e.propFMV.ex)},
         {kind:'in',key:'s_liab',label:'<span class="op">−</span> Liabilities assumed',amount:fv(e.liab.v,e.liab.ex)},
         {kind:'sub',key:'s_amount',label:'Amount realized',amount:$(m.amount)},
-        {kind:'sect',label:'<span class="sn">4</span> Shareholder capital gain / (loss) <span class="op">(§331 — sale of stock)</span>'},
+        {kind:'sect',key:'s_s4',label:'<span class="sn">4</span> Shareholder capital gain / (loss) <span class="op">(§331 — sale of stock)</span>'},
         {kind:'in',label:'Amount realized (step 3)',amount:$(m.amount)},
         {kind:'in',label:'<span class="op">−</span> Adjusted stock basis (step 2)',amount:$(m.basisAfter)},
         {kind:'result',label:'Capital gain / (loss)',how:'unused basis becomes a capital loss',amount:par(m.shGL)},
-        {kind:'sect',label:'<span class="sn">5</span> Shareholder basis in the property'},
+        {kind:'sect',key:'s_s5',label:'<span class="sn">5</span> Shareholder basis in the property'},
         {kind:'result',key:'s_propBasisAns',label:'Basis in distributed property (FMV)',amount:$(m.propBasis)}
       ];
       U.setMath(host,{title:'Worked math — S-corp, liquidating',subtitle:'Gain AND loss pass through and adjust basis; then a stock sale (§331). Leftover basis = capital loss.',mode:dsl_isLive()?'live':'example',rows:rows,foot:'Like a C-corp under §336 the corporation recognizes gain <b>and loss</b>, but here it <b>passes through</b> and adjusts basis; the liquidation is then a <b>stock sale</b> (§331). In the no-loss gain case the answer often matches the operating result — the differences are <b>loss recognition</b> and that <b>leftover basis becomes a capital loss</b>. <i>Grey italic</i> = example default (blank field).'});
