@@ -3679,6 +3679,15 @@ registerPage({
       /* Uniform result-box height in two-column mode so paired worked-math tables start
          level even when the liquidating labels ("gain / (loss)") wrap to more lines. */
       @media (min-width:921px){ .dcmp-grid .bignum{min-height:92px;} }
+      /* Fixed, identical worked-math columns so the SAME label wraps the same way on
+         both sides (left & right), giving matching row heights. */
+      .dcmp-grid table.mtable{table-layout:fixed;}
+      .dcmp-grid table.mtable th:nth-child(1),.dcmp-grid table.mtable td:nth-child(1){width:44%;}
+      .dcmp-grid table.mtable th:nth-child(2),.dcmp-grid table.mtable td:nth-child(2){width:34%;}
+      .dcmp-grid table.mtable th:nth-child(3),.dcmp-grid table.mtable td:nth-child(3){width:22%;word-break:break-word;}
+      /* Spacer inserted above the shorter table's ANSWERS block so the final green
+         result numbers line up (the two calcs have a different number of steps). */
+      .dcmp-grid table.mtable tr.mpad td{border-left:1px solid var(--line);border-right:1px solid var(--line);border-top:0;border-bottom:0;background:var(--bg);}
       @media (max-width:920px){ .dcmp-grid{grid-template-columns:1fr;} }
     </style>
 
@@ -4319,6 +4328,39 @@ registerPage({
       warn.innerHTML=w.map(x=>'<div class="warnmsg'+(x.err?' err':'')+'"><span class="wi">'+(x.err?'⚠':'ℹ')+'</span><span>'+x.t+'</span></div>').join('');
     }
 
+    /* Line up the two worked-math tables of a pair so their final green ANSWER numbers
+       sit at the same height. The operating and liquidating calcs have a different
+       number of steps, so we push the shorter side's ANSWERS block down with a
+       pixel-exact spacer. Only in two-column mode, and only when both tables are open. */
+    function alignMathPair(idA, idB){
+      const hostA=q(idA), hostB=q(idB); if(!hostA||!hostB) return;
+      Array.prototype.forEach.call(hostA.querySelectorAll('tr.mpad'),function(r){r.remove();});
+      Array.prototype.forEach.call(hostB.querySelectorAll('tr.mpad'),function(r){r.remove();});
+      if(window.innerWidth<921) return;
+      const dA=hostA.querySelector('details.mwrap'), dB=hostB.querySelector('details.mwrap');
+      if(!dA||!dB||!dA.open||!dB.open) return;
+      function parts(host){
+        const rows=host.querySelectorAll('table.mtable tbody > tr');
+        let lastSect=-1;
+        for(let i=0;i<rows.length;i++){ if(rows[i].classList.contains('sect')) lastSect=i; }
+        if(lastSect<0) return null;
+        let ans=rows[lastSect];
+        for(let j=lastSect+1;j<rows.length;j++){ if(rows[j].classList.contains('result')||rows[j].classList.contains('sub')){ ans=rows[j]; break; } }
+        return {sect:rows[lastSect], ans:ans};
+      }
+      const pA=parts(hostA), pB=parts(hostB); if(!pA||!pB) return;
+      const diff=Math.round(pA.ans.getBoundingClientRect().top - pB.ans.getBoundingClientRect().top);
+      if(Math.abs(diff)<3) return;
+      function spacer(px){ const tr=document.createElement('tr'); tr.className='mpad'; tr.innerHTML='<td colspan="3" style="height:'+px+'px;padding:0"></td>'; return tr; }
+      if(diff>0){ pB.sect.parentNode.insertBefore(spacer(diff), pB.sect); }
+      else { pA.sect.parentNode.insertBefore(spacer(-diff), pA.sect); }
+    }
+    function alignAllMath(){
+      try{ alignMathPair('#dpn_math','#dpl_math'); }catch(e){console.error(e);}
+      try{ alignMathPair('#dcc_math','#dcl_math'); }catch(e){console.error(e);}
+      try{ alignMathPair('#dsc_math','#dsl_math'); }catch(e){console.error(e);}
+    }
+
     const recompute=()=>{
       try{dpn_render();}catch(e){console.error(e);}
       try{dpl_render();}catch(e){console.error(e);}
@@ -4326,9 +4368,12 @@ registerPage({
       try{dcl_render();}catch(e){console.error(e);}
       try{dsc_render();}catch(e){console.error(e);}
       try{dsl_render();}catch(e){console.error(e);}
+      alignAllMath();
     };
     root.addEventListener('input',recompute);
     root.addEventListener('change',recompute);
+    root.addEventListener('toggle', function(e){ if(e.target && e.target.classList && e.target.classList.contains('mwrap')) alignAllMath(); }, true);
+    if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ try{alignAllMath();}catch(e){} }); }
 
     const setVals=(map)=>{ Object.keys(map).forEach(function(id){ const el=q(id); if(el) el.value=map[id]; }); };
 
