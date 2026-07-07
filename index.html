@@ -3678,8 +3678,12 @@ registerPage({
       .dcmp-grid .grid .field{display:flex;flex-direction:column;}
       .dcmp-grid .grid .field .ipt{margin-top:auto;}
       /* Uniform result-box height in two-column mode so paired worked-math tables start
-         level even when the liquidating labels ("gain / (loss)") wrap to more lines. */
-      @media (min-width:921px){ .dcmp-grid .bignum{min-height:92px;} }
+         level; and bottom-align the value so every $ sits on one line even when some
+         labels wrap to two lines and others to one. */
+      @media (min-width:921px){
+        .dcmp-grid .bignum{min-height:92px;display:flex;flex-direction:column;}
+        .dcmp-grid .bignum .bn-val{margin-top:auto;}
+      }
       /* Fixed, identical worked-math columns so the SAME label wraps the same way on
          both sides (left & right), giving matching row heights. */
       .dcmp-grid table.mtable{table-layout:fixed;}
